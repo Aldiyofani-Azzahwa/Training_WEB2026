@@ -1,0 +1,284 @@
+@import "tailwindcss";
+
+@theme {
+  /*
+  |--------------------------------------------------------------------------
+  | Typography
+  |--------------------------------------------------------------------------
+  */
+
+  --font-sans:
+    "IBM Plex Sans Variable",
+    "IBM Plex Sans",
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  /*
+  |--------------------------------------------------------------------------
+  | SIPBPNT Primary Red
+  |--------------------------------------------------------------------------
+  */
+
+  --color-brand-50: #fff4f3;
+  --color-brand-100: #ffe4e2;
+  --color-brand-200: #ffc9c5;
+  --color-brand-300: #ffa29c;
+  --color-brand-400: #f86b63;
+  --color-brand-500: #e8312d;
+  --color-brand-600: #d52622;
+  --color-brand-700: #b31f1c;
+  --color-brand-800: #941f1d;
+  --color-brand-900: #7b211f;
+
+  /*
+  |--------------------------------------------------------------------------
+  | SIPBPNT Yellow
+  |--------------------------------------------------------------------------
+  */
+
+  --color-accent-50: #fffaf0;
+  --color-accent-100: #fff1d3;
+  --color-accent-200: #ffe1a6;
+  --color-accent-300: #ffc95f;
+  --color-accent-400: #ffaf1c;
+  --color-accent-500: #f59e0b;
+  --color-accent-600: #d97706;
+
+  /*
+  |--------------------------------------------------------------------------
+  | SIPBPNT Green
+  |--------------------------------------------------------------------------
+  */
+
+  --color-government-green-50: #effbf7;
+  --color-government-green-100: #d8f4e9;
+  --color-government-green-200: #afe8d6;
+  --color-government-green-300: #78d4ba;
+  --color-government-green-400: #3db798;
+  --color-government-green-500: #006855;
+  --color-government-green-600: #005646;
+  --color-government-green-700: #064539;
+  --color-government-green-800: #07382f;
+  --color-government-green-900: #062f28;
+
+  /*
+  |--------------------------------------------------------------------------
+  | Cream Background
+  |--------------------------------------------------------------------------
+  */
+
+  --color-cream-50: #fffdfb;
+  --color-cream-100: #fff8f3;
+  --color-cream-200: #fff0e7;
+  --color-cream-300: #ffe4d5;
+
+  /*
+  |--------------------------------------------------------------------------
+  | Neutral Government Colors
+  |--------------------------------------------------------------------------
+  */
+
+  --color-government-50: #f9fafb;
+  --color-government-100: #f3f4f6;
+  --color-government-200: #ececec;
+  --color-government-300: #d1d5db;
+  --color-government-400: #9ca3af;
+  --color-government-500: #6b7280;
+  --color-government-600: #4b5563;
+  --color-government-700: #374151;
+  --color-government-800: #1f2937;
+  --color-government-900: #111827;
+
+  /*
+  |--------------------------------------------------------------------------
+  | Shadow
+  |--------------------------------------------------------------------------
+  */
+
+  --shadow-soft:
+    0 8px 28px rgb(31 41 55 / 0.05);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Wave Animation
+|--------------------------------------------------------------------------
+*/
+
+@keyframes wave-move-left {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes wave-move-right {
+  from {
+    transform: translate3d(-50%, 0, 0);
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Base Style
+|--------------------------------------------------------------------------
+*/
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: hidden;
+
+    background-color: #ffffff;
+    color: #1f2937;
+
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.7;
+
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  ::selection {
+    color: #ffffff;
+    background-color: #e8312d;
+  }
+
+  :focus-visible {
+    outline: 3px solid rgb(232 49 45 / 0.28);
+    outline-offset: 3px;
+  }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Utility Animation
+|--------------------------------------------------------------------------
+*/
+
+@layer utilities {
+  .wave-move-left {
+    animation-name: wave-move-left;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    will-change: transform;
+  }
+
+  .wave-move-right {
+    animation-name: wave-move-right;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    will-change: transform;
+  }
+
+  .reveal-base {
+    opacity: 0;
+
+    transition:
+      opacity 650ms ease,
+      transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
+
+    transition-delay: var(
+      --reveal-delay,
+      0ms
+    );
+
+    will-change: opacity, transform;
+  }
+
+  .reveal-from-left {
+    transform: translate3d(-28px, 0, 0);
+  }
+
+  .reveal-from-right {
+    transform: translate3d(28px, 0, 0);
+  }
+
+  .reveal-from-up {
+    transform: translate3d(0, 24px, 0);
+  }
+
+  .reveal-pop {
+    transform:
+      translate3d(0, 12px, 0)
+      scale(0.965);
+  }
+
+  .reveal-base.is-revealed {
+    opacity: 1;
+    transform:
+      translate3d(0, 0, 0)
+      scale(1);
+  }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Reduced Motion
+|--------------------------------------------------------------------------
+*/
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .reveal-base {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

@@ -1,0 +1,19 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Repositories;
+
+use App\Contracts\Repositories\AuditLogRepositoryInterface;
+use App\Models\AuditLog;
+
+final class EloquentAuditLogRepository
+    implements AuditLogRepositoryInterface
+{
+    public function record(
+        array $data
+    ): void {
+        AuditLog::query()
+            ->create($data);
+    }
+}
