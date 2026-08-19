@@ -15,10 +15,12 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\QueryException;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Tests\TestCase;
+
 
 class BnbaImportTest extends TestCase
 {
@@ -39,10 +41,10 @@ class BnbaImportTest extends TestCase
         $surveyor =
             User::factory()->create([
                 'role'
-                    => UserRole::SURVEYOR,
+                => UserRole::SURVEYOR,
 
                 'is_active'
-                    => true,
+                => true,
             ]);
 
         $this->actingAs($surveyor)
@@ -59,25 +61,25 @@ class BnbaImportTest extends TestCase
         $admin =
             User::factory()->create([
                 'role'
-                    => UserRole::ADMIN_DINSOS,
+                => UserRole::ADMIN_DINSOS,
 
                 'is_active'
-                    => true,
+                => true,
             ]);
 
         $period =
             BpntPeriod::query()->create([
                 'code'
-                    => 'BPNT-2026-01',
+                => 'BPNT-2026-01',
 
                 'name'
-                    => 'Periode Uji 2026',
+                => 'Periode Uji 2026',
 
                 'year'
-                    => 2026,
+                => 2026,
 
                 'is_active'
-                    => true,
+                => true,
             ]);
 
         $file =
@@ -90,14 +92,14 @@ class BnbaImportTest extends TestCase
                     '/api/v1/bnba/imports',
                     [
                         'period_id'
-                            => $period->id,
+                        => $period->id,
 
                         'file'
-                            => $file,
+                        => $file,
                     ],
                     [
                         'Accept'
-                            => 'application/json',
+                        => 'application/json',
                     ]
                 );
 
@@ -129,7 +131,7 @@ class BnbaImportTest extends TestCase
             );
 
         $importId =
-            (int)
+            (int) 
             $upload->json(
                 'data.id'
             );
@@ -139,7 +141,7 @@ class BnbaImportTest extends TestCase
                 ->actingAs($admin)
                 ->getJson(
                     "/api/v1/bnba/imports/"
-                    ."{$importId}/preview"
+                    . "{$importId}/preview"
                 );
 
         $preview
@@ -158,7 +160,7 @@ class BnbaImportTest extends TestCase
             );
 
         $maskedNik =
-            (string)
+            (string) 
             $preview->json(
                 'data.rows.0.nik'
             );
@@ -179,7 +181,7 @@ class BnbaImportTest extends TestCase
                 ->actingAs($admin)
                 ->postJson(
                     "/api/v1/bnba/imports/"
-                    ."{$importId}/confirm"
+                    . "{$importId}/confirm"
                 );
 
         $confirm
@@ -187,7 +189,7 @@ class BnbaImportTest extends TestCase
             ->assertJsonPath(
                 'data.status',
                 BnbaImportStatus
-                    ::CONFIRMED
+                ::CONFIRMED
                     ->value
             );
 
@@ -205,10 +207,10 @@ class BnbaImportTest extends TestCase
             'bpnt_participants',
             [
                 'bpnt_period_id'
-                    => $period->id,
+                => $period->id,
 
                 'entitlement_amount'
-                    => 450000,
+                => 450000,
             ]
         );
 
@@ -231,25 +233,25 @@ class BnbaImportTest extends TestCase
         $admin =
             User::factory()->create([
                 'role'
-                    => UserRole::ADMIN_DINSOS,
+                => UserRole::ADMIN_DINSOS,
 
                 'is_active'
-                    => true,
+                => true,
             ]);
 
         $period =
             BpntPeriod::query()->create([
                 'code'
-                    => 'BPNT-2026-DUP',
+                => 'BPNT-2026-DUP',
 
                 'name'
-                    => 'Periode Duplicate',
+                => 'Periode Duplicate',
 
                 'year'
-                    => 2026,
+                => 2026,
 
                 'is_active'
-                    => true,
+                => true,
             ]);
 
         $file =
@@ -264,14 +266,14 @@ class BnbaImportTest extends TestCase
                     '/api/v1/bnba/imports',
                     [
                         'period_id'
-                            => $period->id,
+                        => $period->id,
 
                         'file'
-                            => $file,
+                        => $file,
                     ],
                     [
                         'Accept'
-                            => 'application/json',
+                        => 'application/json',
                     ]
                 );
 
@@ -296,6 +298,435 @@ class BnbaImportTest extends TestCase
                 ->where(
                     'status',
                     'duplicate'
+                )
+                ->count()
+        );
+    }
+
+    public function test_database_rejects_second_bnba_import_for_same_period(): void
+    {
+        $admin =
+            User::factory()
+                ->create([
+                    'role'
+                    => UserRole
+                            ::ADMIN_DINSOS,
+
+                    'is_active'
+                    => true,
+                ]);
+
+        $period =
+            BpntPeriod::query()
+                ->create([
+                    'code'
+                    => 'BPNT-2026-UNIQUE',
+
+                    'name'
+                    => 'Periode Unique BNBA',
+
+                    'year'
+                    => 2026,
+
+                    /*
+                     * Field legacy database
+                     * masih ada sementara.
+                     *
+                     * Ini bukan business rule
+                     * active period.
+                     */
+                    'is_active'
+                    => false,
+                ]);
+
+        BnbaImport::query()
+            ->create([
+                'bpnt_period_id'
+                => $period->id,
+
+                'uploaded_by'
+                => $admin->id,
+
+                'status'
+                => BnbaImportStatus
+                        ::PREVIEW_READY,
+
+                'original_name'
+                => 'bnba-pertama.xlsx',
+
+                'stored_path'
+                => 'bnba-imports/test/bnba-pertama.xlsx',
+
+                'file_sha256'
+                => str_repeat(
+                        'a',
+                        64
+                    ),
+            ]);
+
+        /*
+         * BNBA kedua dengan period_id
+         * yang sama wajib ditolak DB.
+         */
+        $this->expectException(
+            QueryException::class
+        );
+
+        BnbaImport::query()
+            ->create([
+                'bpnt_period_id'
+                => $period->id,
+
+                'uploaded_by'
+                => $admin->id,
+
+                'status'
+                => BnbaImportStatus
+                        ::PREVIEW_READY,
+
+                'original_name'
+                => 'bnba-kedua.xlsx',
+
+                'stored_path'
+                => 'bnba-imports/test/bnba-kedua.xlsx',
+
+                'file_sha256'
+                => str_repeat(
+                        'b',
+                        64
+                    ),
+            ]);
+    }
+
+    public function test_admin_cannot_upload_second_bnba_before_deleting_existing_bnba(): void
+    {
+        Storage::fake('local');
+
+        $admin =
+            User::factory()
+                ->create([
+                    'role'
+                    => UserRole
+                            ::ADMIN_DINSOS,
+
+                    'is_active'
+                    => true,
+                ]);
+
+        $period =
+            BpntPeriod::query()
+                ->create([
+                    'code'
+                    => 'BPNT-2026-SECOND',
+
+                    'name'
+                    => 'Periode Upload Kedua',
+
+                    'year'
+                    => 2026,
+                ]);
+
+        /*
+         * Upload BNBA pertama.
+         */
+        $firstUpload =
+            $this
+                ->actingAs($admin)
+                ->post(
+                    '/api/v1/bnba/imports',
+                    [
+                        'period_id'
+                        => $period->id,
+
+                        'file'
+                        => $this
+                                ->makeBnbaFile(),
+                    ],
+                    [
+                        'Accept'
+                        => 'application/json',
+                    ]
+                );
+
+        $firstUpload
+            ->assertCreated()
+            ->assertJsonPath(
+                'data.status',
+                BnbaImportStatus
+                ::PREVIEW_READY
+                    ->value
+            );
+
+        /*
+         * Tanpa delete BNBA,
+         * upload kedua wajib ditolak.
+         */
+        $secondUpload =
+            $this
+                ->actingAs($admin)
+                ->post(
+                    '/api/v1/bnba/imports',
+                    [
+                        'period_id'
+                        => $period->id,
+
+                        'file'
+                        => $this
+                                ->makeBnbaFile(),
+                    ],
+                    [
+                        'Accept'
+                        => 'application/json',
+                    ]
+                );
+
+        $secondUpload
+            ->assertStatus(422)
+            ->assertJsonPath(
+                'errors.period_id.0',
+                'Periode ini sudah memiliki BNBA. Hapus BNBA yang ada terlebih dahulu sebelum melakukan upload ulang.'
+            );
+
+        $this->assertSame(
+            1,
+            BnbaImport::query()
+                ->where(
+                    'bpnt_period_id',
+                    $period->id
+                )
+                ->count()
+        );
+    }
+
+    public function test_admin_can_delete_confirmed_bnba_and_upload_new_bnba_again(): void
+    {
+        Storage::fake('local');
+
+        $admin =
+            User::factory()
+                ->create([
+                    'role'
+                    => UserRole
+                            ::ADMIN_DINSOS,
+
+                    'is_active'
+                    => true,
+                ]);
+
+        $period =
+            BpntPeriod::query()
+                ->create([
+                    'code'
+                    => 'BPNT-2026-REUPLOAD',
+
+                    'name'
+                    => 'Periode Reupload',
+
+                    'year'
+                    => 2026,
+                ]);
+
+        /*
+         * Upload pertama.
+         */
+        $upload =
+            $this
+                ->actingAs($admin)
+                ->post(
+                    '/api/v1/bnba/imports',
+                    [
+                        'period_id'
+                        => $period->id,
+
+                        'file'
+                        => $this
+                                ->makeBnbaFile(),
+                    ],
+                    [
+                        'Accept'
+                        => 'application/json',
+                    ]
+                );
+
+        $upload
+            ->assertCreated();
+
+        $importId =
+            (int) 
+            $upload->json(
+                'data.id'
+            );
+
+        /*
+         * Konfirmasi agar participant
+         * benar-benar terbentuk.
+         */
+        $this
+            ->actingAs($admin)
+            ->postJson(
+                "/api/v1/bnba/imports/{$importId}/confirm"
+            )
+            ->assertOk()
+            ->assertJsonPath(
+                'data.status',
+                BnbaImportStatus
+                ::CONFIRMED
+                    ->value
+            );
+
+        $import =
+            BnbaImport::query()
+                ->findOrFail(
+                    $importId
+                );
+
+        $storedPath =
+            $import->stored_path;
+
+        Storage::disk('local')
+            ->assertExists(
+                $storedPath
+            );
+
+        $this->assertSame(
+            2,
+            BpntParticipant::query()
+                ->where(
+                    'bpnt_period_id',
+                    $period->id
+                )
+                ->count()
+        );
+
+        /*
+         * Hapus BNBA.
+         */
+        $delete =
+            $this
+                ->actingAs($admin)
+                ->deleteJson(
+                    "/api/v1/bpnt-periods/{$period->id}/bnba"
+                );
+
+        $delete
+            ->assertOk()
+            ->assertJsonPath(
+                'message',
+                'Data BNBA berhasil dihapus.'
+            )
+            ->assertJsonPath(
+                'data.imports_deleted',
+                1
+            )
+            ->assertJsonPath(
+                'data.participants_deleted',
+                2
+            );
+
+        /*
+         * Import dan participant periode
+         * harus benar-benar kosong.
+         */
+        $this->assertSame(
+            0,
+            BnbaImport::query()
+                ->where(
+                    'bpnt_period_id',
+                    $period->id
+                )
+                ->count()
+        );
+
+        $this->assertSame(
+            0,
+            BpntParticipant::query()
+                ->where(
+                    'bpnt_period_id',
+                    $period->id
+                )
+                ->count()
+        );
+
+        /*
+         * Source Excel lama ikut dibersihkan.
+         */
+        Storage::disk('local')
+            ->assertMissing(
+                $storedPath
+            );
+
+        /*
+         * Periode harus kembali
+         * dianggap kosong.
+         */
+        $periodResponse =
+            $this
+                ->actingAs($admin)
+                ->getJson(
+                    '/api/v1/bpnt-periods'
+                );
+
+        $periodResponse
+            ->assertOk()
+            ->assertJsonPath(
+                'data.0.imports_count',
+                0
+            )
+            ->assertJsonPath(
+                'data.0.participants_count',
+                0
+            )
+            ->assertJsonPath(
+                'data.0.can_delete',
+                true
+            )
+            ->assertJsonPath(
+                'data.0.can_edit_year',
+                true
+            )
+            ->assertJsonPath(
+                'data.0.bnba',
+                null
+            );
+
+        /*
+         * Setelah BNBA lama dihapus,
+         * upload baru wajib bisa dilakukan.
+         */
+        $replacementUpload =
+            $this
+                ->actingAs($admin)
+                ->post(
+                    '/api/v1/bnba/imports',
+                    [
+                        'period_id'
+                        => $period->id,
+
+                        'file'
+                        => $this
+                                ->makeBnbaFile(),
+                    ],
+                    [
+                        'Accept'
+                        => 'application/json',
+                    ]
+                );
+
+        $replacementUpload
+            ->assertCreated()
+            ->assertJsonPath(
+                'data.status',
+                BnbaImportStatus
+                ::PREVIEW_READY
+                    ->value
+            );
+
+        $this->assertSame(
+            1,
+            BnbaImport::query()
+                ->where(
+                    'bpnt_period_id',
+                    $period->id
                 )
                 ->count()
         );
@@ -393,8 +824,8 @@ class BnbaImportTest extends TestCase
                 '2022',
 
                 $duplicateSecondNik
-                    ? '1234567891011132'
-                    : '1234567891011136',
+                ? '1234567891011132'
+                : '1234567891011136',
 
                 '2987654321010124',
                 'ALI SOEFI',
@@ -440,7 +871,7 @@ class BnbaImportTest extends TestCase
             $sheet->fromArray(
                 $row,
                 null,
-                'A'.$excelRow
+                'A' . $excelRow
             );
 
             /*
@@ -452,7 +883,7 @@ class BnbaImportTest extends TestCase
              */
             $sheet
                 ->setCellValueExplicit(
-                    'B'.$excelRow,
+                    'B' . $excelRow,
                     (string) $row[1],
                     DataType::TYPE_STRING
                 );
@@ -465,7 +896,7 @@ class BnbaImportTest extends TestCase
              */
             $sheet
                 ->setCellValueExplicit(
-                    'C'.$excelRow,
+                    'C' . $excelRow,
                     (string) $row[2],
                     DataType::TYPE_STRING
                 );
@@ -483,7 +914,7 @@ class BnbaImportTest extends TestCase
              */
             $sheet
                 ->setCellValueExplicit(
-                    'M'.$excelRow,
+                    'M' . $excelRow,
                     (string) $row[12],
                     DataType::TYPE_STRING
                 );
@@ -496,7 +927,7 @@ class BnbaImportTest extends TestCase
             );
 
         $xlsxPath =
-            $path.'.xlsx';
+            $path . '.xlsx';
 
         @unlink($path);
 

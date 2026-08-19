@@ -652,6 +652,32 @@ export const useBnbaImportStore =
         }
       }
 
+      function clearPeriodSelection():
+  boolean {
+  /*
+   * Jangan membatalkan periode
+   * saat BNBA sedang dikerjakan.
+   *
+   * Ini mempertahankan rule:
+   * file dipilih / upload / preview /
+   * confirm / delete harus diselesaikan
+   * terlebih dahulu.
+   */
+  if (
+    isBnbaWorking.value
+  ) {
+    return false
+  }
+
+  selectedPeriodId.value =
+    null
+
+  clearWorkspace()
+  clearError()
+
+  return true
+}
+
       /*
       |--------------------------------------------------------------------------
       | File
@@ -1131,6 +1157,7 @@ export const useBnbaImportStore =
         deletePeriod,
 
         selectPeriod,
+        clearPeriodSelection,
 
         selectFile,
         uploadFile,

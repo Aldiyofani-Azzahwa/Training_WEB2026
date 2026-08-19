@@ -32,8 +32,6 @@ export interface BpntPeriod {
   name: string
   year: number
 
-  is_active: boolean
-
   imports_count: number
   participants_count: number
 

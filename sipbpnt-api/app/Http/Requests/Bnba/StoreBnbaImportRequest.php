@@ -27,11 +27,6 @@ class StoreBnbaImportRequest
                 'exists:bpnt_periods,id',
             ],
 
-            'is_revision' => [
-                'sometimes',
-                'boolean',
-            ],
-
             'file' => [
                 'required',
                 'file',

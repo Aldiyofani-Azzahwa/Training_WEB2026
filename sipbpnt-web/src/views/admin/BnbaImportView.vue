@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import {
   computed,
+  onBeforeUnmount,
   onMounted,
   ref,
+  watch,
 } from 'vue'
 
 import {
@@ -98,6 +100,18 @@ const successMessage =
     null,
   )
 
+const bnbaInteractionArea =
+  ref<HTMLElement | null>(
+    null,
+  )
+
+let successTimer:
+  ReturnType<
+    typeof setTimeout
+  >
+  | null =
+    null
+
 const periodFormKey =
   ref(0)
 
@@ -123,10 +137,131 @@ const canShowBnbaWorkspace =
     )
   })
 
+  watch(
+  successMessage,
+  (
+    message,
+  ) => {
+    if (
+      successTimer
+      !== null
+    ) {
+      clearTimeout(
+        successTimer,
+      )
+
+      successTimer =
+        null
+    }
+
+    if (
+      message === null
+    ) {
+      return
+    }
+
+    successTimer =
+      setTimeout(
+        () => {
+          successMessage.value =
+            null
+
+          successTimer =
+            null
+        },
+        3000,
+      )
+  },
+)
+
+function handleDocumentClick(
+  event: MouseEvent,
+): void {
+  /*
+   * Tidak ada periode dipilih.
+   */
+  if (
+    selectedPeriodId.value
+    === null
+  ) {
+    return
+  }
+
+  /*
+   * Form tambah/edit periode
+   * sedang aktif.
+   */
+  if (
+    isPeriodFormBusy.value
+  ) {
+    return
+  }
+
+  /*
+   * BNBA sedang dikerjakan.
+   * Jangan cancel selection.
+   */
+  if (
+    isBnbaWorking.value
+  ) {
+    return
+  }
+
+  const target =
+    event.target
+
+  if (
+    !(target instanceof Node)
+  ) {
+    return
+  }
+
+  /*
+   * Klik masih berada di area
+   * periode / workspace BNBA.
+   */
+  if (
+    bnbaInteractionArea.value
+      ?.contains(target)
+  ) {
+    return
+  }
+
+  store.clearPeriodSelection()
+
+  successMessage.value =
+    null
+}
+
 onMounted(
   async () => {
+    document
+      .addEventListener(
+        'click',
+        handleDocumentClick,
+      )
+
     await store
       .fetchPeriods()
+  },
+)
+
+onBeforeUnmount(
+  () => {
+    document
+      .removeEventListener(
+        'click',
+        handleDocumentClick,
+      )
+
+    if (
+      successTimer
+      !== null
+    ) {
+      clearTimeout(
+        successTimer,
+      )
+    }
   },
 )
 
@@ -177,7 +312,7 @@ async function handleCreatePeriod(
     1
 
   successMessage.value =
-    'Periode berhasil dibuat. Klik periode untuk mengelola BNBA.'
+  'Periode berhasil dibuat.'
 }
 
 /*
@@ -393,7 +528,7 @@ async function handleConfirm():
   }
 
   successMessage.value =
-    'Data BNBA berhasil dikonfirmasi. Pengelolaan periode kembali dibuka.'
+     'Data BNBA berhasil dikonfirmasi.'
 }
 
 /*
@@ -514,6 +649,7 @@ async function handlePage(
         kemudian kelola data BNBA.
       </p>
     </div>
+    <div ref="bnbaInteractionArea">
 
     <!-- SUCCESS -->
     <div
@@ -624,27 +760,6 @@ async function handlePage(
         handleDeletePeriod
       "
     />
-
-   
-
-    <!-- NO SELECTED PERIOD -->
-   <!-- NO SELECTED PERIOD -->
-<section
-  v-if="
-    selectedPeriod === null
-    &&
-    !isPeriodFormBusy
-  "
-  class="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center"
->
-  <strong
-    class="text-slate-800"
-  >
-    Klik salah satu periode untuk
-    mengelola BNBA
-  </strong>
-</section>
-
 <!-- BNBA WORKSPACE -->
 <template
   v-if="
@@ -978,5 +1093,7 @@ async function handlePage(
         </section>
       </div>
     </template>
+  </div>
   </main>
+
 </template>

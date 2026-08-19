@@ -10,7 +10,6 @@ import {
   Check,
   Edit3,
   LoaderCircle,
-  LockKeyhole,
   Plus,
   Trash2,
   X,
@@ -477,28 +476,6 @@ function bnbaLabel(
               : 'Tambah Periode'
           }}
         </button>
-      </div>
-
-      <!-- BNBA LOCK INFO -->
-      <div
-        v-if="
-          bnbaLocked
-        "
-        class="mt-5 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-800"
-      >
-        <LockKeyhole
-          :size="18"
-          class="mt-0.5 shrink-0"
-          aria-hidden="true"
-        />
-
-        <p>
-          Pengelolaan periode dikunci
-          sementara karena proses BNBA
-          sedang berlangsung. Selesaikan
-          atau hapus proses BNBA terlebih
-          dahulu.
-        </p>
       </div>
 
       <!-- CREATE -->

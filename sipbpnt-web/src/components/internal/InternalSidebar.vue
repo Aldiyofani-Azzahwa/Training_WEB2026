@@ -201,7 +201,7 @@ function iconFor(
                 item.routeName,
             }"
             class="group flex min-h-12 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
-            active-class="bg-[#4b2134] !text-white"
+            exact-active-class="bg-[#4b2134] !text-white"
           >
             <!-- ICON -->
 

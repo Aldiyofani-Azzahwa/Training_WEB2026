@@ -33,12 +33,6 @@ class BpntPeriodResource extends JsonResource
 
             'year' => (int) $this->year,
 
-            /*
-             * Field legacy database.
-             * Tidak dipakai lagi sebagai business rule.
-             */
-            'is_active' => (bool) $this->is_active,
-
             'imports_count' => $importsCount,
 
             'participants_count' => $participantsCount,
@@ -61,7 +55,8 @@ class BpntPeriodResource extends JsonResource
             /*
              * Tidak ada:
              *
-             * status
+             * status periode
+             * is_active periode
              * current_bnba
              * pending_import
              *
@@ -94,11 +89,6 @@ class BpntPeriodResource extends JsonResource
 
             /*
              * Aman untuk enum maupun string.
-             * Tidak pernah langsung:
-             *
-             * $status->value
-             *
-             * tanpa pengecekan.
              */
             'status' =>
                 $status instanceof BnbaImportStatus

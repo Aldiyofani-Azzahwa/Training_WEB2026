@@ -83,6 +83,15 @@ const sidebarOpen =
 
 const isDesktop =
   ref(true)
+const sidebarElement =
+  ref<HTMLElement | null>(
+    null,
+  )
+
+const sidebarToggleElement =
+  ref<HTMLElement | null>(
+    null,
+  )
 
 let desktopMedia:
   MediaQueryList | null =
@@ -129,6 +138,52 @@ function closeSidebar():
   void {
   sidebarOpen.value =
     false
+}
+
+function handleDocumentClick(
+  event: MouseEvent,
+): void {
+  if (
+    !supportsSidebar.value
+    ||
+    !sidebarOpen.value
+  ) {
+    return
+  }
+
+  const target =
+    event.target
+
+  if (
+    !(target instanceof Node)
+  ) {
+    return
+  }
+
+  /*
+   * Klik di dalam sidebar:
+   * jangan tutup.
+   */
+  if (
+    sidebarElement.value
+      ?.contains(target)
+  ) {
+    return
+  }
+
+  /*
+   * Klik hamburger:
+   * biarkan toggleSidebar()
+   * yang menangani.
+   */
+  if (
+    sidebarToggleElement.value
+      ?.contains(target)
+  ) {
+    return
+  }
+
+  closeSidebar()
 }
 
 /*
@@ -269,13 +324,24 @@ onMounted(() => {
       'change',
       syncViewport,
     )
-})
 
+  document
+    .addEventListener(
+      'click',
+      handleDocumentClick,
+    )
+})
 onBeforeUnmount(() => {
   desktopMedia
     ?.removeEventListener(
       'change',
       syncViewport,
+    )
+
+  document
+    .removeEventListener(
+      'click',
+      handleDocumentClick,
     )
 })
 </script>
@@ -302,19 +368,20 @@ onBeforeUnmount(() => {
     />
 
     <!-- SIDEBAR -->
-    <aside
-      v-if="
-        supportsSidebar
-      "
-      :class="[
-        'fixed inset-y-0 left-0 z-50 w-[280px] transition-transform duration-300 ease-out',
-        sidebarOpen
-          ? 'translate-x-0'
-          : '-translate-x-full',
-      ]"
-    >
-      <InternalSidebar />
-    </aside>
+   <aside
+  v-if="
+    supportsSidebar
+  "
+  ref="sidebarElement"
+  :class="[
+    'fixed inset-y-0 left-0 z-50 w-[280px] transition-transform duration-300 ease-out',
+    sidebarOpen
+      ? 'translate-x-0'
+      : '-translate-x-full',
+  ]"
+>
+  <InternalSidebar />
+</aside>
 
     <!-- CONTENT -->
     <div
@@ -339,23 +406,24 @@ onBeforeUnmount(() => {
         >
           <!-- HAMBURGER -->
           <button
-            v-if="
-              supportsSidebar
-            "
-            type="button"
-            :aria-label="
-              sidebarOpen
-                ? 'Sembunyikan sidebar'
-                : 'Tampilkan sidebar'
-            "
-            :aria-expanded="
-              sidebarOpen
-            "
-            class="flex size-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-200"
-            @click="
-              toggleSidebar
-            "
-          >
+  v-if="
+    supportsSidebar
+  "
+  ref="sidebarToggleElement"
+  type="button"
+  :aria-label="
+    sidebarOpen
+      ? 'Sembunyikan sidebar'
+      : 'Tampilkan sidebar'
+  "
+  :aria-expanded="
+    sidebarOpen
+  "
+  class="flex size-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-200"
+  @click="
+    toggleSidebar
+  "
+>
             <PanelLeftClose
               v-if="
                 sidebarOpen

@@ -38,7 +38,8 @@ final class BnbaImportService
         private readonly BnbaSpreadsheetParser $parser,
         private readonly SensitiveIdentity $identity,
         private readonly BnbaImportFileIntegrityService $fileIntegrity,
-    ) {}
+    ) {
+    }
 
     public function history(
         int $perPage = 15
@@ -140,12 +141,12 @@ final class BnbaImportService
         $storedName =
             Str::uuid()
                 ->toString()
-            .'.'
-            .$extension;
+            . '.'
+            . $extension;
 
         $directory =
             'bnba-imports/'
-            .now()->format('Y/m');
+            . now()->format('Y/m');
 
         $storedPath =
             $file->storeAs(
@@ -165,16 +166,7 @@ final class BnbaImportService
 
         try {
             return DB::transaction(
-                function () use (
-                    $file,
-                    $period,
-                    $actor,
-                    $ipAddress,
-                    $userAgent,
-                    $storedPath,
-                    $preparedRows,
-                    $fileHash
-                ): BnbaImport {
+                function () use ($file, $period, $actor, $ipAddress, $userAgent, $storedPath, $preparedRows, $fileHash): BnbaImport {
                     /*
                      * Cek lagi di dalam transaction.
                      */
@@ -202,26 +194,26 @@ final class BnbaImportService
                         $this->imports
                             ->create([
                                 'bpnt_period_id'
-                                    => $period->id,
+                                => $period->id,
 
                                 'uploaded_by'
-                                    => $actor->id,
+                                => $actor->id,
 
                                 'status'
-                                    => BnbaImportStatus
+                                => BnbaImportStatus
                                         ::PREVIEW_READY,
 
                                 'original_name'
-                                    => basename(
+                                => basename(
                                         $file
                                             ->getClientOriginalName()
                                     ),
 
                                 'stored_path'
-                                    => $storedPath,
+                                => $storedPath,
 
                                 'file_sha256'
-                                    => $fileHash,
+                                => $fileHash,
 
                                 ...$summary,
                             ]);
@@ -230,23 +222,18 @@ final class BnbaImportService
 
                     $rows =
                         array_map(
-                            static function (
-                                array $row
-                            ) use (
-                                $import,
-                                $now
-                            ): array {
+                            static function (array $row) use ($import, $now): array {
                                 return [
                                     'bnba_import_id'
-                                        => $import->id,
+                                    => $import->id,
 
                                     ...$row,
 
                                     'created_at'
-                                        => $now,
+                                    => $now,
 
                                     'updated_at'
-                                        => $now,
+                                    => $now,
                                 ];
                             },
                             $preparedRows
@@ -258,52 +245,52 @@ final class BnbaImportService
                     $this->auditLogs
                         ->record([
                             'user_id'
-                                => $actor->id,
+                            => $actor->id,
 
                             'action'
-                                => 'bnba.import.uploaded',
+                            => 'bnba.import.uploaded',
 
                             'auditable_type'
-                                => BnbaImport::class,
+                            => BnbaImport::class,
 
                             'auditable_id'
-                                => $import->id,
+                            => $import->id,
 
                             'metadata' => [
                                 'period_id'
-                                    => $period->id,
+                                => $period->id,
 
                                 'total_rows'
-                                    => $summary[
+                                => $summary[
                                         'total_rows'
                                     ],
 
                                 'valid_rows'
-                                    => $summary[
+                                => $summary[
                                         'valid_rows'
                                     ],
 
                                 'warning_rows'
-                                    => $summary[
+                                => $summary[
                                         'warning_rows'
                                     ],
 
                                 'invalid_rows'
-                                    => $summary[
+                                => $summary[
                                         'invalid_rows'
                                     ],
 
                                 'duplicate_rows'
-                                    => $summary[
+                                => $summary[
                                         'duplicate_rows'
                                     ],
                             ],
 
                             'ip_address'
-                                => $ipAddress,
+                            => $ipAddress,
 
                             'user_agent'
-                                => $userAgent,
+                            => $userAgent,
                         ]);
 
                     return $this->imports
@@ -312,7 +299,47 @@ final class BnbaImportService
                         );
                 }
             );
-        } catch (Throwable $exception) {
+        } catch (
+            QueryException $exception
+        ) {
+            /*
+             * File sudah tersimpan sebelum
+             * transaction database dimulai.
+             *
+             * Jika database menolak import,
+             * source file yang gagal tidak boleh
+             * tertinggal menjadi orphan file.
+             */
+            Storage::disk('local')
+                ->delete(
+                    $storedPath
+                );
+
+            /*
+             * Database UNIQUE constraint
+             * menjadi perlindungan terakhir
+             * jika dua request upload untuk
+             * periode yang sama terjadi hampir
+             * bersamaan.
+             */
+            if (
+                $this
+                    ->isDuplicatePeriodImportConstraint(
+                        $exception
+                    )
+            ) {
+                throw ValidationException
+                    ::withMessages([
+                        'period_id' => [
+                            'Periode ini sudah memiliki BNBA. Hapus BNBA yang ada terlebih dahulu sebelum melakukan upload ulang.',
+                        ],
+                    ]);
+            }
+
+            throw $exception;
+        } catch (
+            Throwable $exception
+        ) {
             Storage::disk('local')
                 ->delete(
                     $storedPath
@@ -336,8 +363,8 @@ final class BnbaImportService
 
         $normalizedSearch =
             $search !== null
-                ? trim($search)
-                : null;
+            ? trim($search)
+            : null;
 
         $nikHash = null;
 
@@ -358,10 +385,10 @@ final class BnbaImportService
 
         return [
             'import'
-                => $import,
+            => $import,
 
             'rows'
-                => $this->imports
+            => $this->imports
                     ->paginateRows(
                         $import,
                         $status,
@@ -380,12 +407,7 @@ final class BnbaImportService
     ): BnbaImport {
         try {
             return DB::transaction(
-                function () use (
-                    $importId,
-                    $actor,
-                    $ipAddress,
-                    $userAgent
-                ): BnbaImport {
+                function () use ($importId, $actor, $ipAddress, $userAgent): BnbaImport {
                     $import =
                         $this->imports
                             ->findForUpdate(
@@ -424,23 +446,23 @@ final class BnbaImportService
                             );
 
                     if (
-                        ! $integrity
+                        !$integrity
                             ->isVerified()
                     ) {
                         throw new
                             BnbaImportIntegrityException(
-                                importId:
-                                    $import->id,
+                            importId:
+                            $import->id,
 
-                                periodId:
-                                    $period->id,
+                            periodId:
+                            $period->id,
 
-                                reason:
-                                    $integrity->status,
+                            reason:
+                            $integrity->status,
 
-                                message:
-                                    $integrity->message(),
-                            );
+                            message:
+                            $integrity->message(),
+                        );
                     }
 
                     $rows =
@@ -480,55 +502,55 @@ final class BnbaImportService
                                 $import,
                                 [
                                     'status'
-                                        => BnbaImportStatus
+                                    => BnbaImportStatus
                                             ::CONFIRMED,
 
                                     'confirmed_by'
-                                        => $actor->id,
+                                    => $actor->id,
 
                                     'confirmed_at'
-                                        => now(),
+                                    => now(),
                                 ]
                             );
 
                     $this->auditLogs
                         ->record([
                             'user_id'
-                                => $actor->id,
+                            => $actor->id,
 
                             'action'
-                                => 'bnba.import.confirmed',
+                            => 'bnba.import.confirmed',
 
                             'auditable_type'
-                                => BnbaImport::class,
+                            => BnbaImport::class,
 
                             'auditable_id'
-                                => $confirmed->id,
+                            => $confirmed->id,
 
                             'metadata' => [
                                 'period_id'
-                                    => $period->id,
+                                => $period->id,
 
                                 'imported_rows'
-                                    => $rows->count(),
+                                => $rows->count(),
 
                                 'skipped_invalid_rows'
-                                    => $import
+                                => $import
                                         ->invalid_rows,
 
                                 'skipped_duplicate_rows'
-                                    => $import
+                                => $import
                                         ->duplicate_rows,
 
                                 'source_file_integrity'
-                                    => 'verified',
+                                => 'verified',
                             ],
 
                             'ip_address'
-                                => $ipAddress,
+                            => $ipAddress,
 
                             'user_agent'
-                                => $userAgent,
+                            => $userAgent,
                         ]);
 
                     return $this->imports
@@ -544,30 +566,30 @@ final class BnbaImportService
             $this->auditLogs
                 ->record([
                     'user_id'
-                        => $actor->id,
+                    => $actor->id,
 
                     'action'
-                        => 'bnba.import.integrity_failed',
+                    => 'bnba.import.integrity_failed',
 
                     'auditable_type'
-                        => BnbaImport::class,
+                    => BnbaImport::class,
 
                     'auditable_id'
-                        => $exception->importId,
+                    => $exception->importId,
 
                     'metadata' => [
                         'period_id'
-                            => $exception->periodId,
+                        => $exception->periodId,
 
                         'reason'
-                            => $exception->reason,
+                        => $exception->reason,
                     ],
 
                     'ip_address'
-                        => $ipAddress,
+                    => $ipAddress,
 
                     'user_agent'
-                        => $userAgent,
+                    => $userAgent,
                 ]);
 
             throw ValidationException
@@ -603,12 +625,7 @@ final class BnbaImportService
     ): array {
         $result =
             DB::transaction(
-                function () use (
-                    $periodId,
-                    $actor,
-                    $ipAddress,
-                    $userAgent
-                ): array {
+                function () use ($periodId, $actor, $ipAddress, $userAgent): array {
                     $period =
                         $this->periods
                             ->findOrFail(
@@ -641,8 +658,8 @@ final class BnbaImportService
                         $imports
                             ->pluck('id')
                             ->map(
-                                static fn ($id): int =>
-                                    (int) $id
+                                static fn($id): int =>
+                                (int) $id
                             )
                             ->values()
                             ->all();
@@ -671,47 +688,47 @@ final class BnbaImportService
                     $this->auditLogs
                         ->record([
                             'user_id'
-                                => $actor->id,
+                            => $actor->id,
 
                             'action'
-                                => 'bnba.period_data.deleted',
+                            => 'bnba.period_data.deleted',
 
                             'auditable_type'
-                                => BpntPeriod::class,
+                            => BpntPeriod::class,
 
                             'auditable_id'
-                                => $period->id,
+                            => $period->id,
 
                             'metadata' => [
                                 'period_name'
-                                    => $period->name,
+                                => $period->name,
 
                                 'import_ids'
-                                    => $importIds,
+                                => $importIds,
 
                                 'imports_deleted'
-                                    => $importsDeleted,
+                                => $importsDeleted,
 
                                 'participants_deleted'
-                                    => $participantsDeleted,
+                                => $participantsDeleted,
                             ],
 
                             'ip_address'
-                                => $ipAddress,
+                            => $ipAddress,
 
                             'user_agent'
-                                => $userAgent,
+                            => $userAgent,
                         ]);
 
                     return [
                         'paths'
-                            => $paths,
+                        => $paths,
 
                         'imports_deleted'
-                            => $importsDeleted,
+                        => $importsDeleted,
 
                         'participants_deleted'
-                            => $participantsDeleted,
+                        => $participantsDeleted,
                     ];
                 }
             );
@@ -732,17 +749,81 @@ final class BnbaImportService
 
         return [
             'imports_deleted'
-                => $result[
+            => $result[
                     'imports_deleted'
                 ],
 
             'participants_deleted'
-                => $result[
+            => $result[
                     'participants_deleted'
                 ],
         ];
     }
+    private function isDuplicatePeriodImportConstraint(
+    QueryException $exception
+): bool {
+    $sqlState =
+        (string) (
+            $exception
+                ->errorInfo[0]
+            ?? ''
+        );
 
+    $driverCode =
+        (int) (
+            $exception
+                ->errorInfo[1]
+            ?? 0
+        );
+
+    $message =
+        strtolower(
+            $exception
+                ->getMessage()
+        );
+
+    /*
+     * MySQL:
+     * SQLSTATE 23000
+     * driver code 1062
+     *
+     * SQLite test:
+     * driver code 19
+     *
+     * PostgreSQL disiapkan juga:
+     * SQLSTATE 23505
+     */
+    $isUniqueViolation =
+        $sqlState === '23000'
+        ||
+        $sqlState === '23505'
+        ||
+        $driverCode === 19
+        ||
+        $driverCode === 1062;
+
+    if (! $isUniqueViolation) {
+        return false;
+    }
+
+    /*
+     * Jangan mengubah semua integrity
+     * constraint menjadi pesan
+     * "periode sudah memiliki BNBA".
+     *
+     * Hanya constraint khusus
+     * bpnt_period_id ini.
+     */
+    return str_contains(
+        $message,
+        'bnba_imports_period_unique'
+    )
+        ||
+        str_contains(
+            $message,
+            'bnba_imports.bpnt_period_id'
+        );
+}
     private function prepareRows(
         BpntPeriod $period,
         array $rows
@@ -782,22 +863,22 @@ final class BnbaImportService
                     '/^\d{16}$/',
                     $row->nik
                 ) === 1
-                    ? $this->identity
-                        ->hash(
-                            $row->nik
-                        )
-                    : null;
+                ? $this->identity
+                    ->hash(
+                        $row->nik
+                    )
+                : null;
 
             $nkkHash =
                 preg_match(
                     '/^\d{16}$/',
                     $row->nkk
                 ) === 1
-                    ? $this->identity
-                        ->hash(
-                            $row->nkk
-                        )
-                    : null;
+                ? $this->identity
+                    ->hash(
+                        $row->nkk
+                    )
+                : null;
 
             $errors =
                 $row->errors;
@@ -838,14 +919,14 @@ final class BnbaImportService
                 &&
                 (
                     isset(
-                        $seen[$nikHash]
-                    )
+                    $seen[$nikHash]
+                )
                     ||
                     isset(
-                        $existingHashes[
-                            $nikHash
-                        ]
-                    )
+                    $existingHashes[
+                        $nikHash
+                    ]
+                )
                 )
             ) {
                 $status =
@@ -853,12 +934,12 @@ final class BnbaImportService
 
                 $errors[] =
                     isset(
-                        $existingHashes[
-                            $nikHash
-                        ]
-                    )
-                        ? 'NIK sudah terdaftar pada periode BPNT yang dipilih.'
-                        : 'NIK muncul lebih dari satu kali dalam file yang sama.';
+                    $existingHashes[
+                        $nikHash
+                    ]
+                )
+                    ? 'NIK sudah terdaftar pada periode BPNT yang dipilih.'
+                    : 'NIK muncul lebih dari satu kali dalam file yang sama.';
             } elseif ($warnings !== []) {
                 $status =
                     BnbaRowStatus::WARNING;
@@ -875,184 +956,184 @@ final class BnbaImportService
 
             $prepared[] = [
                 'row_number'
-                    => $row->rowNumber,
+                => $row->rowNumber,
 
                 'status'
-                    => $status->value,
+                => $status->value,
 
                 'membership_year'
-                    => $this
+                => $this
                         ->boundedNullableString(
                             $row->membershipYear,
                             4
                         ),
 
                 'nik_hash'
-                    => $nikHash,
+                => $nikHash,
 
                 'nik_ciphertext'
-                    => $row->nik !== ''
-                        ? $this->identity
-                            ->encrypt(
-                                $row->nik
-                            )
-                        : null,
+                => $row->nik !== ''
+                    ? $this->identity
+                        ->encrypt(
+                            $row->nik
+                        )
+                    : null,
 
                 'nkk_hash'
-                    => $nkkHash,
+                => $nkkHash,
 
                 'nkk_ciphertext'
-                    => $row->nkk !== ''
-                        ? $this->identity
-                            ->encrypt(
-                                $row->nkk
-                            )
-                        : null,
+                => $row->nkk !== ''
+                    ? $this->identity
+                        ->encrypt(
+                            $row->nkk
+                        )
+                    : null,
 
                 'full_name'
-                    => $this
+                => $this
                         ->boundedNullableString(
                             $row->fullName,
                             150
                         ),
 
                 'birth_place'
-                    => $this
+                => $this
                         ->boundedNullableString(
                             $row->birthPlace,
                             100
                         ),
 
                 'birth_date'
-                    => $row
+                => $row
                         ->birthDate
-                        ?->format('Y-m-d'),
+                            ?->format('Y-m-d'),
 
                 'mother_name'
-                    => $this
+                => $this
                         ->boundedNullableString(
                             $row->motherName,
                             150
                         ),
 
                 'address'
-                    => $row->address !== ''
-                        ? $row->address
-                        : null,
+                => $row->address !== ''
+                    ? $row->address
+                    : null,
 
                 'rt'
-                    => $row->rt,
+                => $row->rt,
 
                 'rw'
-                    => $row->rw,
+                => $row->rw,
 
                 'kelurahan'
-                    => $this
+                => $this
                         ->boundedNullableString(
                             $row->kelurahan,
                             100
                         ),
 
                 'kecamatan'
-                    => $this
+                => $this
                         ->boundedNullableString(
                             $row->kecamatan,
                             100
                         ),
 
                 'account_ciphertext'
-                    => $row->accountNumber !== ''
-                        ? $this->identity
-                            ->encrypt(
-                                $row->accountNumber
-                            )
-                        : null,
+                => $row->accountNumber !== ''
+                    ? $this->identity
+                        ->encrypt(
+                            $row->accountNumber
+                        )
+                    : null,
 
                 'e_warung_name'
-                    => $this
+                => $this
                         ->boundedNullableString(
                             $row->eWarungName,
                             200
                         ),
 
                 'source_status'
-                    => $this
+                => $this
                         ->boundedNullableString(
                             $row->sourceStatus,
                             100
                         ),
 
                 'source_description'
-                    => $this
+                => $this
                         ->boundedNullableString(
                             $row->sourceDescription,
                             255
                         ),
 
                 'monthly_statuses'
-                    => json_encode(
+                => json_encode(
                         $row->monthlyStatuses,
                         JSON_THROW_ON_ERROR
                     ),
 
                 'sk_status'
-                    => $this
+                => $this
                         ->boundedNullableString(
                             $row->skStatus,
                             100
                         ),
 
                 'sk_description'
-                    => $this
+                => $this
                         ->boundedNullableString(
                             $row->skDescription,
                             255
                         ),
 
                 'apbn_march_status'
-                    => $this
+                => $this
                         ->boundedNullableString(
                             $row->apbnMarchStatus,
                             255
                         ),
 
                 'welfare_rank'
-                    => (
+                => (
                         $row->welfareRank !== null
                         &&
                         $row->welfareRank >= 0
                         &&
                         $row->welfareRank <= 255
                     )
-                        ? $row->welfareRank
-                        : null,
+                    ? $row->welfareRank
+                    : null,
 
                 'nominal'
-                    => $row->nominal,
+                => $row->nominal,
 
                 'errors'
-                    => $errors !== []
-                        ? json_encode(
-                            array_values(
-                                array_unique(
-                                    $errors
-                                )
-                            ),
-                            JSON_THROW_ON_ERROR
-                        )
-                        : null,
+                => $errors !== []
+                    ? json_encode(
+                        array_values(
+                            array_unique(
+                                $errors
+                            )
+                        ),
+                        JSON_THROW_ON_ERROR
+                    )
+                    : null,
 
                 'warnings'
-                    => $warnings !== []
-                        ? json_encode(
-                            array_values(
-                                array_unique(
-                                    $warnings
-                                )
-                            ),
-                            JSON_THROW_ON_ERROR
-                        )
-                        : null,
+                => $warnings !== []
+                    ? json_encode(
+                        array_values(
+                            array_unique(
+                                $warnings
+                            )
+                        ),
+                        JSON_THROW_ON_ERROR
+                    )
+                    : null,
             ];
         }
 
@@ -1083,29 +1164,29 @@ final class BnbaImportService
     ): array {
         $counts = [
             BnbaRowStatus
-                ::VALID
+            ::VALID
                 ->value
-                => 0,
+            => 0,
 
             BnbaRowStatus
-                ::WARNING
+            ::WARNING
                 ->value
-                => 0,
+            => 0,
 
             BnbaRowStatus
-                ::INVALID
+            ::INVALID
                 ->value
-                => 0,
+            => 0,
 
             BnbaRowStatus
-                ::DUPLICATE
+            ::DUPLICATE
                 ->value
-                => 0,
+            => 0,
         ];
 
         foreach ($rows as $row) {
             $status =
-                (string)
+                (string) 
                 $row['status'];
 
             if (
@@ -1120,33 +1201,33 @@ final class BnbaImportService
 
         return [
             'total_rows'
-                => count($rows),
+            => count($rows),
 
             'valid_rows'
-                => $counts[
+            => $counts[
                     BnbaRowStatus
-                        ::VALID
+                    ::VALID
                         ->value
                 ],
 
             'warning_rows'
-                => $counts[
+            => $counts[
                     BnbaRowStatus
-                        ::WARNING
+                    ::WARNING
                         ->value
                 ],
 
             'invalid_rows'
-                => $counts[
+            => $counts[
                     BnbaRowStatus
-                        ::INVALID
+                    ::INVALID
                         ->value
                 ],
 
             'duplicate_rows'
-                => $counts[
+            => $counts[
                     BnbaRowStatus
-                        ::DUPLICATE
+                    ::DUPLICATE
                         ->value
                 ],
         ];
