@@ -20,9 +20,9 @@ use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Tests\TestCase;
+use Database\Seeders\WilayahSeeder;
 
-class BnbaImportRetentionAuditTest
-    extends TestCase
+class BnbaImportRetentionAuditTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -64,11 +64,13 @@ class BnbaImportRetentionAuditTest
             'sipbpnt.bnba_import.retention.staging_rows',
             'retain_until_policy_approved'
         );
+        $this->seed(
+            WilayahSeeder::class
+        );
     }
 
-    public function test_anonymized_official_layout_import_retains_source_and_staging_after_confirmation():
-        void
-    {
+    public function test_anonymized_official_layout_import_retains_source_and_staging_after_confirmation(
+    ): void {
         Storage::fake(
             'local'
         );
@@ -77,7 +79,7 @@ class BnbaImportRetentionAuditTest
             $admin,
             $period,
         ] = $this
-            ->adminAndPeriod();
+                ->adminAndPeriod();
 
         $upload =
             $this
@@ -88,15 +90,15 @@ class BnbaImportRetentionAuditTest
                     '/api/v1/bnba/imports',
                     [
                         'period_id'
-                            => $period->id,
+                        => $period->id,
 
                         'file'
-                            => $this
+                        => $this
                                 ->makeAnonymizedWorkbook(),
                     ],
                     [
                         'Accept'
-                            => 'application/json',
+                        => 'application/json',
                     ]
                 );
 
@@ -105,7 +107,7 @@ class BnbaImportRetentionAuditTest
             ->assertJsonPath(
                 'data.status',
                 BnbaImportStatus
-                    ::PREVIEW_READY
+                ::PREVIEW_READY
                     ->value
             )
             ->assertJsonPath(
@@ -121,9 +123,9 @@ class BnbaImportRetentionAuditTest
             Storage::disk(
                 'local'
             )->exists(
-                $import
-                    ->stored_path
-            )
+                    $import
+                        ->stored_path
+                )
         );
 
         $this->assertSame(
@@ -143,8 +145,8 @@ class BnbaImportRetentionAuditTest
                 )
                 ->postJson(
                     '/api/v1/bnba/imports/'
-                    .$import->id
-                    .'/confirm'
+                    . $import->id
+                    . '/confirm'
                 );
 
         $confirm
@@ -152,7 +154,7 @@ class BnbaImportRetentionAuditTest
             ->assertJsonPath(
                 'data.status',
                 BnbaImportStatus
-                    ::CONFIRMED
+                ::CONFIRMED
                     ->value
             );
 
@@ -160,9 +162,9 @@ class BnbaImportRetentionAuditTest
             Storage::disk(
                 'local'
             )->exists(
-                $import
-                    ->stored_path
-            )
+                    $import
+                        ->stored_path
+                )
         );
 
         $this->assertSame(
@@ -189,10 +191,10 @@ class BnbaImportRetentionAuditTest
             'audit_logs',
             [
                 'action'
-                    => 'bnba.import.uploaded',
+                => 'bnba.import.uploaded',
 
                 'auditable_id'
-                    => $import->id,
+                => $import->id,
             ]
         );
 
@@ -200,10 +202,10 @@ class BnbaImportRetentionAuditTest
             'audit_logs',
             [
                 'action'
-                    => 'bnba.import.confirmed',
+                => 'bnba.import.confirmed',
 
                 'auditable_id'
-                    => $import->id,
+                => $import->id,
             ]
         );
 
@@ -215,13 +217,13 @@ class BnbaImportRetentionAuditTest
                 )
                 ->get()
                 ->map(
-                    static fn (
-                        AuditLog $log
-                    ): string =>
-                        json_encode(
-                            $log->metadata,
-                            JSON_THROW_ON_ERROR
-                        )
+                    static fn(
+                    AuditLog $log
+                ): string =>
+                    json_encode(
+                        $log->metadata,
+                        JSON_THROW_ON_ERROR
+                    )
                 )
                 ->implode(
                     "\n"
@@ -243,9 +245,8 @@ class BnbaImportRetentionAuditTest
         );
     }
 
-    public function test_confirmation_is_blocked_when_source_file_is_missing_and_failure_is_audited():
-        void
-    {
+    public function test_confirmation_is_blocked_when_source_file_is_missing_and_failure_is_audited(
+    ): void {
         Storage::fake(
             'local'
         );
@@ -254,7 +255,7 @@ class BnbaImportRetentionAuditTest
             $admin,
             $period,
         ] = $this
-            ->adminAndPeriod();
+                ->adminAndPeriod();
 
         $import =
             $this->uploadImport(
@@ -265,9 +266,9 @@ class BnbaImportRetentionAuditTest
         Storage::disk(
             'local'
         )->delete(
-            $import
-                ->stored_path
-        );
+                $import
+                    ->stored_path
+            );
 
         $this
             ->actingAs(
@@ -275,8 +276,8 @@ class BnbaImportRetentionAuditTest
             )
             ->postJson(
                 '/api/v1/bnba/imports/'
-                .$import->id
-                .'/confirm'
+                . $import->id
+                . '/confirm'
             )
             ->assertUnprocessable()
             ->assertJsonValidationErrors([
@@ -292,10 +293,10 @@ class BnbaImportRetentionAuditTest
             'audit_logs',
             [
                 'action'
-                    => 'bnba.import.integrity_failed',
+                => 'bnba.import.integrity_failed',
 
                 'auditable_id'
-                    => $import->id,
+                => $import->id,
             ]
         );
 
@@ -318,14 +319,13 @@ class BnbaImportRetentionAuditTest
             'missing',
             $audit
                 ->metadata[
-                    'reason'
-                ]
+                'reason'
+            ]
         );
     }
 
-    public function test_confirmation_is_blocked_when_source_file_checksum_changes():
-        void
-    {
+    public function test_confirmation_is_blocked_when_source_file_checksum_changes(
+    ): void {
         Storage::fake(
             'local'
         );
@@ -334,7 +334,7 @@ class BnbaImportRetentionAuditTest
             $admin,
             $period,
         ] = $this
-            ->adminAndPeriod();
+                ->adminAndPeriod();
 
         $import =
             $this->uploadImport(
@@ -345,9 +345,9 @@ class BnbaImportRetentionAuditTest
         Storage::disk(
             'local'
         )->put(
-            $import->stored_path,
-            'tampered-file-content'
-        );
+                $import->stored_path,
+                'tampered-file-content'
+            );
 
         $this
             ->actingAs(
@@ -355,8 +355,8 @@ class BnbaImportRetentionAuditTest
             )
             ->postJson(
                 '/api/v1/bnba/imports/'
-                .$import->id
-                .'/confirm'
+                . $import->id
+                . '/confirm'
             )
             ->assertUnprocessable()
             ->assertJsonValidationErrors([
@@ -387,14 +387,13 @@ class BnbaImportRetentionAuditTest
             'checksum_mismatch',
             $audit
                 ->metadata[
-                    'reason'
-                ]
+                'reason'
+            ]
         );
     }
 
-    public function test_retention_audit_command_is_read_only():
-        void
-    {
+    public function test_retention_audit_command_is_read_only(
+    ): void {
         Storage::fake(
             'local'
         );
@@ -403,7 +402,7 @@ class BnbaImportRetentionAuditTest
             $admin,
             $period,
         ] = $this
-            ->adminAndPeriod();
+                ->adminAndPeriod();
 
         $import =
             $this->uploadImport(
@@ -424,7 +423,7 @@ class BnbaImportRetentionAuditTest
                 'sipbpnt:bnba-retention-audit',
                 [
                     '--limit'
-                        => 100,
+                    => 100,
                 ]
             );
 
@@ -449,9 +448,9 @@ class BnbaImportRetentionAuditTest
             Storage::disk(
                 'local'
             )->exists(
-                $import
-                    ->stored_path
-            )
+                    $import
+                        ->stored_path
+                )
         );
 
         $output =
@@ -473,34 +472,33 @@ class BnbaImportRetentionAuditTest
     /**
      * @return array{0: User, 1: BpntPeriod}
      */
-    private function adminAndPeriod():
-        array
-    {
+    private function adminAndPeriod(
+    ): array {
         $admin =
             User::factory()
                 ->create([
                     'role'
-                        => UserRole
+                    => UserRole
                             ::ADMIN_DINSOS,
 
                     'is_active'
-                        => true,
+                    => true,
                 ]);
 
         $period =
             BpntPeriod::query()
                 ->create([
                     'code'
-                        => 'BPNT-2026-ANON',
+                    => 'BPNT-2026-ANON',
 
                     'name'
-                        => 'Periode Uji Anonim 2026',
+                    => 'Periode Uji Anonim 2026',
 
                     'year'
-                        => 2026,
+                    => 2026,
 
                     'is_active'
-                        => true,
+                    => true,
                 ]);
 
         return [
@@ -522,15 +520,15 @@ class BnbaImportRetentionAuditTest
                     '/api/v1/bnba/imports',
                     [
                         'period_id'
-                            => $period->id,
+                        => $period->id,
 
                         'file'
-                            => $this
+                        => $this
                                 ->makeAnonymizedWorkbook(),
                     ],
                     [
                         'Accept'
-                            => 'application/json',
+                        => 'application/json',
                     ]
                 );
 
@@ -539,7 +537,7 @@ class BnbaImportRetentionAuditTest
 
         return BnbaImport::query()
             ->findOrFail(
-                (int)
+                (int) 
                 $response
                     ->json(
                         'data.id'
@@ -547,9 +545,8 @@ class BnbaImportRetentionAuditTest
             );
     }
 
-    private function makeAnonymizedWorkbook():
-        UploadedFile
-    {
+    private function makeAnonymizedWorkbook(
+    ): UploadedFile {
         $spreadsheet =
             new Spreadsheet();
 
@@ -651,29 +648,29 @@ class BnbaImportRetentionAuditTest
             $sheet->fromArray(
                 $row,
                 null,
-                'A'.$excelRow
+                'A' . $excelRow
             );
 
             $sheet
                 ->setCellValueExplicit(
-                    'B'.$excelRow,
-                    (string)
+                    'B' . $excelRow,
+                    (string) 
                     $row[1],
                     DataType::TYPE_STRING
                 );
 
             $sheet
                 ->setCellValueExplicit(
-                    'C'.$excelRow,
-                    (string)
+                    'C' . $excelRow,
+                    (string) 
                     $row[2],
                     DataType::TYPE_STRING
                 );
 
             $sheet
                 ->setCellValueExplicit(
-                    'M'.$excelRow,
-                    (string)
+                    'M' . $excelRow,
+                    (string) 
                     $row[12],
                     DataType::TYPE_STRING
                 );
@@ -690,7 +687,7 @@ class BnbaImportRetentionAuditTest
         ) {
             self::fail(
                 'Tidak dapat membuat '
-                .'temporary file.'
+                . 'temporary file.'
             );
         }
 
@@ -700,15 +697,15 @@ class BnbaImportRetentionAuditTest
 
         $path =
             $temporary
-            .'.xlsx';
+            . '.xlsx';
 
         (
             new Xlsx(
                 $spreadsheet
             )
         )->save(
-            $path
-        );
+                $path
+            );
 
         $spreadsheet
             ->disconnectWorksheets();
@@ -725,9 +722,8 @@ class BnbaImportRetentionAuditTest
     /**
      * @return array<int, string>
      */
-    private function headers():
-        array
-    {
+    private function headers(
+    ): array {
         return [
             'TAHUN KEPESERTAAN',
             'NIK',

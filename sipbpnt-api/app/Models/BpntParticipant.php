@@ -15,6 +15,7 @@ class BpntParticipant extends Model
     protected $fillable = [
         'bpnt_period_id',
         'kpm_id',
+        'kelurahan_id',
         'bnba_import_id',
         'import_row_number',
         'membership_year',
@@ -32,9 +33,14 @@ class BpntParticipant extends Model
     protected function casts(): array
     {
         return [
-            'monthly_statuses' => 'array',
-            'welfare_rank' => 'integer',
-            'entitlement_amount' => 'integer',
+            'monthly_statuses'
+                => 'array',
+
+            'welfare_rank'
+                => 'integer',
+
+            'entitlement_amount'
+                => 'integer',
         ];
     }
 
@@ -50,6 +56,13 @@ class BpntParticipant extends Model
     {
         return $this->belongsTo(
             Kpm::class
+        );
+    }
+
+    public function kelurahan(): BelongsTo
+    {
+        return $this->belongsTo(
+            Kelurahan::class
         );
     }
 

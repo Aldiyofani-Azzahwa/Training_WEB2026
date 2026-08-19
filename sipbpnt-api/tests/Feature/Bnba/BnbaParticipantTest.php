@@ -14,9 +14,10 @@ use App\Models\User;
 use App\Support\Security\SensitiveIdentity;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use App\Models\Kelurahan;
+use Database\Seeders\WilayahSeeder;
 
-class BnbaParticipantTest
-    extends TestCase
+class BnbaParticipantTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -28,6 +29,9 @@ class BnbaParticipantTest
             'sipbpnt.identity_hash_key',
             'testing-identity-hash-key-32-bytes'
         );
+        $this->seed(
+            WilayahSeeder::class
+        );
     }
 
     public function test_manager_can_see_confirmed_bnba_participants(): void
@@ -35,10 +39,10 @@ class BnbaParticipantTest
         $manager =
             User::factory()->create([
                 'role'
-                    => UserRole::MANAGER,
+                => UserRole::MANAGER,
 
                 'is_active'
-                    => true,
+                => true,
             ]);
 
         $period =
@@ -49,8 +53,8 @@ class BnbaParticipantTest
                 ->actingAs($manager)
                 ->getJson(
                     '/api/v1/bnba/participants'
-                    .'?period_id='
-                    .$period->id
+                    . '?period_id='
+                    . $period->id
                 );
 
         $response
@@ -69,7 +73,7 @@ class BnbaParticipantTest
             );
 
         $nik =
-            (string)
+            (string) 
             $response->json(
                 'data.0.kpm.nik'
             );
@@ -90,10 +94,10 @@ class BnbaParticipantTest
         $manager =
             User::factory()->create([
                 'role'
-                    => UserRole::MANAGER,
+                => UserRole::MANAGER,
 
                 'is_active'
-                    => true,
+                => true,
             ]);
 
         $period =
@@ -104,9 +108,9 @@ class BnbaParticipantTest
                 ->actingAs($manager)
                 ->getJson(
                     '/api/v1/bnba/participants'
-                    .'?period_id='
-                    .$period->id
-                    .'&search=1234567891011132'
+                    . '?period_id='
+                    . $period->id
+                    . '&search=1234567891011132'
                 );
 
         $response
@@ -122,39 +126,39 @@ class BnbaParticipantTest
         $surveyor =
             User::factory()->create([
                 'role'
-                    => UserRole::SURVEYOR,
+                => UserRole::SURVEYOR,
 
                 'is_active'
-                    => true,
+                => true,
             ]);
 
         $period =
             BpntPeriod::query()->create([
                 'code'
-                    => 'BPNT-2026',
+                => 'BPNT-2026',
 
                 'name'
-                    => 'BPNT 2026',
+                => 'BPNT 2026',
 
                 'year'
-                    => 2026,
+                => 2026,
 
                 'is_active'
-                    => true,
+                => true,
             ]);
 
         $this
             ->actingAs($surveyor)
             ->getJson(
                 '/api/v1/bnba/participants'
-                .'?period_id='
-                .$period->id
+                . '?period_id='
+                . $period->id
             )
             ->assertForbidden();
     }
 
-    private function createConfirmedParticipant():
-        BpntPeriod {
+    private function createConfirmedParticipant(
+    ): BpntPeriod {
         /** @var SensitiveIdentity $identity */
         $identity = app(
             SensitiveIdentity::class
@@ -163,78 +167,78 @@ class BnbaParticipantTest
         $admin =
             User::factory()->create([
                 'role'
-                    => UserRole::ADMIN_DINSOS,
+                => UserRole::ADMIN_DINSOS,
 
                 'is_active'
-                    => true,
+                => true,
             ]);
 
         $period =
             BpntPeriod::query()->create([
                 'code'
-                    => 'BPNT-2026',
+                => 'BPNT-2026',
 
                 'name'
-                    => 'BPNT 2026',
+                => 'BPNT 2026',
 
                 'year'
-                    => 2026,
+                => 2026,
 
                 'is_active'
-                    => true,
+                => true,
             ]);
 
         $kpm =
             Kpm::query()->create([
                 'nik_hash'
-                    => $identity->hash(
+                => $identity->hash(
                         '1234567891011132'
                     ),
 
                 'nik_ciphertext'
-                    => $identity->encrypt(
+                => $identity->encrypt(
                         '1234567891011132'
                     ),
 
                 'nkk_hash'
-                    => $identity->hash(
+                => $identity->hash(
                         '1987654321010123'
                     ),
 
                 'nkk_ciphertext'
-                    => $identity->encrypt(
+                => $identity->encrypt(
                         '1987654321010123'
                     ),
 
                 'full_name'
-                    => 'KPM TEST',
+                => 'KPM TEST',
 
                 'birth_place'
-                    => 'MOJOKERTO',
+                => 'MOJOKERTO',
 
                 'birth_date'
-                    => '1980-01-01',
+                => '1980-01-01',
 
                 'mother_name'
-                    => 'IBU TEST',
+                => 'IBU TEST',
 
                 'address'
-                    => 'ALAMAT TEST',
+                => 'ALAMAT TEST',
 
                 'rt'
-                    => '001',
+                => '001',
 
                 'rw'
-                    => '002',
+                => '002',
 
                 'kelurahan'
-                    => 'JAGALAN',
+                => 'JAGALAN',
 
                 'kecamatan'
-                    => 'KRANGGAN',
+                => 'KRANGGAN',
 
                 'account_ciphertext'
-                    => $identity->encrypt(
+                => $identity->encrypt(
                         '1234566742'
                     ),
             ]);
@@ -242,91 +246,168 @@ class BnbaParticipantTest
         $import =
             BnbaImport::query()->create([
                 'bpnt_period_id'
-                    => $period->id,
+                => $period->id,
 
                 'uploaded_by'
-                    => $admin->id,
+                => $admin->id,
 
                 'confirmed_by'
-                    => $admin->id,
+                => $admin->id,
 
                 'status'
-                    => BnbaImportStatus
+                => BnbaImportStatus
                         ::CONFIRMED,
 
                 'original_name'
-                    => 'bnba-test.xlsx',
+                => 'bnba-test.xlsx',
 
                 'stored_path'
-                    => 'bnba-imports/test.xlsx',
+                => 'bnba-imports/test.xlsx',
 
                 'file_sha256'
-                    => str_repeat(
+                => str_repeat(
                         'a',
                         64
                     ),
 
                 'total_rows'
-                    => 1,
+                => 1,
 
                 'valid_rows'
-                    => 1,
+                => 1,
 
                 'warning_rows'
-                    => 0,
+                => 0,
 
                 'invalid_rows'
-                    => 0,
+                => 0,
 
                 'duplicate_rows'
-                    => 0,
+                => 0,
 
                 'confirmed_at'
-                    => now(),
+                => now(),
             ]);
+        $jagalan =
+            Kelurahan::query()
+                ->where(
+                    'name',
+                    'Jagalan'
+                )
+                ->whereHas(
+                    'kecamatan',
+                    fn($query) =>
+                    $query->where(
+                        'name',
+                        'Kranggan'
+                    )
+                )
+                ->firstOrFail();
 
         BpntParticipant::query()
             ->create([
                 'bpnt_period_id'
-                    => $period->id,
+                => $period->id,
 
                 'kpm_id'
-                    => $kpm->id,
+                => $kpm->id,
+                'kelurahan_id'
+                => $jagalan->id,
 
                 'bnba_import_id'
-                    => $import->id,
+                => $import->id,
 
                 'import_row_number'
-                    => 2,
+                => 2,
 
                 'membership_year'
-                    => '2024',
+                => '2024',
 
                 'e_warung_name_source'
-                    => 'E WAROENG TEST',
+                => 'E WAROENG TEST',
 
                 'source_status'
-                    => 'PENGAJUAN 2026',
+                => 'PENGAJUAN 2026',
 
                 'source_description'
-                    => '1 PENERIMA',
+                => '1 PENERIMA',
 
                 'monthly_statuses'
-                    => [],
+                => [],
 
                 'sk_status'
-                    => 'SK 2026',
+                => 'SK 2026',
 
                 'sk_description'
-                    => '1 PENERIMA',
+                => '1 PENERIMA',
 
                 'welfare_rank'
-                    => 3,
+                => 3,
 
                 'entitlement_amount'
-                    => 450000,
+                => 450000,
             ]);
 
         return $period;
+    }
+
+    public function test_participant_keeps_period_wilayah_when_kpm_current_wilayah_changes(): void
+    {
+        $manager =
+            User::factory()
+                ->create([
+                    'role'
+                    => UserRole
+                            ::MANAGER,
+
+                    'is_active'
+                    => true,
+                ]);
+
+        $period =
+            $this
+                ->createConfirmedParticipant();
+
+        /*
+         * Simulasikan KPM yang pada import
+         * periode berikutnya sudah pindah wilayah.
+         */
+        $kpm =
+            Kpm::query()
+                ->firstOrFail();
+
+        $kpm->update([
+            'kelurahan'
+            => 'MENTIKAN',
+
+            'kecamatan'
+            => 'PRAJURIT KULON',
+        ]);
+
+        /*
+         * Participant periode lama tetap harus
+         * menunjuk Jagalan - Kranggan.
+         */
+        $response =
+            $this
+                ->actingAs(
+                    $manager
+                )
+                ->getJson(
+                    '/api/v1/bnba/participants'
+                    . '?period_id='
+                    . $period->id
+                );
+
+        $response
+            ->assertOk()
+            ->assertJsonPath(
+                'data.0.kpm.kelurahan',
+                'Jagalan'
+            )
+            ->assertJsonPath(
+                'data.0.kpm.kecamatan',
+                'Kranggan'
+            );
     }
 }

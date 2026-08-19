@@ -15,84 +15,122 @@ class BpntParticipantResource
         Request $request
     ): array {
         /** @var SensitiveIdentity $identity */
-        $identity = app(
-            SensitiveIdentity::class
-        );
+        $identity =
+            app(
+                SensitiveIdentity::class
+            );
+
+        $kelurahan =
+            $this->kelurahan;
+
+        $kecamatan =
+            $kelurahan
+                ?->kecamatan;
 
         return [
-            'id' => $this->id,
+            'id'
+                => $this->id,
 
             'period' => [
                 'id'
-                    => $this->period->id,
+                    => $this
+                        ->period
+                        ->id,
 
                 'code'
-                    => $this->period->code,
+                    => $this
+                        ->period
+                        ->code,
 
                 'name'
-                    => $this->period->name,
+                    => $this
+                        ->period
+                        ->name,
 
                 'year'
-                    => $this->period->year,
+                    => $this
+                        ->period
+                        ->year,
             ],
 
             'kpm' => [
                 'id'
-                    => $this->kpm->id,
+                    => $this
+                        ->kpm
+                        ->id,
 
                 'nik'
                     => $identity
                         ->maskCiphertext(
-                            $this->kpm
+                            $this
+                                ->kpm
                                 ->nik_ciphertext
                         ),
 
                 'nkk'
                     => $identity
                         ->maskCiphertext(
-                            $this->kpm
+                            $this
+                                ->kpm
                                 ->nkk_ciphertext
                         ),
 
                 'full_name'
-                    => $this->kpm
+                    => $this
+                        ->kpm
                         ->full_name,
 
                 'birth_place'
-                    => $this->kpm
+                    => $this
+                        ->kpm
                         ->birth_place,
 
                 'birth_date'
-                    => $this->kpm
+                    => $this
+                        ->kpm
                         ->birth_date
-                        ?->format('Y-m-d'),
+                        ?->format(
+                            'Y-m-d'
+                        ),
 
                 'mother_name'
-                    => $this->kpm
+                    => $this
+                        ->kpm
                         ->mother_name,
 
                 'address'
-                    => $this->kpm
+                    => $this
+                        ->kpm
                         ->address,
 
                 'rt'
-                    => $this->kpm->rt,
+                    => $this
+                        ->kpm
+                        ->rt,
 
                 'rw'
-                    => $this->kpm->rw,
+                    => $this
+                        ->kpm
+                        ->rw,
 
+                /*
+                 * Lokasi berasal dari participant
+                 * periode, bukan lagi lokasi mutable
+                 * pada master KPM.
+                 */
                 'kelurahan'
-                    => $this->kpm
-                        ->kelurahan,
+                    => $kelurahan
+                        ?->name,
 
                 'kecamatan'
-                    => $this->kpm
-                        ->kecamatan,
+                    => $kecamatan
+                        ?->name,
 
                 'account_number'
                     => $identity
                         ->maskCiphertext(
-                            $this->kpm
+                            $this
+                                ->kpm
                                 ->account_ciphertext,
                             2,
                             2
@@ -100,14 +138,16 @@ class BpntParticipantResource
             ],
 
             'membership_year'
-                => $this->membership_year,
+                => $this
+                    ->membership_year,
 
             'e_warung_name'
                 => $this
                     ->e_warung_name_source,
 
             'source_status'
-                => $this->source_status,
+                => $this
+                    ->source_status,
 
             'source_description'
                 => $this
@@ -119,7 +159,8 @@ class BpntParticipantResource
                     ?? [],
 
             'sk_status'
-                => $this->sk_status,
+                => $this
+                    ->sk_status,
 
             'sk_description'
                 => $this
@@ -130,7 +171,8 @@ class BpntParticipantResource
                     ->apbn_march_status,
 
             'welfare_rank'
-                => $this->welfare_rank,
+                => $this
+                    ->welfare_rank,
 
             'entitlement_amount'
                 => $this
@@ -138,14 +180,17 @@ class BpntParticipantResource
 
             'import' => [
                 'id'
-                    => $this->import->id,
+                    => $this
+                        ->import
+                        ->id,
 
                 'row_number'
                     => $this
                         ->import_row_number,
 
                 'confirmed_at'
-                    => $this->import
+                    => $this
+                        ->import
                         ->confirmed_at
                         ?->toIso8601String(),
             ],

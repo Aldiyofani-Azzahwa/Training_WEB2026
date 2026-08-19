@@ -20,6 +20,7 @@ use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Tests\TestCase;
+use Database\Seeders\WilayahSeeder;
 
 
 class BnbaImportTest extends TestCase
@@ -33,6 +34,9 @@ class BnbaImportTest extends TestCase
         config()->set(
             'sipbpnt.identity_hash_key',
             'testing-identity-hash-key-32-bytes-minimum'
+        );
+        $this->seed(
+            WilayahSeeder::class
         );
     }
 
