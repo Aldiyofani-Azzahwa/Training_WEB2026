@@ -443,6 +443,13 @@ class BnbaImportTest extends TestCase
                 'A'.$excelRow
             );
 
+            /*
+             * NIK harus disimpan sebagai text.
+             *
+             * NIK memiliki 16 digit sehingga tidak
+             * boleh diperlakukan sebagai numeric Excel
+             * karena berisiko kehilangan presisi.
+             */
             $sheet
                 ->setCellValueExplicit(
                     'B'.$excelRow,
@@ -450,10 +457,34 @@ class BnbaImportTest extends TestCase
                     DataType::TYPE_STRING
                 );
 
+            /*
+             * NKK harus disimpan sebagai text.
+             *
+             * Sama seperti NIK, nilai 16 digit tidak
+             * aman apabila disimpan sebagai angka Excel.
+             */
             $sheet
                 ->setCellValueExplicit(
                     'C'.$excelRow,
                     (string) $row[2],
+                    DataType::TYPE_STRING
+                );
+
+            /*
+             * Nomor rekening juga direpresentasikan
+             * sebagai text pada fixture happy-path.
+             *
+             * Tujuannya:
+             * - menjaga leading zero;
+             * - menghindari konversi numeric Excel;
+             * - menghindari kehilangan precision;
+             * - memastikan row valid tidak berubah
+             *   menjadi warning hanya karena tipe cell.
+             */
+            $sheet
+                ->setCellValueExplicit(
+                    'M'.$excelRow,
+                    (string) $row[12],
                     DataType::TYPE_STRING
                 );
         }

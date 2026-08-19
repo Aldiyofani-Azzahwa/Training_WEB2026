@@ -12,10 +12,6 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface BpntParticipantRepositoryInterface
 {
-    /**
-     * @param array<int, string> $nikHashes
-     * @return array<int, string>
-     */
     public function existingNikHashesForPeriod(
         int $periodId,
         array $nikHashes
@@ -28,21 +24,15 @@ interface BpntParticipantRepositoryInterface
         BnbaImportRow $row
     ): void;
 
-    /**
-     * @param array<string, mixed> $filters
-     */
+    public function deleteForPeriod(
+        int $periodId
+    ): int;
+
     public function paginateConfirmed(
         array $filters,
         ?string $nikHash = null
     ): LengthAwarePaginator;
 
-    /**
-     * @return array{
-     *     kecamatan: array<int, string>,
-     *     kelurahan: array<int, string>,
-     *     e_warungs: array<int, string>
-     * }
-     */
     public function filterOptions(
         int $periodId
     ): array;

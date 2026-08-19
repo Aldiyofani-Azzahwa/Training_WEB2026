@@ -4,7 +4,7 @@ import {
   ShieldCheck,
   ShoppingBasket,
   Users,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 
 import PageHeader from '@/components/landing/PageHeader.vue'
 

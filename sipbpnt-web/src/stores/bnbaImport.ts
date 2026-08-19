@@ -1,11 +1,17 @@
 import axios from 'axios'
+
 import {
   computed,
   ref,
 } from 'vue'
-import { defineStore } from 'pinia'
 
-import { bnbaService } from '@/services/bnbaService'
+import {
+  defineStore,
+} from 'pinia'
+
+import {
+  bnbaService,
+} from '@/services/bnbaService'
 
 import type {
   BnbaImport,
@@ -16,16 +22,19 @@ import type {
   LaravelErrorResponse,
   LaravelValidationErrors,
   PaginationMeta,
+  UpdateBpntPeriodPayload,
 } from '@/types/bnba'
 
-const DEFAULT_PER_PAGE = 50
+const DEFAULT_PER_PAGE =
+  50
 
-const emptyPagination = (): PaginationMeta => ({
-  current_page: 1,
-  last_page: 1,
-  per_page: DEFAULT_PER_PAGE,
-  total: 0,
-})
+const emptyPagination =
+  (): PaginationMeta => ({
+    current_page: 1,
+    last_page: 1,
+    per_page: DEFAULT_PER_PAGE,
+    total: 0,
+  })
 
 export const useBnbaImportStore =
   defineStore(
@@ -33,7 +42,7 @@ export const useBnbaImportStore =
     () => {
       /*
       |--------------------------------------------------------------------------
-      | State - Period
+      | Period
       |--------------------------------------------------------------------------
       */
 
@@ -41,26 +50,32 @@ export const useBnbaImportStore =
         ref<BpntPeriod[]>([])
 
       const selectedPeriodId =
-        ref<number | null>(null)
+        ref<number | null>(
+          null,
+        )
 
       /*
       |--------------------------------------------------------------------------
-      | State - Upload
+      | Import
       |--------------------------------------------------------------------------
       */
 
       const selectedFile =
-        ref<File | null>(null)
+        ref<File | null>(
+          null,
+        )
 
       const uploadProgress =
         ref(0)
 
       const currentImport =
-        ref<BnbaImport | null>(null)
+        ref<BnbaImport | null>(
+          null,
+        )
 
       /*
       |--------------------------------------------------------------------------
-      | State - Preview
+      | Preview
       |--------------------------------------------------------------------------
       */
 
@@ -82,21 +97,7 @@ export const useBnbaImportStore =
 
       /*
       |--------------------------------------------------------------------------
-      | State - History
-      |--------------------------------------------------------------------------
-      */
-
-      const importHistory =
-        ref<BnbaImport[]>([])
-
-      const historyMeta =
-        ref<PaginationMeta>(
-          emptyPagination(),
-        )
-
-      /*
-      |--------------------------------------------------------------------------
-      | Loading State
+      | Loading
       |--------------------------------------------------------------------------
       */
 
@@ -104,6 +105,19 @@ export const useBnbaImportStore =
         ref(false)
 
       const isCreatingPeriod =
+        ref(false)
+
+      const updatingPeriodId =
+        ref<number | null>(
+          null,
+        )
+
+      const deletingPeriodId =
+        ref<number | null>(
+          null,
+        )
+
+      const isDeletingBnba =
         ref(false)
 
       const isUploading =
@@ -115,9 +129,6 @@ export const useBnbaImportStore =
       const isConfirming =
         ref(false)
 
-      const isLoadingHistory =
-        ref(false)
-
       /*
       |--------------------------------------------------------------------------
       | Error
@@ -125,7 +136,9 @@ export const useBnbaImportStore =
       */
 
       const errorMessage =
-        ref<string | null>(null)
+        ref<string | null>(
+          null,
+        )
 
       const validationErrors =
         ref<LaravelValidationErrors>(
@@ -137,15 +150,6 @@ export const useBnbaImportStore =
       | Computed
       |--------------------------------------------------------------------------
       */
-
-      const activePeriods =
-        computed(
-          () =>
-            periods.value.filter(
-              (period) =>
-                period.is_active,
-            ),
-        )
 
       const selectedPeriod =
         computed(
@@ -159,68 +163,91 @@ export const useBnbaImportStore =
             ?? null,
         )
 
-      const hasImport =
-        computed(
-          () =>
+      /*
+       * BNBA dianggap sedang dikerjakan
+       * sejak file dipilih sampai proses
+       * preview / konfirmasi selesai.
+       *
+       * Selama kondisi ini:
+       * - tidak boleh pindah periode
+       * - tidak boleh tambah periode
+       * - tidak boleh edit periode
+       * - tidak boleh hapus periode
+       */
+      const isBnbaWorking =
+        computed(() => {
+          return (
+            selectedFile.value
+            !== null
+            ||
+            isUploading.value
+            ||
+            isLoadingPreview.value
+            ||
+            isConfirming.value
+            ||
+            isDeletingBnba.value
+            ||
             currentImport.value
-            !== null,
-        )
+              ?.status
+            === 'preview_ready'
+          )
+        })
+
+      const showUploadPanel =
+        computed(() => {
+          return (
+            selectedPeriod.value
+            !== null
+            &&
+            selectedPeriod.value
+              .bnba
+            === null
+            &&
+            currentImport.value
+            === null
+          )
+        })
 
       const canUpload =
-        computed(
-          () =>
-            selectedPeriodId.value
-              !== null
+        computed(() => {
+          return (
+            showUploadPanel.value
             &&
             selectedFile.value
-              !== null
+            !== null
             &&
-            !isUploading.value,
-        )
+            !isUploading.value
+          )
+        })
 
       const canConfirm =
         computed(() => {
           if (
-            !currentImport.value
-            || isConfirming.value
-          ) {
-            return false
-          }
-
-          if (
-            currentImport.value.status
+            currentImport.value
+            === null
+            ||
+            currentImport.value
+              .status
             !== 'preview_ready'
+            ||
+            isConfirming.value
           ) {
             return false
           }
 
-          const {
-            valid,
-            warning,
-          } =
+          const validRows =
             currentImport.value
-              .summary
+              .summary.valid
+
+          const warningRows =
+            currentImport.value
+              .summary.warning
 
           return (
-            valid + warning
-          ) > 0
-        })
-
-      const hasProblemRows =
-        computed(() => {
-          if (!currentImport.value) {
-            return false
-          }
-
-          const {
-            invalid,
-            duplicate,
-          } =
-            currentImport.value
-              .summary
-
-          return (
-            invalid + duplicate
+            validRows
+            +
+            warningRows
           ) > 0
         })
 
@@ -230,16 +257,21 @@ export const useBnbaImportStore =
       |--------------------------------------------------------------------------
       */
 
-      function clearError(): void {
-        errorMessage.value = null
-        validationErrors.value = {}
+      function clearError():
+        void {
+        errorMessage.value =
+          null
+
+        validationErrors.value =
+          {}
       }
 
       function handleError(
         error: unknown,
-        fallbackMessage: string,
+        fallback: string,
       ): void {
-        validationErrors.value = {}
+        validationErrors.value =
+          {}
 
         if (
           !axios.isAxiosError<
@@ -247,74 +279,129 @@ export const useBnbaImportStore =
           >(error)
         ) {
           errorMessage.value =
-            fallbackMessage
+            fallback
 
           return
         }
 
         const status =
-          error.response?.status
+          error.response
+            ?.status
 
-        const response =
-          error.response?.data
+        const data =
+          error.response
+            ?.data
 
         if (
           status === 422
-          && response?.errors
+          &&
+          data?.errors
         ) {
           validationErrors.value =
-            response.errors
+            data.errors
 
           const firstError =
             Object.values(
-              response.errors,
+              data.errors,
             )
               .flat()
               .find(Boolean)
 
           errorMessage.value =
             firstError
-            ?? response.message
-            ?? fallbackMessage
+            ?? data.message
+            ?? fallback
 
           return
         }
 
-        if (status === 401) {
+        if (
+          status === 401
+        ) {
           errorMessage.value =
-            'Sesi login sudah berakhir. Silakan login kembali.'
+            'Sesi login sudah berakhir.'
 
           return
         }
 
-        if (status === 403) {
+        if (
+          status === 403
+        ) {
           errorMessage.value =
             'Anda tidak memiliki izin untuk melakukan tindakan ini.'
 
           return
         }
 
-        if (status === 419) {
+        if (
+          status === 419
+        ) {
           errorMessage.value =
-            'Sesi keamanan sudah kedaluwarsa. Silakan muat ulang halaman.'
+            'Sesi keamanan sudah kedaluwarsa. Muat ulang halaman.'
+
+          return
+        }
+
+        /*
+         * Jangan bocorkan SQLSTATE
+         * atau detail Laravel ke UI.
+         */
+        if (
+          status !== undefined
+          &&
+          status >= 500
+        ) {
+          errorMessage.value =
+            fallback
 
           return
         }
 
         errorMessage.value =
-          response?.message
-          ?? fallbackMessage
+          data?.message
+          ?? fallback
       }
 
       /*
       |--------------------------------------------------------------------------
-      | Period Actions
+      | Reset Workspace
+      |--------------------------------------------------------------------------
+      */
+
+      function clearWorkspace():
+        void {
+        selectedFile.value =
+          null
+
+        uploadProgress.value =
+          0
+
+        currentImport.value =
+          null
+
+        previewRows.value =
+          []
+
+        previewMeta.value =
+          emptyPagination()
+
+        statusFilter.value =
+          null
+
+        search.value =
+          ''
+      }
+
+      /*
+      |--------------------------------------------------------------------------
+      | Period
       |--------------------------------------------------------------------------
       */
 
       async function fetchPeriods():
         Promise<void> {
-        isLoadingPeriods.value = true
+        isLoadingPeriods.value =
+          true
 
         clearError()
 
@@ -323,23 +410,26 @@ export const useBnbaImportStore =
             await bnbaService
               .getPeriods()
 
-          const selectedStillExists =
-            periods.value.some(
-              (period) =>
-                period.id
-                ===
-                selectedPeriodId.value
-                &&
-                period.is_active,
-            )
-
           if (
-            !selectedStillExists
+            selectedPeriodId.value
+            !== null
           ) {
-            selectedPeriodId.value =
-              activePeriods.value[0]
-                ?.id
-              ?? null
+            const selectedStillExists =
+              periods.value.some(
+                (period) =>
+                  period.id
+                  ===
+                  selectedPeriodId.value,
+              )
+
+            if (
+              !selectedStillExists
+            ) {
+              selectedPeriodId.value =
+                null
+
+              clearWorkspace()
+            }
           }
         } catch (error) {
           handleError(
@@ -353,9 +443,28 @@ export const useBnbaImportStore =
       }
 
       async function createPeriod(
-        payload: CreateBpntPeriodPayload,
-      ): Promise<BpntPeriod | null> {
-        isCreatingPeriod.value = true
+        payload:
+          CreateBpntPeriodPayload,
+      ): Promise<
+        BpntPeriod | null
+      > {
+        /*
+         * Defense tambahan.
+         * UI memang dikunci, tetapi store
+         * juga tidak boleh menerima request
+         * create saat BNBA sedang diproses.
+         */
+        if (
+          isBnbaWorking.value
+        ) {
+          errorMessage.value =
+            'Selesaikan proses BNBA terlebih dahulu sebelum menambah periode.'
+
+          return null
+        }
+
+        isCreatingPeriod.value =
+          true
 
         clearError()
 
@@ -366,15 +475,7 @@ export const useBnbaImportStore =
                 payload,
               )
 
-          periods.value = [
-            period,
-            ...periods.value,
-          ]
-
-          if (period.is_active) {
-            selectedPeriodId.value =
-              period.id
-          }
+          await fetchPeriods()
 
           return period
         } catch (error) {
@@ -390,16 +491,170 @@ export const useBnbaImportStore =
         }
       }
 
-      function selectPeriod(
-        periodId: number | null,
-      ): void {
+      async function updatePeriod(
+        periodId: number,
+        payload:
+          UpdateBpntPeriodPayload,
+      ): Promise<boolean> {
+        if (
+          isBnbaWorking.value
+        ) {
+          errorMessage.value =
+            'Selesaikan proses BNBA terlebih dahulu sebelum mengedit periode.'
+
+          return false
+        }
+
+        updatingPeriodId.value =
+          periodId
+
+        clearError()
+
+        try {
+          await bnbaService
+            .updatePeriod(
+              periodId,
+              payload,
+            )
+
+          await fetchPeriods()
+
+          return true
+        } catch (error) {
+          handleError(
+            error,
+            'Periode BPNT gagal diperbarui.',
+          )
+
+          return false
+        } finally {
+          updatingPeriodId.value =
+            null
+        }
+      }
+
+      async function deletePeriod(
+        periodId: number,
+      ): Promise<boolean> {
+        if (
+          isBnbaWorking.value
+        ) {
+          errorMessage.value =
+            'Selesaikan proses BNBA terlebih dahulu sebelum menghapus periode.'
+
+          return false
+        }
+
+        deletingPeriodId.value =
+          periodId
+
+        clearError()
+
+        try {
+          await bnbaService
+            .deletePeriod(
+              periodId,
+            )
+
+          if (
+            selectedPeriodId.value
+            === periodId
+          ) {
+            selectedPeriodId.value =
+              null
+
+            clearWorkspace()
+          }
+
+          await fetchPeriods()
+
+          return true
+        } catch (error) {
+          handleError(
+            error,
+            'Periode BPNT gagal dihapus.',
+          )
+
+          return false
+        } finally {
+          deletingPeriodId.value =
+            null
+        }
+      }
+
+      async function selectPeriod(
+        periodId: number,
+      ): Promise<void> {
+        /*
+         * Tidak boleh pindah periode
+         * ketika BNBA periode lain
+         * sedang dikerjakan.
+         */
+        if (
+          isBnbaWorking.value
+          &&
+          selectedPeriodId.value
+          !== null
+          &&
+          selectedPeriodId.value
+          !== periodId
+        ) {
+          errorMessage.value =
+            'Selesaikan atau hapus proses BNBA pada periode yang sedang dibuka sebelum berpindah periode.'
+
+          return
+        }
+
+        const period =
+          periods.value.find(
+            (item) =>
+              item.id
+              === periodId,
+          )
+
+        if (!period) {
+          return
+        }
+
+        /*
+         * Klik periode yang sama saat
+         * sedang bekerja tidak perlu
+         * mereset workspace.
+         */
+        if (
+          selectedPeriodId.value
+          === periodId
+          &&
+          isBnbaWorking.value
+        ) {
+          return
+        }
+
         selectedPeriodId.value =
           periodId
+
+        clearWorkspace()
+        clearError()
+
+        /*
+         * Kalau periode mempunyai import
+         * preview yang belum dikonfirmasi,
+         * buka kembali preview tersebut.
+         */
+        if (
+          period.bnba
+            ?.status
+          === 'preview_ready'
+        ) {
+          await loadImportPreview(
+            period.bnba.id,
+          )
+        }
       }
 
       /*
       |--------------------------------------------------------------------------
-      | File Actions
+      | File
       |--------------------------------------------------------------------------
       */
 
@@ -408,9 +663,35 @@ export const useBnbaImportStore =
       ): void {
         clearError()
 
-        if (!file) {
-          selectedFile.value = null
-          uploadProgress.value = 0
+        if (
+          file === null
+        ) {
+          selectedFile.value =
+            null
+
+          uploadProgress.value =
+            0
+
+          return
+        }
+
+        if (
+          selectedPeriod.value
+          === null
+        ) {
+          errorMessage.value =
+            'Klik periode BPNT terlebih dahulu.'
+
+          return
+        }
+
+        if (
+          selectedPeriod.value
+            .bnba
+          !== null
+        ) {
+          errorMessage.value =
+            'Periode ini sudah memiliki BNBA.'
 
           return
         }
@@ -423,9 +704,11 @@ export const useBnbaImportStore =
 
         if (
           extension !== 'xlsx'
-          && extension !== 'xls'
+          &&
+          extension !== 'xls'
         ) {
-          selectedFile.value = null
+          selectedFile.value =
+            null
 
           errorMessage.value =
             'File harus berformat .xlsx atau .xls.'
@@ -433,11 +716,18 @@ export const useBnbaImportStore =
           return
         }
 
-        const maxSize =
-          10 * 1024 * 1024
+        const maximumFileSize =
+          10
+          * 1024
+          * 1024
 
-        if (file.size > maxSize) {
-          selectedFile.value = null
+        if (
+          file.size
+          >
+          maximumFileSize
+        ) {
+          selectedFile.value =
+            null
 
           errorMessage.value =
             'Ukuran file maksimal 10 MB.'
@@ -445,68 +735,85 @@ export const useBnbaImportStore =
           return
         }
 
-        selectedFile.value = file
-        uploadProgress.value = 0
+        selectedFile.value =
+          file
+
+        uploadProgress.value =
+          0
       }
 
       /*
       |--------------------------------------------------------------------------
-      | Import Actions
+      | Upload
       |--------------------------------------------------------------------------
       */
 
       async function uploadFile():
         Promise<boolean> {
-        clearError()
-
         if (
           selectedPeriodId.value
           === null
         ) {
           errorMessage.value =
-            'Pilih periode BPNT terlebih dahulu.'
+            'Klik periode BPNT terlebih dahulu.'
 
           return false
         }
 
-        if (!selectedFile.value) {
+        if (
+          selectedFile.value
+          === null
+        ) {
           errorMessage.value =
             'Pilih file BNBA terlebih dahulu.'
 
           return false
         }
 
-        isUploading.value = true
-        uploadProgress.value = 0
+        if (
+          selectedPeriod.value
+            ?.bnba
+          !== null
+        ) {
+          errorMessage.value =
+            'Periode ini sudah memiliki BNBA.'
+
+          return false
+        }
+
+        isUploading.value =
+          true
+
+        uploadProgress.value =
+          0
+
+        clearError()
 
         try {
-          const imported =
-            await bnbaService.upload(
-              selectedPeriodId.value,
-              selectedFile.value,
-              (progress) => {
-                uploadProgress.value =
-                  progress
-              },
-            )
-
           currentImport.value =
-            imported
+            await bnbaService
+              .upload(
+                selectedPeriodId.value,
+                selectedFile.value,
+                (
+                  progress,
+                ) => {
+                  uploadProgress.value =
+                    progress
+                },
+              )
 
           uploadProgress.value =
             100
 
-          statusFilter.value =
-            null
+          await fetchPreview(
+            1,
+          )
 
-          search.value = ''
-
-          await fetchPreview(1)
+          await fetchPeriods()
 
           return true
         } catch (error) {
-          uploadProgress.value = 0
-
           handleError(
             error,
             'File BNBA gagal diproses.',
@@ -519,11 +826,60 @@ export const useBnbaImportStore =
         }
       }
 
+      /*
+      |--------------------------------------------------------------------------
+      | Preview
+      |--------------------------------------------------------------------------
+      */
+
+      async function loadImportPreview(
+        importId: number,
+      ): Promise<void> {
+        isLoadingPreview.value =
+          true
+
+        clearError()
+
+        try {
+          const response =
+            await bnbaService
+              .getPreview(
+                importId,
+                {
+                  page: 1,
+                  per_page:
+                    DEFAULT_PER_PAGE,
+                },
+              )
+
+          currentImport.value =
+            response.data.import
+
+          previewRows.value =
+            response.data.rows
+
+          previewMeta.value =
+            response.meta
+        } catch (error) {
+          handleError(
+            error,
+            'Preview BNBA gagal dimuat.',
+          )
+        } finally {
+          isLoadingPreview.value =
+            false
+        }
+      }
+
       async function fetchPreview(
         page = 1,
       ): Promise<void> {
-        if (!currentImport.value) {
-          previewRows.value = []
+        if (
+          currentImport.value
+          === null
+        ) {
+          previewRows.value =
+            []
 
           previewMeta.value =
             emptyPagination()
@@ -540,23 +896,21 @@ export const useBnbaImportStore =
           const response =
             await bnbaService
               .getPreview(
-                currentImport.value
-                  .id,
+                currentImport.value.id,
                 {
                   status:
                     statusFilter.value
                     ?? undefined,
 
                   search:
-                    search.value.trim()
+                    search.value
+                      .trim()
                     || undefined,
 
                   page,
 
                   per_page:
-                    previewMeta.value
-                      .per_page
-                    || DEFAULT_PER_PAGE,
+                    DEFAULT_PER_PAGE,
                 },
               )
 
@@ -581,12 +935,14 @@ export const useBnbaImportStore =
 
       async function changeStatusFilter(
         status:
-          BnbaRowStatus
-          | null,
+          BnbaRowStatus | null,
       ): Promise<void> {
-        statusFilter.value = status
+        statusFilter.value =
+          status
 
-        await fetchPreview(1)
+        await fetchPreview(
+          1,
+        )
       }
 
       async function searchPreview(
@@ -595,7 +951,9 @@ export const useBnbaImportStore =
         search.value =
           keyword.trim()
 
-        await fetchPreview(1)
+        await fetchPreview(
+          1,
+        )
       }
 
       async function changePage(
@@ -612,22 +970,25 @@ export const useBnbaImportStore =
           return
         }
 
-        await fetchPreview(page)
+        await fetchPreview(
+          page,
+        )
       }
+
+      /*
+      |--------------------------------------------------------------------------
+      | Confirm
+      |--------------------------------------------------------------------------
+      */
 
       async function confirmImport():
         Promise<boolean> {
-        if (!currentImport.value) {
-          errorMessage.value =
-            'Data import belum tersedia.'
-
-          return false
-        }
-
-        if (!canConfirm.value) {
-          errorMessage.value =
-            'Tidak ada data yang dapat dikonfirmasi.'
-
+        if (
+          currentImport.value
+          === null
+          ||
+          !canConfirm.value
+        ) {
           return false
         }
 
@@ -637,23 +998,26 @@ export const useBnbaImportStore =
         clearError()
 
         try {
-          currentImport.value =
-            await bnbaService
-              .confirm(
-                currentImport.value
-                  .id,
-              )
+          await bnbaService
+            .confirm(
+              currentImport.value.id,
+            )
 
-          await fetchPreview(
-            previewMeta.value
-              .current_page,
-          )
+          /*
+           * Setelah confirmed:
+           *
+           * BNBA_WORKING selesai.
+           * Periode bisa dikelola lagi.
+           */
+          clearWorkspace()
+
+          await fetchPeriods()
 
           return true
         } catch (error) {
           handleError(
             error,
-            'Konfirmasi import BNBA gagal.',
+            'Konfirmasi BNBA gagal.',
           )
 
           return false
@@ -665,133 +1029,119 @@ export const useBnbaImportStore =
 
       /*
       |--------------------------------------------------------------------------
-      | History
+      | Delete BNBA
       |--------------------------------------------------------------------------
       */
 
-      async function fetchHistory(
-        page = 1,
-      ): Promise<void> {
-        isLoadingHistory.value =
+      async function deleteBnba():
+        Promise<boolean> {
+        if (
+          selectedPeriodId.value
+          === null
+        ) {
+          return false
+        }
+
+        isDeletingBnba.value =
           true
 
         clearError()
 
         try {
-          const response =
-            await bnbaService
-              .getImportHistory({
-                page,
-                per_page: 15,
-              })
+          await bnbaService
+            .deletePeriodBnba(
+              selectedPeriodId.value,
+            )
 
-          importHistory.value =
-            response.data
+          clearWorkspace()
 
-          historyMeta.value =
-            response.meta
+          await fetchPeriods()
+
+          return true
         } catch (error) {
           handleError(
             error,
-            'Riwayat import BNBA gagal dimuat.',
+            'Data BNBA gagal dihapus.',
           )
+
+          return false
         } finally {
-          isLoadingHistory.value =
+          isDeletingBnba.value =
             false
         }
       }
 
-      /*
-      |--------------------------------------------------------------------------
-      | Reset
-      |--------------------------------------------------------------------------
-      */
-
-      function resetImport(): void {
-        selectedFile.value = null
-
-        uploadProgress.value = 0
-
-        currentImport.value = null
-
-        previewRows.value = []
-
-        previewMeta.value =
-          emptyPagination()
-
-        statusFilter.value = null
-
-        search.value = ''
-
-        clearError()
-      }
-
       return {
         /*
-        |----------------------------------------------------------------------
-        | State
-        |----------------------------------------------------------------------
-        */
-
+         * Period
+         */
         periods,
         selectedPeriodId,
+        selectedPeriod,
+
+        /*
+         * Import
+         */
         selectedFile,
         uploadProgress,
-
         currentImport,
 
+        /*
+         * Preview
+         */
         previewRows,
         previewMeta,
         statusFilter,
         search,
 
-        importHistory,
-        historyMeta,
-
+        /*
+         * Loading
+         */
         isLoadingPeriods,
         isCreatingPeriod,
+        updatingPeriodId,
+        deletingPeriodId,
+        isDeletingBnba,
+
         isUploading,
         isLoadingPreview,
         isConfirming,
-        isLoadingHistory,
 
+        /*
+         * Error
+         */
         errorMessage,
         validationErrors,
 
         /*
-        |----------------------------------------------------------------------
-        | Computed
-        |----------------------------------------------------------------------
-        */
-
-        activePeriods,
-        selectedPeriod,
-        hasImport,
+         * Computed
+         */
+        isBnbaWorking,
+        showUploadPanel,
         canUpload,
         canConfirm,
-        hasProblemRows,
 
         /*
-        |----------------------------------------------------------------------
-        | Actions
-        |----------------------------------------------------------------------
-        */
-
+         * Actions
+         */
         fetchPeriods,
-        createPeriod,
-        selectPeriod,
-        selectFile,
 
+        createPeriod,
+        updatePeriod,
+        deletePeriod,
+
+        selectPeriod,
+
+        selectFile,
         uploadFile,
-        fetchPreview,
+
         changeStatusFilter,
         searchPreview,
         changePage,
+
         confirmImport,
+        deleteBnba,
 
-        fetchHistory,
-
-        resetImport,
         clearError,
       }
     },

@@ -17,5 +17,22 @@ interface BpntPeriodRepositoryInterface
         int $id
     ): BpntPeriod;
 
+    public function update(
+        BpntPeriod $period,
+        array $data
+    ): BpntPeriod;
+
+    public function delete(
+        BpntPeriod $period
+    ): void;
+
+    public function hasImports(
+        int $periodId
+    ): bool;
+
+    public function hasParticipants(
+        int $periodId
+    ): bool;
+
     public function all(): Collection;
 }

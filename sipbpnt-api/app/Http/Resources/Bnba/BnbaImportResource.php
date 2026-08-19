@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Bnba;
 
-use App\Http\Resources\BpntPeriod\BpntPeriodResource;
+use App\Enums\BnbaImportStatus;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -14,38 +14,73 @@ class BnbaImportResource
     public function toArray(
         Request $request
     ): array {
+        $status =
+            $this->status;
+
         return [
             'id'
-                => $this->id,
+                => (int) $this->id,
 
             'period'
-                => new BpntPeriodResource(
-                    $this->whenLoaded(
-                        'period'
-                    )
+                => $this->whenLoaded(
+                    'period',
+                    fn () => [
+                        'id'
+                            => (int)
+                                $this
+                                    ->period
+                                    ->id,
+
+                        'code'
+                            => (string)
+                                $this
+                                    ->period
+                                    ->code,
+
+                        'name'
+                            => (string)
+                                $this
+                                    ->period
+                                    ->name,
+
+                        'year'
+                            => (int)
+                                $this
+                                    ->period
+                                    ->year,
+                    ]
                 ),
 
             'status'
-                => $this->status->value,
+                => $status
+                    instanceof
+                    BnbaImportStatus
+                        ? $status->value
+                        : (string) $status,
 
             'original_name'
                 => $this->original_name,
 
             'summary' => [
                 'total'
-                    => $this->total_rows,
+                    => (int)
+                        $this->total_rows,
 
                 'valid'
-                    => $this->valid_rows,
+                    => (int)
+                        $this->valid_rows,
 
                 'warning'
-                    => $this->warning_rows,
+                    => (int)
+                        $this->warning_rows,
 
                 'invalid'
-                    => $this->invalid_rows,
+                    => (int)
+                        $this->invalid_rows,
 
                 'duplicate'
-                    => $this->duplicate_rows,
+                    => (int)
+                        $this->duplicate_rows,
             ],
 
             'uploaded_by'
@@ -68,11 +103,13 @@ class BnbaImportResource
                 ),
 
             'confirmed_at'
-                => $this->confirmed_at
+                => $this
+                    ->confirmed_at
                     ?->toIso8601String(),
 
             'created_at'
-                => $this->created_at
+                => $this
+                    ->created_at
                     ?->toIso8601String(),
         ];
     }

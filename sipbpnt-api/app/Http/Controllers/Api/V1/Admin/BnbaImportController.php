@@ -38,7 +38,9 @@ class BnbaImportController
 
         $imports =
             $this->service
-                ->history($perPage);
+                ->history(
+                    $perPage
+                );
 
         return response()->json([
             'data'
@@ -71,25 +73,24 @@ class BnbaImportController
         StoreBnbaImportRequest $request
     ): JsonResponse {
         $import =
-            $this->service->upload(
-                $request->file('file'),
+            $this->service
+                ->upload(
+                    $request->file('file'),
 
-                (int)
-                $request
-                    ->validated(
-                        'period_id'
-                    ),
+                    (int)
+                    $request
+                        ->validated(
+                            'period_id'
+                        ),
 
-                $request->user(),
-                $request->ip(),
-                $request->userAgent()
-            );
+                    $request->user(),
+                    $request->ip(),
+                    $request->userAgent()
+                );
 
         return response()->json([
             'message'
-                => 'File BNBA berhasil dibaca. '
-                    .'Silakan periksa preview '
-                    .'sebelum konfirmasi.',
+                => 'File BNBA berhasil dibaca. Silakan periksa preview sebelum konfirmasi.',
 
             'data'
                 => new BnbaImportResource(
@@ -133,7 +134,9 @@ class BnbaImportController
             'data' => [
                 'import'
                     => new BnbaImportResource(
-                        $result['import']
+                        $result[
+                            'import'
+                        ]
                     ),
 
                 'rows'
@@ -178,13 +181,34 @@ class BnbaImportController
 
         return response()->json([
             'message'
-                => 'Impor BNBA '
-                    .'berhasil dikonfirmasi.',
+                => 'Import BNBA berhasil dikonfirmasi.',
 
             'data'
                 => new BnbaImportResource(
                     $confirmed
                 ),
+        ]);
+    }
+
+    public function destroyForPeriod(
+        Request $request,
+        string $period
+    ): JsonResponse {
+        $result =
+            $this->service
+                ->deleteForPeriod(
+                    (int) $period,
+                    $request->user(),
+                    $request->ip(),
+                    $request->userAgent()
+                );
+
+        return response()->json([
+            'message'
+                => 'Data BNBA berhasil dihapus.',
+
+            'data'
+                => $result,
         ]);
     }
 }

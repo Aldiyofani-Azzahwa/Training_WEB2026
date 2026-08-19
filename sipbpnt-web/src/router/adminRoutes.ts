@@ -6,7 +6,7 @@ export const adminRoutes:
   RouteRecordRaw[] = [
     {
       path:
-        '/admin/bnba/import',
+        'admin/bnba/import',
 
       name:
         'admin-bnba-import',
@@ -17,11 +17,12 @@ export const adminRoutes:
         ),
 
       meta: {
-        requiresAuth: true,
-
         roles: [
           'admin_dinsos',
         ],
+
+        title:
+          'Import BNBA',
       },
     },
   ]

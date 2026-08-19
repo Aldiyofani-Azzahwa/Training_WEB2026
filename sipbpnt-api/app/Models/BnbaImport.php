@@ -40,11 +40,8 @@ class BnbaImport extends Model
     protected function casts(): array
     {
         return [
-            'status'
-                => BnbaImportStatus::class,
-
-            'confirmed_at'
-                => 'datetime',
+            'status' => BnbaImportStatus::class,
+            'confirmed_at' => 'datetime',
         ];
     }
 

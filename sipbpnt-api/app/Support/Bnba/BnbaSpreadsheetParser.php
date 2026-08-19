@@ -16,6 +16,10 @@ use Throwable;
 
 final class BnbaSpreadsheetParser
 {
+    private const MAX_ACCOUNT_DIGITS = 30;
+
+    private const MAX_EXCEL_SAFE_INTEGER_DIGITS = 15;
+
     public function __construct(
         private readonly BnbaHeaderMap $headerMap,
     ) {}
@@ -32,46 +36,176 @@ final class BnbaSpreadsheetParser
         );
 
         $reader->setReadDataOnly(false);
+        $reader->setReadEmptyCells(false);
 
-        $spreadsheet = $reader->load($path);
-        $sheet = $spreadsheet->getActiveSheet();
+        $worksheetInfo =
+            $reader->listWorksheetInfo(
+                $path
+            );
 
-        $columns = $this->headerMap->resolve(
-            $sheet,
-            $periodYear
+        /*
+         * Pertama hanya baca row header.
+         */
+        $reader->setReadFilter(
+            new BnbaChunkReadFilter(
+                startRow: 1,
+                endRow: 1,
+            )
         );
 
-        $rows = [];
+        $headerSpreadsheet =
+            $reader->load($path);
+
+        try {
+            $headerSheet =
+                $headerSpreadsheet
+                    ->getActiveSheet();
+
+            $worksheetName =
+                $headerSheet->getTitle();
+
+            $columns =
+                $this->headerMap->resolve(
+                    $headerSheet,
+                    $periodYear
+                );
+        } finally {
+            $headerSpreadsheet
+                ->disconnectWorksheets();
+        }
 
         $highestRow =
-            $sheet->getHighestDataRow();
+            $this->highestRowForWorksheet(
+                $worksheetInfo,
+                $worksheetName
+            );
+
+        if ($highestRow < 2) {
+            return [];
+        }
+
+        /*
+         * Setelah worksheet aktif diketahui,
+         * hanya worksheet tersebut yang dibaca.
+         */
+        $reader->setLoadSheetsOnly([
+            $worksheetName,
+        ]);
+
+        $rows = [];
+        $chunkSize = $this->chunkSize();
 
         for (
-            $rowNumber = 2;
-            $rowNumber <= $highestRow;
-            $rowNumber++
+            $chunkStart = 2;
+            $chunkStart <= $highestRow;
+            $chunkStart += $chunkSize
+        ) {
+            $chunkEnd = min(
+                $highestRow,
+                $chunkStart + $chunkSize - 1
+            );
+
+            $reader->setReadFilter(
+                new BnbaChunkReadFilter(
+                    startRow: $chunkStart,
+                    endRow: $chunkEnd,
+                    worksheetName: $worksheetName,
+                )
+            );
+
+            $spreadsheet =
+                $reader->load($path);
+
+            try {
+                $sheet =
+                    $spreadsheet
+                        ->getSheetByName(
+                            $worksheetName
+                        );
+
+                if ($sheet === null) {
+                    throw new \RuntimeException(
+                        'Worksheet BNBA aktif tidak dapat dibaca.'
+                    );
+                }
+
+                for (
+                    $rowNumber = $chunkStart;
+                    $rowNumber <= $chunkEnd;
+                    $rowNumber++
+                ) {
+                    if (
+                        $this->isBlankRow(
+                            $sheet,
+                            $columns,
+                            $rowNumber
+                        )
+                    ) {
+                        continue;
+                    }
+
+                    $rows[] =
+                        $this->parseRow(
+                            $sheet,
+                            $columns,
+                            $rowNumber
+                        );
+                }
+            } finally {
+                $spreadsheet
+                    ->disconnectWorksheets();
+            }
+        }
+
+        return $rows;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $worksheetInfo
+     */
+    private function highestRowForWorksheet(
+        array $worksheetInfo,
+        string $worksheetName
+    ): int {
+        foreach (
+            $worksheetInfo
+            as $worksheet
         ) {
             if (
-                $this->isBlankRow(
-                    $sheet,
-                    $columns,
-                    $rowNumber
-                )
+                (string) (
+                    $worksheet['worksheetName']
+                    ?? ''
+                ) !== $worksheetName
             ) {
                 continue;
             }
 
-            $rows[] = $this->parseRow(
-                $sheet,
-                $columns,
-                $rowNumber
+            return max(
+                1,
+                (int) (
+                    $worksheet['totalRows']
+                    ?? 1
+                )
             );
         }
 
-        $spreadsheet
-            ->disconnectWorksheets();
+        throw new \RuntimeException(
+            'Informasi worksheet BNBA aktif tidak ditemukan.'
+        );
+    }
 
-        return $rows;
+    private function chunkSize(): int
+    {
+        return min(
+            2000,
+            max(
+                1,
+                (int) config(
+                    'sipbpnt.bnba_import.chunk_size',
+                    500
+                )
+            )
+        );
     }
 
     /**
@@ -148,14 +282,17 @@ final class BnbaSpreadsheetParser
                 )
             );
 
+        $birthDateCell =
+            $this->cell(
+                $sheet,
+                $columns,
+                'birth_date',
+                $rowNumber
+            );
+
         $birthDate =
             $this->dateValue(
-                $this->cell(
-                    $sheet,
-                    $columns,
-                    'birth_date',
-                    $rowNumber
-                ),
+                $birthDateCell,
                 $errors
             );
 
@@ -179,25 +316,31 @@ final class BnbaSpreadsheetParser
                 )
             );
 
-        $rt =
-            $this->rtRwValue(
-                $this->cell(
-                    $sheet,
-                    $columns,
-                    'rt',
-                    $rowNumber
-                )
-            );
+        $rtCell = $this->cell(
+            $sheet,
+            $columns,
+            'rt',
+            $rowNumber
+        );
 
-        $rw =
-            $this->rtRwValue(
-                $this->cell(
-                    $sheet,
-                    $columns,
-                    'rw',
-                    $rowNumber
-                )
-            );
+        $rt = $this->rtRwValue(
+            $rtCell,
+            'RT',
+            $errors
+        );
+
+        $rwCell = $this->cell(
+            $sheet,
+            $columns,
+            'rw',
+            $rowNumber
+        );
+
+        $rw = $this->rtRwValue(
+            $rwCell,
+            'RW',
+            $errors
+        );
 
         $kelurahan =
             $this->stringValue(
@@ -227,7 +370,8 @@ final class BnbaSpreadsheetParser
                     'account_number',
                     $rowNumber
                 ),
-                $errors
+                $errors,
+                $warnings
             );
 
         $eWarungName =
@@ -324,7 +468,9 @@ final class BnbaSpreadsheetParser
                     $columns,
                     'welfare_rank',
                     $rowNumber
-                )
+                ),
+                'PERINGKAT KESEJAHTERAAN KELUARGA',
+                $errors
             );
 
         $nominal =
@@ -352,6 +498,21 @@ final class BnbaSpreadsheetParser
             $errors
         );
 
+        $this->validateFieldLengths(
+            fullName: $fullName,
+            birthPlace: $birthPlace,
+            motherName: $motherName,
+            kelurahan: $kelurahan,
+            kecamatan: $kecamatan,
+            eWarungName: $eWarungName,
+            sourceStatus: $sourceStatus,
+            sourceDescription: $sourceDescription,
+            skStatus: $skStatus,
+            skDescription: $skDescription,
+            apbnMarchStatus: $apbnMarchStatus,
+            errors: $errors,
+        );
+
         if ($birthPlace === null) {
             $warnings[] =
                 'Tempat lahir kosong.';
@@ -360,12 +521,7 @@ final class BnbaSpreadsheetParser
         if (
             $birthDate === null
             && $this->isCellBlank(
-                $this->cell(
-                    $sheet,
-                    $columns,
-                    'birth_date',
-                    $rowNumber
-                )
+                $birthDateCell
             )
         ) {
             $warnings[] =
@@ -377,11 +533,11 @@ final class BnbaSpreadsheetParser
                 'Nama ibu kandung kosong.';
         }
 
-        if ($rt === null) {
+        if ($this->isCellBlank($rtCell)) {
             $warnings[] = 'RT kosong.';
         }
 
-        if ($rw === null) {
+        if ($this->isCellBlank($rwCell)) {
             $warnings[] = 'RW kosong.';
         }
 
@@ -535,7 +691,7 @@ final class BnbaSpreadsheetParser
         ) {
             $errors[] =
                 "{$label} tidak boleh "
-                ."berupa formula Excel.";
+                .'berupa formula Excel.';
 
             return '';
         }
@@ -546,8 +702,8 @@ final class BnbaSpreadsheetParser
         ) {
             $errors[] =
                 "{$label} harus disimpan "
-                ."sebagai teks agar 16 digit "
-                ."tidak rusak oleh Excel.";
+                .'sebagai teks agar 16 digit '
+                .'tidak rusak oleh Excel.';
 
             $value = sprintf(
                 '%.0f',
@@ -581,10 +737,12 @@ final class BnbaSpreadsheetParser
 
     /**
      * @param array<int, string> $errors
+     * @param array<int, string> $warnings
      */
     private function accountValue(
         Cell $cell,
-        array &$errors
+        array &$errors,
+        array &$warnings
     ): string {
         if (
             $cell->getDataType()
@@ -607,13 +765,73 @@ final class BnbaSpreadsheetParser
             is_int($value)
             || is_float($value)
         ) {
-            return sprintf(
+            $numeric = (float) $value;
+
+            if (
+                ! is_finite($numeric)
+                || $numeric < 0
+                || floor($numeric) !== $numeric
+            ) {
+                $errors[] =
+                    'Nomor rekening numerik '
+                    .'harus berupa bilangan bulat '
+                    .'non-negatif.';
+
+                return '';
+            }
+
+            $normalized = sprintf(
                 '%.0f',
-                (float) $value
+                $numeric
             );
+
+            if (
+                strlen($normalized)
+                > self::MAX_EXCEL_SAFE_INTEGER_DIGITS
+            ) {
+                $errors[] =
+                    'Nomor rekening lebih dari 15 digit '
+                    .'harus disimpan sebagai teks agar '
+                    .'tidak kehilangan presisi di Excel.';
+            } else {
+                $warnings[] =
+                    'Nomor rekening tersimpan sebagai '
+                    .'angka Excel. Pastikan tidak memiliki '
+                    .'angka nol di bagian awal.';
+            }
+
+            return $normalized;
         }
 
-        return trim((string) $value);
+        $normalized = preg_replace(
+            '/\s+/u',
+            '',
+            trim((string) $value)
+        ) ?? trim((string) $value);
+
+        if (
+            $normalized !== ''
+            && preg_match(
+                '/^\d+$/',
+                $normalized
+            ) !== 1
+        ) {
+            $errors[] =
+                'Nomor rekening hanya boleh '
+                .'berisi digit angka.';
+        }
+
+        if (
+            strlen($normalized)
+            > self::MAX_ACCOUNT_DIGITS
+        ) {
+            $errors[] =
+                'Nomor rekening maksimal '
+                .self::MAX_ACCOUNT_DIGITS
+                .' digit.';
+        }
+
+        return $normalized;
     }
 
     /**
@@ -643,51 +861,70 @@ final class BnbaSpreadsheetParser
             return null;
         }
 
+        $date = null;
+
         if (
             is_numeric($raw)
             && ExcelDate::isDateTime($cell)
         ) {
-            return DateTimeImmutable::createFromMutable(
-                ExcelDate::excelToDateTimeObject(
-                    (float) $raw
-                )
-            )->setTime(0, 0);
-        }
-
-        foreach (
-            [
-                '!d/m/Y',
-                '!Y-m-d',
-            ]
-            as $format
-        ) {
             $date =
-                DateTimeImmutable::createFromFormat(
-                    $format,
-                    trim((string) $raw)
-                );
-
-            $dateErrors =
-                DateTimeImmutable::getLastErrors();
-
-            if (
-                $date !== false
-                && (
-                    $dateErrors === false
-                    || (
-                        $dateErrors['warning_count'] === 0
-                        && $dateErrors['error_count'] === 0
+                DateTimeImmutable::createFromMutable(
+                    ExcelDate::excelToDateTimeObject(
+                        (float) $raw
                     )
-                )
+                )->setTime(0, 0);
+        } else {
+            foreach (
+                [
+                    '!d/m/Y',
+                    '!d-m-Y',
+                    '!Y-m-d',
+                ]
+                as $format
             ) {
-                return $date;
+                $candidate =
+                    DateTimeImmutable::createFromFormat(
+                        $format,
+                        trim((string) $raw)
+                    );
+
+                $dateErrors =
+                    DateTimeImmutable::getLastErrors();
+
+                if (
+                    $candidate !== false
+                    && (
+                        $dateErrors === false
+                        || (
+                            $dateErrors['warning_count'] === 0
+                            && $dateErrors['error_count'] === 0
+                        )
+                    )
+                ) {
+                    $date = $candidate;
+
+                    break;
+                }
             }
         }
 
-        $errors[] =
-            'Tanggal lahir tidak valid.';
+        if ($date === null) {
+            $errors[] =
+                'Tanggal lahir tidak valid.';
 
-        return null;
+            return null;
+        }
+
+        if (
+            $date
+            > new DateTimeImmutable('today')
+        ) {
+            $errors[] =
+                'Tanggal lahir tidak boleh '
+                .'berada di masa depan.';
+        }
+
+        return $date;
     }
 
     /**
@@ -751,6 +988,13 @@ final class BnbaSpreadsheetParser
 
         $value = (float) $raw;
 
+        if (! is_finite($value)) {
+            $errors[] =
+                'NOMINAL tidak valid.';
+
+            return null;
+        }
+
         if (
             $value < 0
             || floor($value) !== $value
@@ -762,23 +1006,64 @@ final class BnbaSpreadsheetParser
             return null;
         }
 
+        if ($value > PHP_INT_MAX) {
+            $errors[] =
+                'NOMINAL melebihi batas '
+                .'angka yang dapat diproses sistem.';
+
+            return null;
+        }
+
         return (int) $value;
     }
 
+    /**
+     * @param array<int, string> $errors
+     */
     private function integerValue(
-        Cell $cell
+        Cell $cell,
+        string $label,
+        array &$errors
     ): ?int {
         $value = $cell->getValue();
 
         if (
             $value === null
             || trim((string) $value) === ''
-            || ! is_numeric($value)
         ) {
             return null;
         }
 
-        return (int) $value;
+        if (
+            $cell->getDataType()
+            === DataType::TYPE_FORMULA
+        ) {
+            return null;
+        }
+
+        if (! is_numeric($value)) {
+            $errors[] =
+                "{$label} harus berupa bilangan bulat.";
+
+            return null;
+        }
+
+        $numeric = (float) $value;
+
+        if (
+            ! is_finite($numeric)
+            || $numeric < 0
+            || floor($numeric) !== $numeric
+            || $numeric > PHP_INT_MAX
+        ) {
+            $errors[] =
+                "{$label} harus berupa bilangan bulat "
+                .'non-negatif.';
+
+            return null;
+        }
+
+        return (int) $numeric;
     }
 
     private function stringValue(
@@ -812,8 +1097,13 @@ final class BnbaSpreadsheetParser
             || trim((string) $value) === '';
     }
 
+    /**
+     * @param array<int, string> $errors
+     */
     private function rtRwValue(
-        Cell $cell
+        Cell $cell,
+        string $label,
+        array &$errors
     ): ?string {
         $value = $cell->getValue();
 
@@ -824,33 +1114,140 @@ final class BnbaSpreadsheetParser
             return null;
         }
 
+        if (
+            $cell->getDataType()
+            === DataType::TYPE_FORMULA
+        ) {
+            return null;
+        }
+
         if (is_numeric($value)) {
+            $numeric = (float) $value;
+
+            if (
+                ! is_finite($numeric)
+                || $numeric < 0
+                || floor($numeric) !== $numeric
+                || $numeric > 999
+            ) {
+                $errors[] =
+                    "{$label} harus berupa 1-3 digit angka.";
+
+                return null;
+            }
+
             return str_pad(
-                (string) ((int) $value),
+                (string) ((int) $numeric),
                 3,
                 '0',
                 STR_PAD_LEFT
             );
         }
 
-        $string =
-            trim((string) $value);
+        $string = preg_replace(
+            '/\s+/u',
+            '',
+            trim((string) $value)
+        ) ?? trim((string) $value);
 
         if (
             preg_match(
                 '/^\d{1,3}$/',
                 $string
-            ) === 1
+            ) !== 1
         ) {
-            return str_pad(
-                $string,
-                3,
-                '0',
-                STR_PAD_LEFT
-            );
+            $errors[] =
+                "{$label} harus berupa 1-3 digit angka.";
+
+            return null;
         }
 
-        return $string;
+        return str_pad(
+            $string,
+            3,
+            '0',
+            STR_PAD_LEFT
+        );
+    }
+
+    /**
+     * @param array<int, string> $errors
+     */
+    private function validateFieldLengths(
+        string $fullName,
+        ?string $birthPlace,
+        ?string $motherName,
+        string $kelurahan,
+        string $kecamatan,
+        string $eWarungName,
+        ?string $sourceStatus,
+        ?string $sourceDescription,
+        ?string $skStatus,
+        ?string $skDescription,
+        ?string $apbnMarchStatus,
+        array &$errors
+    ): void {
+        $fields = [
+            'NAMA LENGKAP' => [
+                $fullName,
+                150,
+            ],
+            'TEMPAT LAHIR' => [
+                $birthPlace,
+                100,
+            ],
+            'NAMA IBU KANDUNG' => [
+                $motherName,
+                150,
+            ],
+            'KELURAHAN' => [
+                $kelurahan,
+                100,
+            ],
+            'KECAMATAN' => [
+                $kecamatan,
+                100,
+            ],
+            'E WAROENG BARU' => [
+                $eWarungName,
+                200,
+            ],
+            'CEK' => [
+                $sourceStatus,
+                100,
+            ],
+            'KETERANGAN' => [
+                $sourceDescription,
+                255,
+            ],
+            'CEK SK' => [
+                $skStatus,
+                100,
+            ],
+            'KET SK' => [
+                $skDescription,
+                255,
+            ],
+            'BANSOS APBN MARET' => [
+                $apbnMarchStatus,
+                255,
+            ],
+        ];
+
+        foreach (
+            $fields
+            as $label => [$value, $maxLength]
+        ) {
+            if (
+                $value !== null
+                && mb_strlen($value)
+                    > $maxLength
+            ) {
+                $errors[] =
+                    "{$label} maksimal "
+                    ."{$maxLength} karakter.";
+            }
+        }
     }
 
     /**

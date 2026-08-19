@@ -14,9 +14,6 @@ interface BnbaImportRepositoryInterface
         array $data
     ): BnbaImport;
 
-    /**
-     * @param array<int, array<string, mixed>> $rows
-     */
     public function insertRows(
         array $rows
     ): void;
@@ -48,5 +45,26 @@ interface BnbaImportRepositoryInterface
 
     public function confirmableRows(
         BnbaImport $import
+    ): Collection;
+
+    public function latestForPeriod(
+        int $periodId
+    ): ?BnbaImport;
+
+    public function forPeriodForUpdate(
+        int $periodId
+    ): Collection;
+
+    public function deleteForPeriod(
+        int $periodId
+    ): int;
+
+    /*
+     * Tahap 1C:
+     * dipakai retention audit command.
+     * READ ONLY.
+     */
+    public function latestForRetentionAudit(
+        int $limit
     ): Collection;
 }

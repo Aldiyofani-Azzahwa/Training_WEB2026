@@ -6,7 +6,7 @@ import {
   FileText,
   Monitor,
   ShieldCheck,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 
 import PageHeader from '@/components/landing/PageHeader.vue'
 

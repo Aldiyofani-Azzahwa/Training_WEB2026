@@ -1,11 +1,17 @@
 import axios from 'axios'
+
 import {
   computed,
   ref,
 } from 'vue'
-import { defineStore } from 'pinia'
 
-import { bnbaService } from '@/services/bnbaService'
+import {
+  defineStore,
+} from 'pinia'
+
+import {
+  bnbaService,
+} from '@/services/bnbaService'
 
 import type {
   BnbaParticipant,
@@ -15,19 +21,20 @@ import type {
   PaginationMeta,
 } from '@/types/bnba'
 
-const EMPTY_OPTIONS:
-  BnbaParticipantFilterOptions = {
+const createEmptyMeta =
+  (): PaginationMeta => ({
+    current_page: 1,
+    last_page: 1,
+    per_page: 25,
+    total: 0,
+  })
+
+const createEmptyOptions =
+  (): BnbaParticipantFilterOptions => ({
     kecamatan: [],
     kelurahan: [],
     e_warungs: [],
-  }
-
-const emptyMeta = (): PaginationMeta => ({
-  current_page: 1,
-  last_page: 1,
-  per_page: 25,
-  total: 0,
-})
+  })
 
 export const useBnbaParticipantsStore =
   defineStore(
@@ -40,17 +47,19 @@ export const useBnbaParticipantsStore =
         ref<BnbaParticipant[]>([])
 
       const options =
-        ref<BnbaParticipantFilterOptions>({
-          ...EMPTY_OPTIONS,
-        })
+        ref<BnbaParticipantFilterOptions>(
+          createEmptyOptions(),
+        )
 
       const meta =
         ref<PaginationMeta>(
-          emptyMeta(),
+          createEmptyMeta(),
         )
 
       const periodId =
-        ref<number | null>(null)
+        ref<number | null>(
+          null,
+        )
 
       const search =
         ref('')
@@ -71,7 +80,9 @@ export const useBnbaParticipantsStore =
         ref(false)
 
       const errorMessage =
-        ref<string | null>(null)
+        ref<string | null>(
+          null,
+        )
 
       const selectedPeriod =
         computed(
@@ -89,60 +100,158 @@ export const useBnbaParticipantsStore =
         fallback: string,
       ): void {
         if (
-          axios.isAxiosError<
+          !axios.isAxiosError<
             LaravelErrorResponse
           >(error)
         ) {
-          if (
-            error.response?.status
-            === 403
-          ) {
-            errorMessage.value =
-              'Anda tidak memiliki akses ke data BNBA ini.'
-
-            return
-          }
-
           errorMessage.value =
-            error.response?.data
-              ?.message
-            ?? fallback
+            fallback
+
+          return
+        }
+
+        const status =
+          error.response
+            ?.status
+
+        if (
+          status === 401
+        ) {
+          errorMessage.value =
+            'Sesi login sudah berakhir.'
+
+          return
+        }
+
+        if (
+          status === 403
+        ) {
+          errorMessage.value =
+            'Anda tidak memiliki akses ke data BNBA.'
+
+          return
+        }
+
+        if (
+          status !== undefined
+          &&
+          status >= 500
+        ) {
+          errorMessage.value =
+            fallback
 
           return
         }
 
         errorMessage.value =
-          fallback
+          error.response
+            ?.data
+            ?.message
+          ?? fallback
       }
 
-      async function fetchPeriods():
-        Promise<void> {
+      function resetParticipants():
+        void {
+        participants.value =
+          []
+
+        meta.value =
+          createEmptyMeta()
+
+        options.value =
+          createEmptyOptions()
+      }
+
+      async function fetchPeriods(
+        preferredPeriodId?:
+          number,
+      ): Promise<void> {
         isLoadingPeriods.value =
           true
 
-        errorMessage.value = null
+        errorMessage.value =
+          null
 
         try {
-          periods.value =
+          const allPeriods =
             await bnbaService
               .getPeriods()
 
-          const active =
-            periods.value.filter(
+          /*
+           * Data BNBA hanya menampilkan
+           * periode dengan BNBA CONFIRMED.
+           *
+           * Tidak ada lagi:
+           * period.status
+           * period.current_bnba
+           */
+          periods.value =
+            allPeriods.filter(
               (period) =>
-                period.is_active,
+                period.bnba
+                  ?.status
+                === 'confirmed',
             )
 
           if (
-            periodId.value === null
+            periods.value.length
+            === 0
           ) {
             periodId.value =
-              active[0]?.id
-              ?? null
+              null
+
+            resetParticipants()
+
+            return
+          }
+
+          const preferredExists =
+            preferredPeriodId
+            !== undefined
+            &&
+            periods.value.some(
+              (period) =>
+                period.id
+                === preferredPeriodId,
+            )
+
+          if (
+            preferredExists
+            &&
+            preferredPeriodId
+            !== undefined
+          ) {
+            periodId.value =
+              preferredPeriodId
+          } else {
+            const currentStillExists =
+              periodId.value
+              !== null
+              &&
+              periods.value.some(
+                (period) =>
+                  period.id
+                  === periodId.value,
+              )
+
+            if (
+              !currentStillExists
+            ) {
+              /*
+               * Tidak mencari active lagi.
+               * Ambil periode pertama yang
+               * punya BNBA confirmed.
+               */
+              periodId.value =
+                periods.value[0]
+                  ?.id
+                ?? null
+            }
           }
 
           if (
-            periodId.value !== null
+            periodId.value
+            !== null
           ) {
             await selectPeriod(
               periodId.value,
@@ -151,7 +260,7 @@ export const useBnbaParticipantsStore =
         } catch (error) {
           handleError(
             error,
-            'Periode BPNT gagal dimuat.',
+            'Periode BNBA gagal dimuat.',
           )
         } finally {
           isLoadingPeriods.value =
@@ -162,15 +271,26 @@ export const useBnbaParticipantsStore =
       async function selectPeriod(
         id: number,
       ): Promise<void> {
-        periodId.value = id
+        const exists =
+          periods.value.some(
+            (period) =>
+              period.id
+              === id,
+          )
+
+        if (!exists) {
+          return
+        }
+
+        periodId.value =
+          id
 
         search.value = ''
         kecamatan.value = ''
         kelurahan.value = ''
         eWarung.value = ''
 
-        participants.value = []
-        meta.value = emptyMeta()
+        resetParticipants()
 
         await Promise.all([
           fetchOptions(),
@@ -180,10 +300,12 @@ export const useBnbaParticipantsStore =
 
       async function fetchOptions():
         Promise<void> {
-        if (periodId.value === null) {
-          options.value = {
-            ...EMPTY_OPTIONS,
-          }
+        if (
+          periodId.value
+          === null
+        ) {
+          options.value =
+            createEmptyOptions()
 
           return
         }
@@ -195,9 +317,12 @@ export const useBnbaParticipantsStore =
                 periodId.value,
               )
         } catch (error) {
+          options.value =
+            createEmptyOptions()
+
           handleError(
             error,
-            'Pilihan filter gagal dimuat.',
+            'Pilihan filter BNBA gagal dimuat.',
           )
         }
       }
@@ -205,15 +330,24 @@ export const useBnbaParticipantsStore =
       async function fetchParticipants(
         page = 1,
       ): Promise<void> {
-        if (periodId.value === null) {
-          participants.value = []
-          meta.value = emptyMeta()
+        if (
+          periodId.value
+          === null
+        ) {
+          participants.value =
+            []
+
+          meta.value =
+            createEmptyMeta()
 
           return
         }
 
-        isLoading.value = true
-        errorMessage.value = null
+        isLoading.value =
+          true
+
+        errorMessage.value =
+          null
 
         try {
           const response =
@@ -254,13 +388,16 @@ export const useBnbaParticipantsStore =
             'Data BNBA gagal dimuat.',
           )
         } finally {
-          isLoading.value = false
+          isLoading.value =
+            false
         }
       }
 
       async function applyFilters():
         Promise<void> {
-        await fetchParticipants(1)
+        await fetchParticipants(
+          1,
+        )
       }
 
       async function clearFilters():
@@ -270,7 +407,9 @@ export const useBnbaParticipantsStore =
         kelurahan.value = ''
         eWarung.value = ''
 
-        await fetchParticipants(1)
+        await fetchParticipants(
+          1,
+        )
       }
 
       async function changePage(
@@ -278,12 +417,17 @@ export const useBnbaParticipantsStore =
       ): Promise<void> {
         if (
           page < 1
-          || page > meta.value.last_page
+          ||
+          page
+          >
+          meta.value.last_page
         ) {
           return
         }
 
-        await fetchParticipants(page)
+        await fetchParticipants(
+          page,
+        )
       }
 
       return {
@@ -306,7 +450,9 @@ export const useBnbaParticipantsStore =
 
         fetchPeriods,
         selectPeriod,
+
         fetchParticipants,
+
         applyFilters,
         clearFilters,
         changePage,

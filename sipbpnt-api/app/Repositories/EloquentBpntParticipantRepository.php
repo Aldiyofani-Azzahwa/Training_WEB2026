@@ -95,6 +95,16 @@ final class EloquentBpntParticipantRepository
                 => $row->nominal ?? 0,
         ]);
     }
+    public function deleteForPeriod(
+    int $periodId
+): int {
+    return BpntParticipant::query()
+        ->where(
+            'bpnt_period_id',
+            $periodId
+        )
+        ->delete();
+}
 
     public function paginateConfirmed(
         array $filters,

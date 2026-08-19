@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  computed,
   onMounted,
   ref,
 } from 'vue'
@@ -9,22 +10,18 @@ import {
 } from 'pinia'
 
 import {
-  ArrowLeft,
   CheckCircle2,
+  Database,
   FileSpreadsheet,
   LoaderCircle,
-  RotateCcw,
   ShieldCheck,
+  Trash2,
   X,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 
-import { RouterLink } from 'vue-router'
-
-import BpntPeriodForm
-  from '@/components/bnba/BpntPeriodForm.vue'
-
-import BnbaUploadPanel
-  from '@/components/bnba/BnbaUploadPanel.vue'
+import {
+  RouterLink,
+} from 'vue-router'
 
 import BnbaImportSummary
   from '@/components/bnba/BnbaImportSummary.vue'
@@ -32,21 +29,37 @@ import BnbaImportSummary
 import BnbaPreviewTable
   from '@/components/bnba/BnbaPreviewTable.vue'
 
+import BnbaUploadPanel
+  from '@/components/bnba/BnbaUploadPanel.vue'
+
+import BpntPeriodForm
+  from '@/components/bnba/BpntPeriodForm.vue'
+
 import {
   useBnbaImportStore,
 } from '@/stores/bnbaImport'
 
 import type {
   BnbaRowStatus,
+  BpntPeriod,
   CreateBpntPeriodPayload,
+  UpdateBpntPeriodPayload,
 } from '@/types/bnba'
+
+type PeriodFormMode =
+  | 'normal'
+  | 'create_period'
+  | 'edit_period'
 
 const store =
   useBnbaImportStore()
 
 const {
-  activePeriods,
+  periods,
+
   selectedPeriodId,
+  selectedPeriod,
+
   selectedFile,
   uploadProgress,
 
@@ -59,6 +72,12 @@ const {
 
   isLoadingPeriods,
   isCreatingPeriod,
+
+  updatingPeriodId,
+  deletingPeriodId,
+
+  isDeletingBnba,
+
   isUploading,
   isLoadingPreview,
   isConfirming,
@@ -66,570 +85,898 @@ const {
   errorMessage,
   validationErrors,
 
+  isBnbaWorking,
+  showUploadPanel,
   canUpload,
   canConfirm,
-} = storeToRefs(store)
-
-const showConfirmDialog =
-  ref(false)
+} = storeToRefs(
+  store,
+)
 
 const successMessage =
-  ref<string | null>(null)
+  ref<string | null>(
+    null,
+  )
 
 const periodFormKey =
   ref(0)
 
-onMounted(async () => {
-  await store.fetchPeriods()
-})
+const periodFormMode =
+  ref<PeriodFormMode>(
+    'normal',
+  )
+
+const isPeriodFormBusy =
+  computed(
+    () =>
+      periodFormMode.value
+      !== 'normal',
+  )
+
+const canShowBnbaWorkspace =
+  computed(() => {
+    return (
+      selectedPeriod.value
+      !== null
+      &&
+      !isPeriodFormBusy.value
+    )
+  })
+
+onMounted(
+  async () => {
+    await store
+      .fetchPeriods()
+  },
+)
+
+/*
+|--------------------------------------------------------------------------
+| Period Form Mode
+|--------------------------------------------------------------------------
+*/
+
+function handlePeriodFormModeChange(
+  mode: PeriodFormMode,
+): void {
+  periodFormMode.value =
+    mode
+}
+
+/*
+|--------------------------------------------------------------------------
+| Period Create
+|--------------------------------------------------------------------------
+*/
 
 async function handleCreatePeriod(
-  payload: CreateBpntPeriodPayload,
+  payload:
+    CreateBpntPeriodPayload,
 ): Promise<void> {
-  successMessage.value = null
+  successMessage.value =
+    null
+
+  const result =
+    await store
+      .createPeriod(
+        payload,
+      )
+
+  if (!result) {
+    return
+  }
+
+  /*
+   * Setelah berhasil,
+   * form kembali NORMAL.
+   */
+  periodFormMode.value =
+    'normal'
+
+  periodFormKey.value +=
+    1
+
+  successMessage.value =
+    'Periode berhasil dibuat. Klik periode untuk mengelola BNBA.'
+}
+
+/*
+|--------------------------------------------------------------------------
+| Period Update
+|--------------------------------------------------------------------------
+*/
+
+async function handleUpdatePeriod(
+  periodId: number,
+  payload:
+    UpdateBpntPeriodPayload,
+): Promise<void> {
+  successMessage.value =
+    null
+
+  const success =
+    await store
+      .updatePeriod(
+        periodId,
+        payload,
+      )
+
+  if (!success) {
+    return
+  }
+
+  periodFormMode.value =
+    'normal'
+
+  periodFormKey.value +=
+    1
+
+  successMessage.value =
+    'Periode berhasil diperbarui.'
+}
+
+/*
+|--------------------------------------------------------------------------
+| Period Delete
+|--------------------------------------------------------------------------
+*/
+
+async function handleDeletePeriod(
+  period: BpntPeriod,
+): Promise<void> {
+  if (
+    isPeriodFormBusy.value
+    ||
+    isBnbaWorking.value
+  ) {
+    return
+  }
+
+  successMessage.value =
+    null
+
+  const confirmed =
+    window.confirm(
+      `Hapus periode "${period.name}"?`,
+    )
+
+  if (!confirmed) {
+    return
+  }
+
+  const success =
+    await store
+      .deletePeriod(
+        period.id,
+      )
+
+  if (!success) {
+    return
+  }
+
+  successMessage.value =
+    'Periode berhasil dihapus.'
+}
+
+/*
+|--------------------------------------------------------------------------
+| Period Select
+|--------------------------------------------------------------------------
+*/
+
+async function handleSelectPeriod(
+  periodId: number,
+): Promise<void> {
+  /*
+   * Saat Tambah/Edit periode berlangsung,
+   * card lain tidak boleh membuka workspace.
+   */
+  if (
+    isPeriodFormBusy.value
+  ) {
+    return
+  }
+
+  /*
+   * Store juga punya guard,
+   * tetapi kita blok dari UI lebih dulu.
+   */
+  if (
+    isBnbaWorking.value
+    &&
+    selectedPeriodId.value
+    !== periodId
+  ) {
+    return
+  }
+
+  successMessage.value =
+    null
+
+  await store
+    .selectPeriod(
+      periodId,
+    )
+}
+
+/*
+|--------------------------------------------------------------------------
+| File
+|--------------------------------------------------------------------------
+*/
+
+function handleFileSelect(
+  file: File | null,
+): void {
+  /*
+   * File hanya boleh dipilih
+   * ketika form periode NORMAL.
+   */
+  if (
+    isPeriodFormBusy.value
+  ) {
+    return
+  }
+
+  successMessage.value =
+    null
+
+  store.selectFile(
+    file,
+  )
+}
+
+/*
+|--------------------------------------------------------------------------
+| Upload
+|--------------------------------------------------------------------------
+*/
+
+async function handleUpload():
+  Promise<void> {
+  if (
+    isPeriodFormBusy.value
+  ) {
+    return
+  }
+
+  successMessage.value =
+    null
+
+  const success =
+    await store
+      .uploadFile()
+
+  if (!success) {
+    return
+  }
+
+  successMessage.value =
+    'File BNBA berhasil dibaca. Periksa preview sebelum konfirmasi.'
+}
+
+/*
+|--------------------------------------------------------------------------
+| Confirm
+|--------------------------------------------------------------------------
+*/
+
+async function handleConfirm():
+  Promise<void> {
+  if (
+    currentImport.value
+    === null
+    ||
+    isPeriodFormBusy.value
+  ) {
+    return
+  }
+
+  const confirmed =
+    window.confirm(
+      'Konfirmasi data BNBA ini?',
+    )
+
+  if (!confirmed) {
+    return
+  }
+
+  successMessage.value =
+    null
+
+  const success =
+    await store
+      .confirmImport()
+
+  if (!success) {
+    return
+  }
+
+  successMessage.value =
+    'Data BNBA berhasil dikonfirmasi. Pengelolaan periode kembali dibuka.'
+}
+
+/*
+|--------------------------------------------------------------------------
+| Delete BNBA
+|--------------------------------------------------------------------------
+*/
+
+async function handleDeleteBnba():
+  Promise<void> {
+  if (
+    isPeriodFormBusy.value
+  ) {
+    return
+  }
 
   const period =
-    await store.createPeriod(
-      payload,
-    )
+    selectedPeriod.value
 
   if (!period) {
     return
   }
 
+  const total =
+    period.participants_count
+
+  const message =
+    total > 0
+      ? `Hapus seluruh BNBA dari periode "${period.name}"?\n\n${total} data KPM akan dihapus.`
+      : `Hapus data BNBA dari periode "${period.name}"?`
+
+  const confirmed =
+    window.confirm(
+      message,
+    )
+
+  if (!confirmed) {
+    return
+  }
+
   successMessage.value =
-    'Periode BPNT berhasil dibuat.'
-
-  periodFormKey.value += 1
-}
-
-function handlePeriodSelect(
-  periodId: number | null,
-): void {
-  successMessage.value = null
-
-  store.selectPeriod(
-    periodId,
-  )
-}
-
-function handleFileSelect(
-  file: File | null,
-): void {
-  successMessage.value = null
-
-  store.selectFile(file)
-}
-
-async function handleUpload():
-  Promise<void> {
-  successMessage.value = null
+    null
 
   const success =
-    await store.uploadFile()
+    await store
+      .deleteBnba()
 
   if (!success) {
     return
   }
 
   successMessage.value =
-    'File BNBA berhasil diproses. Periksa hasil validasi sebelum konfirmasi.'
+    'Data BNBA berhasil dihapus. Periode dapat menerima file BNBA baru.'
 }
+
+/*
+|--------------------------------------------------------------------------
+| Preview
+|--------------------------------------------------------------------------
+*/
 
 async function handleFilter(
   status:
-    BnbaRowStatus
-    | null,
+    BnbaRowStatus | null,
 ): Promise<void> {
-  await store.changeStatusFilter(
-    status,
-  )
+  await store
+    .changeStatusFilter(
+      status,
+    )
 }
 
 async function handleSearch(
   keyword: string,
 ): Promise<void> {
-  await store.searchPreview(
-    keyword,
-  )
+  await store
+    .searchPreview(
+      keyword,
+    )
 }
 
 async function handlePage(
   page: number,
 ): Promise<void> {
-  await store.changePage(page)
-}
-
-async function confirmImport():
-  Promise<void> {
-  successMessage.value = null
-
-  const success =
-    await store.confirmImport()
-
-  if (!success) {
-    return
-  }
-
-  showConfirmDialog.value =
-    false
-
-  successMessage.value =
-    'Import BNBA berhasil dikonfirmasi dan data valid telah disimpan.'
-}
-
-function startNewImport(): void {
-  successMessage.value = null
-  showConfirmDialog.value = false
-
-  store.resetImport()
+  await store
+    .changePage(
+      page,
+    )
 }
 </script>
 
 <template>
-  <div
-    class="min-h-screen bg-slate-50"
+  <main
+    class="mx-auto max-w-[1500px] px-4 py-7 sm:px-6 lg:px-8"
   >
-    <!-- Header internal -->
-    <header
-      class="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur"
+    <!-- PAGE HEADER -->
+    <div
+      class="mb-7"
     >
       <div
-        class="mx-auto flex min-h-16 max-w-[1500px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8"
+        class="mb-3 flex size-12 items-center justify-center rounded-2xl bg-[#E8312D]/10 text-[#E8312D]"
       >
-        <div
-          class="flex min-w-0 items-center gap-3"
-        >
-          <RouterLink
-            to="/dashboard"
-            class="flex size-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
-            aria-label="Kembali ke dashboard"
-          >
-            <ArrowLeft
-              :size="20"
-              aria-hidden="true"
-            />
-          </RouterLink>
-
-          <div class="min-w-0">
-            <p
-              class="truncate text-xs font-semibold uppercase tracking-[0.15em] text-[#E8312D]"
-            >
-              Admin Dinas Sosial
-            </p>
-
-            <p
-              class="truncate font-bold text-slate-900"
-            >
-              Import BNBA
-            </p>
-          </div>
-        </div>
-
-        <div
-          class="hidden items-center gap-2 rounded-xl bg-[#006855]/10 px-3 py-2 text-sm font-semibold text-[#006855] sm:flex"
-        >
-          <ShieldCheck
-            :size="17"
-            aria-hidden="true"
-          />
-
-          Data Sensitif Dilindungi
-        </div>
+        <FileSpreadsheet
+          :size="24"
+          aria-hidden="true"
+        />
       </div>
-    </header>
 
-    <main
-      class="mx-auto max-w-[1500px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
+      <h1
+        class="text-3xl font-bold text-slate-950"
+      >
+        Import BNBA
+      </h1>
+
+      <p
+        class="mt-2 max-w-3xl text-slate-500"
+      >
+        Tambahkan periode, klik periode,
+        kemudian kelola data BNBA.
+      </p>
+    </div>
+
+    <!-- SUCCESS -->
+    <div
+      v-if="
+        successMessage
+      "
+      class="mb-5 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800"
     >
-      <!-- Page heading -->
-      <div
-        class="mb-7 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"
+      <CheckCircle2
+        :size="20"
+        class="mt-0.5 shrink-0"
+        aria-hidden="true"
+      />
+
+      <span
+        class="flex-1"
       >
-        <div>
-          <div
-            class="mb-3 flex size-12 items-center justify-center rounded-2xl bg-[#E8312D]/10 text-[#E8312D]"
-          >
-            <FileSpreadsheet
-              :size="25"
-              aria-hidden="true"
-            />
-          </div>
+        {{ successMessage }}
+      </span>
 
-          <h1
-            class="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl"
-          >
-            Import Data BNBA
-          </h1>
-
-          <p
-            class="mt-2 max-w-3xl text-sm leading-6 text-slate-500 sm:text-base"
-          >
-            Upload data BNBA, periksa hasil validasi,
-            lalu konfirmasi data yang layak untuk
-            disimpan ke periode BPNT.
-          </p>
-        </div>
-
-        <button
-          v-if="currentImport"
-          type="button"
-          class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-          @click="startNewImport"
-        >
-          <RotateCcw
-            :size="18"
-            aria-hidden="true"
-          />
-
-          Import Baru
-        </button>
-      </div>
-
-      <!-- Success -->
-      <div
-        v-if="successMessage"
-        class="mb-5 flex items-start gap-3 rounded-2xl border border-[#006855]/20 bg-[#006855]/5 p-4 text-sm text-[#005647]"
-      >
-        <CheckCircle2
-          :size="20"
-          class="mt-0.5 shrink-0"
-          aria-hidden="true"
-        />
-
-        <p class="flex-1 font-medium">
-          {{ successMessage }}
-        </p>
-
-        <button
-          type="button"
-          class="shrink-0"
-          aria-label="Tutup notifikasi"
-          @click="successMessage = null"
-        >
-          <X
-            :size="18"
-            aria-hidden="true"
-          />
-        </button>
-      </div>
-
-      <!-- Error -->
-      <div
-        v-if="errorMessage"
-        class="mb-5 flex items-start gap-3 rounded-2xl border border-[#E8312D]/20 bg-[#E8312D]/5 p-4 text-sm text-[#b82320]"
-      >
-        <X
-          :size="20"
-          class="mt-0.5 shrink-0"
-          aria-hidden="true"
-        />
-
-        <p class="flex-1 font-medium">
-          {{ errorMessage }}
-        </p>
-
-        <button
-          type="button"
-          class="shrink-0"
-          aria-label="Tutup pesan error"
-          @click="store.clearError()"
-        >
-          <X
-            :size="18"
-            aria-hidden="true"
-          />
-        </button>
-      </div>
-
-      <!-- Before upload -->
-      <div
-        v-if="!currentImport"
-        class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(380px,0.7fr)]"
-      >
-        <BpntPeriodForm
-          :key="periodFormKey"
-          :periods="activePeriods"
-          :selected-period-id="selectedPeriodId"
-          :is-loading="isLoadingPeriods"
-          :is-creating="isCreatingPeriod"
-          :validation-errors="validationErrors"
-          @select="handlePeriodSelect"
-          @create="handleCreatePeriod"
-        />
-
-        <BnbaUploadPanel
-          :selected-file="selectedFile"
-          :upload-progress="uploadProgress"
-          :is-uploading="isUploading"
-          :can-upload="canUpload"
-          :has-selected-period="
-            selectedPeriodId !== null
-          "
-          @select-file="handleFileSelect"
-          @upload="handleUpload"
-        />
-      </div>
-
-      <!-- After upload -->
-      <div
-        v-else
-        class="space-y-6"
-      >
-        <div
-          class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
-        >
-          <div
-            class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
-          >
-            <div>
-              <p
-                class="text-xs font-semibold uppercase tracking-[0.15em] text-slate-400"
-              >
-                Import #{{ currentImport.id }}
-              </p>
-
-              <p
-                class="mt-1 font-bold text-slate-900"
-              >
-                {{ currentImport.original_name }}
-              </p>
-
-              <p
-                v-if="currentImport.period"
-                class="mt-1 text-sm text-slate-500"
-              >
-                {{ currentImport.period.name }}
-                — {{ currentImport.period.year }}
-              </p>
-            </div>
-
-            <div
-              class="flex flex-wrap items-center gap-3"
-            >
-              <span
-                v-if="
-                  currentImport.status
-                  === 'preview_ready'
-                "
-                class="rounded-full bg-[#FFAF1C]/20 px-3 py-1.5 text-xs font-bold text-amber-800"
-              >
-                Menunggu Konfirmasi
-              </span>
-
-              <span
-                v-else-if="
-                  currentImport.status
-                  === 'confirmed'
-                "
-                class="rounded-full bg-[#006855]/10 px-3 py-1.5 text-xs font-bold text-[#006855]"
-              >
-                Sudah Dikonfirmasi
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <BnbaImportSummary
-          :import-data="currentImport"
-          :active-status="statusFilter"
-          @filter="handleFilter"
-        />
-
-        <BnbaPreviewTable
-          :rows="previewRows"
-          :meta="previewMeta"
-          :loading="isLoadingPreview"
-          :search="search"
-          @search="handleSearch"
-          @page="handlePage"
-        />
-
-        <div
-          v-if="
-            currentImport.status
-            === 'preview_ready'
-          "
-          class="sticky bottom-4 z-20"
-        >
-          <div
-            class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-xl backdrop-blur sm:flex-row sm:items-center sm:justify-between"
-          >
-            <div>
-              <p
-                class="font-bold text-slate-900"
-              >
-                Konfirmasi Import BNBA
-              </p>
-
-              <p
-                class="mt-1 text-sm text-slate-500"
-              >
-                Hanya data berstatus Valid dan Warning
-                yang akan dimasukkan ke data utama.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              :disabled="!canConfirm"
-              class="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#006855] px-6 text-sm font-bold text-white transition hover:bg-[#005646] focus:outline-none focus:ring-4 focus:ring-[#006855]/20 disabled:cursor-not-allowed disabled:opacity-50"
-              @click="
-                showConfirmDialog = true
-              "
-            >
-              <ShieldCheck
-                :size="19"
-                aria-hidden="true"
-              />
-
-              Konfirmasi Import
-            </button>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <!-- Confirm Dialog -->
-    <Teleport to="body">
-      <div
-        v-if="showConfirmDialog && currentImport"
-        class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="confirm-import-title"
-        @click.self="
-          showConfirmDialog = false
+      <button
+        type="button"
+        aria-label="Tutup notifikasi"
+        @click="
+          successMessage = null
         "
       >
+        <X
+          :size="18"
+        />
+      </button>
+    </div>
+
+    <!-- ERROR -->
+    <div
+      v-if="
+        errorMessage
+      "
+      class="mb-5 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+    >
+      <X
+        :size="20"
+        class="mt-0.5 shrink-0"
+        aria-hidden="true"
+      />
+
+      <span
+        class="flex-1"
+      >
+        {{ errorMessage }}
+      </span>
+
+      <button
+        type="button"
+        aria-label="Tutup error"
+        @click="
+          store.clearError()
+        "
+      >
+        <X
+          :size="18"
+        />
+      </button>
+    </div>
+
+    <!-- PERIOD MANAGEMENT -->
+    <BpntPeriodForm
+      :key="
+        periodFormKey
+      "
+      :periods="
+        periods
+      "
+      :selected-period-id="
+        selectedPeriodId
+      "
+      :is-loading="
+        isLoadingPeriods
+      "
+      :is-creating="
+        isCreatingPeriod
+      "
+      :updating-period-id="
+        updatingPeriodId
+      "
+      :deleting-period-id="
+        deletingPeriodId
+      "
+      :validation-errors="
+        validationErrors
+      "
+      :bnba-locked="
+        isBnbaWorking
+      "
+      @mode-change="
+        handlePeriodFormModeChange
+      "
+      @select="
+        handleSelectPeriod
+      "
+      @create="
+        handleCreatePeriod
+      "
+      @update="
+        handleUpdatePeriod
+      "
+      @delete="
+        handleDeletePeriod
+      "
+    />
+
+   
+
+    <!-- NO SELECTED PERIOD -->
+   <!-- NO SELECTED PERIOD -->
+<section
+  v-if="
+    selectedPeriod === null
+    &&
+    !isPeriodFormBusy
+  "
+  class="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center"
+>
+  <strong
+    class="text-slate-800"
+  >
+    Klik salah satu periode untuk
+    mengelola BNBA
+  </strong>
+</section>
+
+<!-- BNBA WORKSPACE -->
+<template
+  v-if="
+    canShowBnbaWorkspace
+  "
+>
+      <!-- SELECTED PERIOD -->
+      <section
+        class="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+      >
+        <span
+          class="text-xs font-bold tracking-wider text-slate-400 uppercase"
+        >
+          Periode
+        </span>
+
+        <h2
+          class="mt-1 text-xl font-bold text-slate-900"
+        >
+          {{ selectedPeriod?.name }}
+        </h2>
+
+        <p
+          class="mt-1 text-sm text-slate-500"
+        >
+          Tahun
+          {{ selectedPeriod?.year }}
+        </p>
+      </section>
+
+      <!-- CONFIRMED BNBA -->
+      <section
+        v-if="
+          selectedPeriod
+            ?.bnba
+            ?.status
+          === 'confirmed'
+          &&
+          currentImport
+          === null
+        "
+        class="mt-6 rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm"
+      >
         <div
-          class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl"
+          class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"
         >
           <div
-            class="mb-5 flex items-start justify-between gap-4"
+            class="flex items-start gap-4"
           >
             <div
-              class="flex size-12 items-center justify-center rounded-2xl bg-[#006855]/10 text-[#006855]"
+              class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700"
             >
-              <ShieldCheck
+              <Database
                 :size="24"
                 aria-hidden="true"
               />
             </div>
 
-            <button
-              type="button"
-              class="flex size-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100"
-              aria-label="Tutup dialog"
-              :disabled="isConfirming"
-              @click="
-                showConfirmDialog = false
-              "
-            >
-              <X
-                :size="20"
-                aria-hidden="true"
-              />
-            </button>
-          </div>
-
-          <h2
-            id="confirm-import-title"
-            class="text-xl font-bold text-slate-950"
-          >
-            Konfirmasi import BNBA?
-          </h2>
-
-          <p
-            class="mt-2 text-sm leading-6 text-slate-500"
-          >
-            Setelah dikonfirmasi, data Valid dan Warning
-            akan dimasukkan ke kepesertaan BPNT pada
-            periode yang dipilih.
-          </p>
-
-          <div
-            class="mt-5 grid grid-cols-2 gap-3 rounded-2xl bg-slate-50 p-4"
-          >
             <div>
-              <p
-                class="text-xs font-semibold text-slate-400"
+              <strong
+                class="text-slate-900"
               >
-                Akan diimport
-              </p>
+                BNBA Terkonfirmasi
+              </strong>
 
               <p
-                class="mt-1 text-xl font-bold text-[#006855]"
+                class="mt-1 text-sm text-slate-500"
               >
                 {{
-                  currentImport.summary.valid
-                  +
-                  currentImport.summary.warning
+                  selectedPeriod
+                    ?.participants_count
                 }}
-              </p>
-            </div>
-
-            <div>
-              <p
-                class="text-xs font-semibold text-slate-400"
-              >
-                Tidak diimport
+                KPM
               </p>
 
               <p
-                class="mt-1 text-xl font-bold text-[#E8312D]"
+                class="mt-1 text-xs text-slate-400"
               >
                 {{
-                  currentImport.summary.invalid
-                  +
-                  currentImport.summary.duplicate
+                  selectedPeriod
+                    ?.bnba
+                    ?.original_name
                 }}
               </p>
             </div>
           </div>
 
           <div
-            class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"
+            class="flex flex-wrap gap-2"
           >
-            <button
-              type="button"
-              :disabled="isConfirming"
-              class="min-h-11 rounded-xl border border-slate-300 px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
-              @click="
-                showConfirmDialog = false
-              "
+            <RouterLink
+              :to="{
+                name:
+                  'management-bnba',
+
+                query: {
+                  period:
+                    selectedPeriod?.id,
+                },
+              }"
+              class="inline-flex min-h-11 items-center rounded-xl border border-slate-300 px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
             >
-              Batal
-            </button>
+              Lihat Data
+            </RouterLink>
 
             <button
               type="button"
-              :disabled="isConfirming"
-              class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#006855] px-5 text-sm font-bold text-white transition hover:bg-[#005646] disabled:cursor-not-allowed disabled:opacity-50"
-              @click="confirmImport"
+              :disabled="
+                isDeletingBnba
+              "
+              class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-red-600 px-4 text-sm font-bold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+              @click="
+                handleDeleteBnba
+              "
             >
               <LoaderCircle
-                v-if="isConfirming"
+                v-if="
+                  isDeletingBnba
+                "
+                :size="16"
+                class="animate-spin"
+              />
+
+              <Trash2
+                v-else
+                :size="16"
+              />
+
+              Hapus BNBA
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- LOADING EXISTING PREVIEW -->
+      <section
+        v-else-if="
+          selectedPeriod
+            ?.bnba
+            ?.status
+          === 'preview_ready'
+          &&
+          currentImport
+          === null
+          &&
+          isLoadingPreview
+        "
+        class="mt-6 flex min-h-32 items-center justify-center rounded-2xl border border-slate-200 bg-white"
+      >
+        <LoaderCircle
+          :size="24"
+          class="animate-spin text-[#006855]"
+        />
+      </section>
+
+      <!-- UPLOAD -->
+      <BnbaUploadPanel
+        v-if="
+          showUploadPanel
+        "
+        class="mt-6"
+        :selected-file="
+          selectedFile
+        "
+        :upload-progress="
+          uploadProgress
+        "
+        :is-uploading="
+          isUploading
+        "
+        :can-upload="
+          canUpload
+        "
+        @select-file="
+          handleFileSelect
+        "
+        @upload="
+          handleUpload
+        "
+      />
+
+      <!-- PREVIEW -->
+      <div
+        v-if="
+          currentImport
+          !== null
+          &&
+          currentImport.status
+          === 'preview_ready'
+        "
+        class="mt-6 space-y-6"
+      >
+        <!-- PREVIEW HEADER -->
+        <section
+          class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <strong
+              class="text-slate-900"
+            >
+              {{
+                currentImport
+                  .original_name
+              }}
+            </strong>
+
+            <p
+              class="mt-1 text-sm text-slate-500"
+            >
+              Menunggu konfirmasi
+            </p>
+          </div>
+
+          <button
+            type="button"
+            :disabled="
+              isDeletingBnba
+              ||
+              isConfirming
+            "
+            class="inline-flex min-h-10 items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 text-sm font-bold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+            @click="
+              handleDeleteBnba
+            "
+          >
+            <LoaderCircle
+              v-if="
+                isDeletingBnba
+              "
+              :size="16"
+              class="animate-spin"
+            />
+
+            <Trash2
+              v-else
+              :size="16"
+            />
+
+            Hapus BNBA
+          </button>
+        </section>
+
+        <!-- SUMMARY -->
+        <BnbaImportSummary
+          :import-data="
+            currentImport
+          "
+          :active-status="
+            statusFilter
+          "
+          @filter="
+            handleFilter
+          "
+        />
+
+        <!-- TABLE -->
+        <BnbaPreviewTable
+          :rows="
+            previewRows
+          "
+          :meta="
+            previewMeta
+          "
+          :loading="
+            isLoadingPreview
+          "
+          :search="
+            search
+          "
+          @search="
+            handleSearch
+          "
+          @page="
+            handlePage
+          "
+        />
+
+        <!-- CONFIRM -->
+        <section
+          class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+        >
+          <div
+            class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div>
+              <strong
+                class="text-slate-900"
+              >
+                Konfirmasi BNBA
+              </strong>
+
+              <p
+                class="mt-1 text-sm leading-6 text-slate-500"
+              >
+                Setelah dikonfirmasi,
+                baris Valid dan Warning
+                menjadi data KPM periode ini.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              :disabled="
+                !canConfirm
+              "
+              class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#006855] px-6 font-bold text-white transition hover:bg-[#005646] disabled:cursor-not-allowed disabled:opacity-50"
+              @click="
+                handleConfirm
+              "
+            >
+              <LoaderCircle
+                v-if="
+                  isConfirming
+                "
                 :size="18"
                 class="animate-spin"
-                aria-hidden="true"
               />
 
               <ShieldCheck
                 v-else
                 :size="18"
-                aria-hidden="true"
               />
 
               {{
                 isConfirming
                   ? 'Mengonfirmasi...'
-                  : 'Ya, Konfirmasi'
+                  : 'Konfirmasi BNBA'
               }}
             </button>
           </div>
-        </div>
+        </section>
       </div>
-    </Teleport>
-  </div>
+    </template>
+  </main>
 </template>

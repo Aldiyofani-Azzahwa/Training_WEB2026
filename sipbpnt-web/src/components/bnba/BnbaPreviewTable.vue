@@ -10,7 +10,7 @@ import {
   Inbox,
   LoaderCircle,
   Search,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 
 import type {
   BnbaImportRow,

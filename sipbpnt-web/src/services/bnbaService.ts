@@ -1,40 +1,54 @@
-import type { AxiosProgressEvent } from 'axios'
+import type {
+  AxiosProgressEvent,
+} from 'axios'
 
-import {http} from '@/services/http'
+import {
+  http,
+} from '@/services/http'
 
 import type {
+  ApiMessageResponse,
   BnbaHistoryParams,
   BnbaImport,
   BnbaImportHistoryResponse,
   BnbaImportResponse,
+  BnbaParticipantFilterOptions,
+  BnbaParticipantFilterOptionsResponse,
+  BnbaParticipantFilters,
+  BnbaParticipantListResponse,
   BnbaPreviewParams,
   BnbaPreviewResponse,
   BpntPeriod,
-  BpntPeriodCreateResponse,
   BpntPeriodListResponse,
+  BpntPeriodResponse,
   CreateBpntPeriodPayload,
-  BnbaParticipantFilterOptions,
-  BnbaParticipantFilterOptionsResponse, 
-  BnbaParticipantFilters,
-  BnbaParticipantListResponse,
+  UpdateBpntPeriodPayload,
 } from '@/types/bnba'
 
-const BASE_PATH = '/api/v1'
+const BASE_PATH =
+  '/api/v1'
 
 class BnbaService {
-  async getPeriods(): Promise<BpntPeriod[]> {
-    const response = await http.get<BpntPeriodListResponse>(
-      `${BASE_PATH}/bpnt-periods`,
-    )
+  async getPeriods():
+    Promise<BpntPeriod[]> {
+    const response =
+      await http.get<
+        BpntPeriodListResponse
+      >(
+        `${BASE_PATH}/bpnt-periods`,
+      )
 
     return response.data.data
   }
 
   async createPeriod(
-    payload: CreateBpntPeriodPayload,
+    payload:
+      CreateBpntPeriodPayload,
   ): Promise<BpntPeriod> {
     const response =
-      await http.post<BpntPeriodCreateResponse>(
+      await http.post<
+        BpntPeriodResponse
+      >(
         `${BASE_PATH}/bpnt-periods`,
         payload,
       )
@@ -42,11 +56,52 @@ class BnbaService {
     return response.data.data
   }
 
-  async getImportHistory(
-    params: BnbaHistoryParams = {},
-  ): Promise<BnbaImportHistoryResponse> {
+  async updatePeriod(
+    periodId: number,
+    payload:
+      UpdateBpntPeriodPayload,
+  ): Promise<BpntPeriod> {
     const response =
-      await http.get<BnbaImportHistoryResponse>(
+      await http.patch<
+        BpntPeriodResponse
+      >(
+        `${BASE_PATH}/bpnt-periods/${periodId}`,
+        payload,
+      )
+
+    return response.data.data
+  }
+
+  async deletePeriod(
+    periodId: number,
+  ): Promise<void> {
+    await http.delete<
+      ApiMessageResponse
+    >(
+      `${BASE_PATH}/bpnt-periods/${periodId}`,
+    )
+  }
+
+  async deletePeriodBnba(
+    periodId: number,
+  ): Promise<void> {
+    await http.delete<
+      ApiMessageResponse
+    >(
+      `${BASE_PATH}/bpnt-periods/${periodId}/bnba`,
+    )
+  }
+
+  async getImportHistory(
+    params:
+      BnbaHistoryParams = {},
+  ): Promise<
+    BnbaImportHistoryResponse
+  > {
+    const response =
+      await http.get<
+        BnbaImportHistoryResponse
+      >(
         `${BASE_PATH}/bnba/imports`,
         {
           params,
@@ -63,7 +118,8 @@ class BnbaService {
       progress: number,
     ) => void,
   ): Promise<BnbaImport> {
-    const formData = new FormData()
+    const formData =
+      new FormData()
 
     formData.append(
       'period_id',
@@ -76,24 +132,33 @@ class BnbaService {
     )
 
     const response =
-      await http.post<BnbaImportResponse>(
+      await http.post<
+        BnbaImportResponse
+      >(
         `${BASE_PATH}/bnba/imports`,
         formData,
         {
           onUploadProgress: (
-            event: AxiosProgressEvent,
+            event:
+              AxiosProgressEvent,
           ) => {
             if (
               !onProgress
-              || !event.total
+              ||
+              !event.total
             ) {
               return
             }
 
-            const progress = Math.round(
-              (event.loaded * 100)
-              / event.total,
-            )
+            const progress =
+              Math.round(
+                (
+                  event.loaded
+                  * 100
+                )
+                /
+                event.total,
+              )
 
             onProgress(
               Math.min(
@@ -110,10 +175,13 @@ class BnbaService {
 
   async getPreview(
     importId: number,
-    params: BnbaPreviewParams = {},
+    params:
+      BnbaPreviewParams = {},
   ): Promise<BnbaPreviewResponse> {
     const response =
-      await http.get<BnbaPreviewResponse>(
+      await http.get<
+        BnbaPreviewResponse
+      >(
         `${BASE_PATH}/bnba/imports/${importId}/preview`,
         {
           params,
@@ -127,7 +195,9 @@ class BnbaService {
     importId: number,
   ): Promise<BnbaImport> {
     const response =
-      await http.post<BnbaImportResponse>(
+      await http.post<
+        BnbaImportResponse
+      >(
         `${BASE_PATH}/bnba/imports/${importId}/confirm`,
       )
 
@@ -135,34 +205,44 @@ class BnbaService {
   }
 
   async getParticipants(
-  params: BnbaParticipantFilters,
-): Promise<BnbaParticipantListResponse> {
-  const response =
-    await http.get<BnbaParticipantListResponse>(
-      `${BASE_PATH}/bnba/participants`,
-      {
-        params,
-      },
-    )
-
-  return response.data
-}
-
-async getParticipantFilterOptions(
-  periodId: number,
-): Promise<BnbaParticipantFilterOptions> {
-  const response =
-    await http.get<BnbaParticipantFilterOptionsResponse>(
-      `${BASE_PATH}/bnba/participants/options`,
-      {
-        params: {
-          period_id: periodId,
+    params:
+      BnbaParticipantFilters,
+  ): Promise<
+    BnbaParticipantListResponse
+  > {
+    const response =
+      await http.get<
+        BnbaParticipantListResponse
+      >(
+        `${BASE_PATH}/bnba/participants`,
+        {
+          params,
         },
-      },
-    )
+      )
 
-  return response.data.data
-}
+    return response.data
+  }
+
+  async getParticipantFilterOptions(
+    periodId: number,
+  ): Promise<
+    BnbaParticipantFilterOptions
+  > {
+    const response =
+      await http.get<
+        BnbaParticipantFilterOptionsResponse
+      >(
+        `${BASE_PATH}/bnba/participants/options`,
+        {
+          params: {
+            period_id:
+              periodId,
+          },
+        },
+      )
+
+    return response.data.data
+  }
 }
 
 export const bnbaService =

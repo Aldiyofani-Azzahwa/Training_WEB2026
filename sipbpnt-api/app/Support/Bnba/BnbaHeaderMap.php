@@ -65,9 +65,25 @@ final class BnbaHeaderMap
                 $periodYear
             );
 
-            if ($key !== null) {
-                $found[$key] = $column;
+            if ($key === null) {
+                continue;
             }
+
+            if (isset($found[$key])) {
+                throw ValidationException
+                    ::withMessages([
+                        'file' => [
+                            'Struktur header BNBA '
+                            .'tidak valid karena '
+                            .'terdapat header ganda '
+                            .'untuk kolom '
+                            .$key
+                            .'.',
+                        ],
+                    ]);
+            }
+
+            $found[$key] = $column;
         }
 
         $missing = array_values(

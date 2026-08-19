@@ -28,8 +28,7 @@ final class EloquentBnbaImportRepository
             array_chunk(
                 $rows,
                 250
-            )
-            as $chunk
+            ) as $chunk
         ) {
             BnbaImportRow::query()
                 ->insert($chunk);
@@ -108,9 +107,7 @@ final class EloquentBnbaImportRepository
             && $search !== ''
         ) {
             $query->where(
-                function (
-                    $builder
-                ) use (
+                function ($builder) use (
                     $search,
                     $nikHash
                 ): void {
@@ -136,13 +133,12 @@ final class EloquentBnbaImportRepository
                             '%'.$search.'%'
                         );
 
-                    if (
-                        $nikHash !== null
-                    ) {
-                        $builder->orWhere(
-                            'nik_hash',
-                            $nikHash
-                        );
+                    if ($nikHash !== null) {
+                        $builder
+                            ->orWhere(
+                                'nik_hash',
+                                $nikHash
+                            );
                     }
                 }
             );
@@ -164,12 +160,83 @@ final class EloquentBnbaImportRepository
             ->whereIn(
                 'status',
                 [
-                    BnbaRowStatus::VALID->value,
-                    BnbaRowStatus::WARNING->value,
+                    BnbaRowStatus
+                        ::VALID
+                        ->value,
+
+                    BnbaRowStatus
+                        ::WARNING
+                        ->value,
                 ]
             )
             ->orderBy(
                 'row_number'
+            )
+            ->get();
+    }
+
+    public function latestForPeriod(
+        int $periodId
+    ): ?BnbaImport {
+        return BnbaImport::query()
+            ->where(
+                'bpnt_period_id',
+                $periodId
+            )
+            ->latest('id')
+            ->first();
+    }
+
+    public function forPeriodForUpdate(
+        int $periodId
+    ): Collection {
+        return BnbaImport::query()
+            ->where(
+                'bpnt_period_id',
+                $periodId
+            )
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->get();
+    }
+
+    public function deleteForPeriod(
+        int $periodId
+    ): int {
+        return BnbaImport::query()
+            ->where(
+                'bpnt_period_id',
+                $periodId
+            )
+            ->delete();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Retention Audit
+    |--------------------------------------------------------------------------
+    |
+    */
+
+    public function latestForRetentionAudit(
+        int $limit
+    ): Collection {
+        $safeLimit =
+            min(
+                max(
+                    $limit,
+                    1
+                ),
+                1000
+            );
+
+        return BnbaImport::query()
+            ->with([
+                'period:id,code,name,year',
+            ])
+            ->latest('id')
+            ->limit(
+                $safeLimit
             )
             ->get();
     }

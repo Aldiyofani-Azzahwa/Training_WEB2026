@@ -21,7 +21,7 @@ import {
   Quote,
   Store,
   Users,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 
 import BatikCorner from '@/components/landing/BatikCorner.vue'
 import SectionWave from '@/components/landing/SectionWave.vue'

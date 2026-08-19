@@ -1,4 +1,5 @@
 import axios from 'axios'
+
 import {
   createRouter,
   createWebHistory,
@@ -6,276 +7,296 @@ import {
   type RouteRecordRaw,
 } from 'vue-router'
 
-import PublicLayout from '@/layouts/PublicLayout.vue'
-import { http } from '@/services/http'
-import { useAuthStore } from '@/stores/auth'
+import InternalLayout
+  from '@/layouts/InternalLayout.vue'
 
-import { adminRoutes } from './adminRoutes'
-import { managementRoutes } from './managementRoutes'
+import PublicLayout
+  from '@/layouts/PublicLayout.vue'
 
-/*
-|--------------------------------------------------------------------------
-| Routes
-|--------------------------------------------------------------------------
-*/
+import {
+  http,
+} from '@/services/http'
 
-const routes: RouteRecordRaw[] = [
-  /*
-  |--------------------------------------------------------------------------
-  | Public Pages
-  |--------------------------------------------------------------------------
-  */
+import {
+  useAuthStore,
+} from '@/stores/auth'
 
-  {
-    path: '/',
-    component: PublicLayout,
+import type {
+  ApiResponse,
+  AuthUser,
+} from '@/types/auth'
 
-    children: [
-      {
-        path: '',
-        name: 'home',
+import {
+  adminRoutes,
+} from './adminRoutes'
 
-        component: () =>
-          import(
-            '@/views/LandingView.vue'
-          ),
-      },
+import {
+  managementRoutes,
+} from './managementRoutes'
 
-      {
-        path: 'tentang-bpnt',
-        name: 'about-bpnt',
-
-        component: () =>
-          import(
-            '@/views/AboutBpntView.vue'
-          ),
-      },
-
-      {
-        path: 'tentang-sipbpnt',
-        name: 'about-sipbpnt',
-
-        component: () =>
-          import(
-            '@/views/AboutSipbpntView.vue'
-          ),
-      },
-
-      {
-        path: 'manfaat',
-        name: 'benefits',
-
-        component: () =>
-          import(
-            '@/views/BenefitsView.vue'
-          ),
-      },
-
-      {
-        path: 'faq',
-        name: 'faq',
-
-        component: () =>
-          import(
-            '@/views/FaqView.vue'
-          ),
-      },
-
-      {
-        path: 'kontak',
-        name: 'contact',
-
-        component: () =>
-          import(
-            '@/views/ContactView.vue'
-          ),
-      },
-    ],
-  },
-
-  /*
-  |--------------------------------------------------------------------------
-  | Login
-  |--------------------------------------------------------------------------
-  */
-
-  {
-    path: '/login',
-    name: 'login',
-
-    component: () =>
-      import(
-        '@/views/LoginView.vue'
-      ),
-
-    meta: {
-      guestOnly: true,
-    },
-  },
-
-  /*
-  |--------------------------------------------------------------------------
-  | Dashboard
-  |--------------------------------------------------------------------------
-  */
-
-  {
-    path: '/dashboard',
-    name: 'dashboard',
-
-    component: () =>
-      import(
-        '@/views/DashboardView.vue'
-      ),
-
-    meta: {
-      requiresAuth: true,
-    },
-  },
-
-  /*
-  |--------------------------------------------------------------------------
-  | Admin Dinas Sosial
-  |--------------------------------------------------------------------------
-  |
-  | Source:
-  | src/router/adminRoutes.ts
-  |
-  */
-
-  ...adminRoutes,
-
-  /*
-  |--------------------------------------------------------------------------
-  | Management
-  |--------------------------------------------------------------------------
-  |
-  | Source:
-  | src/router/managementRoutes.ts
-  |
-  | Digunakan oleh:
-  | - admin_dinsos
-  | - manager
-  |
-  */
-
-  ...managementRoutes,
-
-  /*
-  |--------------------------------------------------------------------------
-  | Not Found
-  |--------------------------------------------------------------------------
-  |
-  | Catch-all wajib berada paling bawah.
-  |
-  */
-
-  {
-    path: '/:pathMatch(.*)*',
-    name: 'not-found',
-
-    component: () =>
-      import(
-        '@/views/NotFoundView.vue'
-      ),
-  },
-]
-
-/*
-|--------------------------------------------------------------------------
-| Router
-|--------------------------------------------------------------------------
-*/
-
-const router = createRouter({
-  history: createWebHistory(
-    import.meta.env.BASE_URL,
-  ),
-
-  routes,
-
-  scrollBehavior(
-    to,
-    _from,
-    savedPosition,
-  ) {
+const routes:
+  RouteRecordRaw[] = [
     /*
     |--------------------------------------------------------------------------
-    | Browser Back / Forward
+    | Public
     |--------------------------------------------------------------------------
     */
 
-    if (savedPosition) {
-      return savedPosition
-    }
+    {
+      path:
+        '/',
+
+      component:
+        PublicLayout,
+
+      children: [
+        {
+          path:
+            '',
+
+          name:
+            'home',
+
+          component: () =>
+            import(
+              '@/views/LandingView.vue'
+            ),
+        },
+
+        {
+          path:
+            'tentang-bpnt',
+
+          name:
+            'about-bpnt',
+
+          component: () =>
+            import(
+              '@/views/AboutBpntView.vue'
+            ),
+        },
+
+        {
+          path:
+            'tentang-sipbpnt',
+
+          name:
+            'about-sipbpnt',
+
+          component: () =>
+            import(
+              '@/views/AboutSipbpntView.vue'
+            ),
+        },
+
+        {
+          path:
+            'manfaat',
+
+          name:
+            'benefits',
+
+          component: () =>
+            import(
+              '@/views/BenefitsView.vue'
+            ),
+        },
+
+        {
+          path:
+            'faq',
+
+          name:
+            'faq',
+
+          component: () =>
+            import(
+              '@/views/FaqView.vue'
+            ),
+        },
+
+        {
+          path:
+            'kontak',
+
+          name:
+            'contact',
+
+          component: () =>
+            import(
+              '@/views/ContactView.vue'
+            ),
+        },
+      ],
+    },
 
     /*
     |--------------------------------------------------------------------------
-    | Anchor Link
+    | Login
     |--------------------------------------------------------------------------
     */
 
-    if (to.hash) {
-      return {
-        el: to.hash,
-        behavior: 'smooth',
+    {
+      path:
+        '/login',
+
+      name:
+        'login',
+
+      component: () =>
+        import(
+          '@/views/LoginView.vue'
+        ),
+
+      meta: {
+        guestOnly:
+          true,
+
+        title:
+          'Login',
+      },
+    },
+
+    /*
+    |--------------------------------------------------------------------------
+    | Internal
+    |--------------------------------------------------------------------------
+    */
+
+    {
+      path:
+        '/dashboard',
+
+      component:
+        InternalLayout,
+
+      meta: {
+        requiresAuth:
+          true,
+      },
+
+      children: [
+        {
+          path:
+            '',
+
+          name:
+            'dashboard',
+
+          component: () =>
+            import(
+              '@/views/DashboardView.vue'
+            ),
+
+          meta: {
+            title:
+              'Dashboard',
+          },
+        },
+
+        ...adminRoutes,
+
+        ...managementRoutes,
+      ],
+    },
+
+    /*
+    |--------------------------------------------------------------------------
+    | Legacy Redirect
+    |--------------------------------------------------------------------------
+    */
+
+    {
+      path:
+        '/admin/bnba/import',
+
+      redirect: {
+        name:
+          'admin-bnba-import',
+      },
+    },
+
+    {
+      path:
+        '/management/bnba',
+
+      redirect: {
+        name:
+          'management-bnba',
+      },
+    },
+
+    /*
+    |--------------------------------------------------------------------------
+    | Not Found
+    |--------------------------------------------------------------------------
+    */
+
+    {
+      path:
+        '/:pathMatch(.*)*',
+
+      name:
+        'not-found',
+
+      component: () =>
+        import(
+          '@/views/NotFoundView.vue'
+        ),
+    },
+  ]
+
+const router =
+  createRouter({
+    history:
+      createWebHistory(
+        import.meta.env
+          .BASE_URL,
+      ),
+
+    routes,
+
+    scrollBehavior(
+      to,
+      _from,
+      savedPosition,
+    ) {
+      if (savedPosition) {
+        return savedPosition
       }
-    }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Default
-    |--------------------------------------------------------------------------
-    */
+      if (to.hash) {
+        return {
+          el:
+            to.hash,
 
-    return {
-      top: 0,
-    }
-  },
-})
+          behavior:
+            'smooth',
+        }
+      }
 
-/*
-|--------------------------------------------------------------------------
-| Restore Sanctum Session
-|--------------------------------------------------------------------------
-|
-| Router tidak bergantung pada method custom auth store.
-|
-| Yang digunakan:
-|
-| - authStore.initialized
-| - authStore.user
-| - authStore.isAuthenticated
-| - authStore.$patch()
-|
-| $patch() merupakan API bawaan Pinia.
-|
-*/
+      return {
+        top: 0,
+      }
+    },
+  })
 
 async function restoreAuthSession():
   Promise<void> {
   const authStore =
     useAuthStore()
 
-  /*
-  |--------------------------------------------------------------------------
-  | Sudah Diinisialisasi
-  |--------------------------------------------------------------------------
-  */
-
-  if (authStore.initialized) {
+  if (
+    authStore.initialized
+  ) {
     return
   }
 
   try {
-    /*
-    |--------------------------------------------------------------------------
-    | Restore User
-    |--------------------------------------------------------------------------
-    */
-
     const response =
-      await http.get(
+      await http.get<
+        ApiResponse<AuthUser>
+      >(
         '/api/v1/auth/me',
       )
 
@@ -286,203 +307,148 @@ async function restoreAuthSession():
       initialized:
         true,
     })
-  } catch (error: unknown) {
-    /*
-    |--------------------------------------------------------------------------
-    | Guest / Session Expired
-    |--------------------------------------------------------------------------
-    */
-
+  } catch (
+    error: unknown
+  ) {
     if (
-      axios.isAxiosError(error)
+      axios.isAxiosError(
+        error,
+      )
       &&
       (
-        error.response?.status === 401
+        error.response
+          ?.status
+        === 401
         ||
-        error.response?.status === 419
+        error.response
+          ?.status
+        === 419
       )
     ) {
       authStore.$patch({
-        user: null,
-        initialized: true,
+        user:
+          null,
+
+        initialized:
+          true,
       })
 
       return
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Network / Server Error
-    |--------------------------------------------------------------------------
-    |
-    | Initialization tetap diselesaikan agar router tidak terus memanggil
-    | /api/v1/auth/me pada setiap navigasi.
-    |
-    */
-
     authStore.$patch({
-      user: null,
-      initialized: true,
+      user:
+        null,
+
+      initialized:
+        true,
     })
   }
 }
 
-/*
-|--------------------------------------------------------------------------
-| Requires Authentication
-|--------------------------------------------------------------------------
-*/
-
 function requiresAuthentication(
-  to: RouteLocationNormalized,
+  to:
+    RouteLocationNormalized,
 ): boolean {
   return Boolean(
     to.meta.requiresAuth,
   )
 }
 
-/*
-|--------------------------------------------------------------------------
-| Guest Only
-|--------------------------------------------------------------------------
-*/
-
 function isGuestOnly(
-  to: RouteLocationNormalized,
+  to:
+    RouteLocationNormalized,
 ): boolean {
   return Boolean(
     to.meta.guestOnly,
   )
 }
 
-/*
-|--------------------------------------------------------------------------
-| Required Roles
-|--------------------------------------------------------------------------
-|
-| Mengubah meta.roles menjadi array string yang aman.
-|
-*/
-
 function getRequiredRoles(
-  to: RouteLocationNormalized,
+  to:
+    RouteLocationNormalized,
 ): string[] {
-  const roles = to.meta.roles
+  const roles =
+    to.meta.roles
 
-  if (!Array.isArray(roles)) {
+  if (
+    !Array.isArray(
+      roles,
+    )
+  ) {
     return []
   }
 
   return roles.filter(
     (role) =>
-      typeof role === 'string',
+      typeof role
+      === 'string',
   )
 }
 
-/*
-|--------------------------------------------------------------------------
-| Role Authorization
-|--------------------------------------------------------------------------
-|
-| Ini hanya navigation guard frontend.
-|
-| Authorization utama tetap harus dilakukan Laravel.
-|
-*/
-
 function hasRequiredRole(
-  to: RouteLocationNormalized,
+  to:
+    RouteLocationNormalized,
 ): boolean {
   const authStore =
     useAuthStore()
 
   const requiredRoles =
-    getRequiredRoles(to)
-
-  /*
-  |--------------------------------------------------------------------------
-  | Route Tidak Membatasi Role
-  |--------------------------------------------------------------------------
-  */
+    getRequiredRoles(
+      to,
+    )
 
   if (
-    requiredRoles.length === 0
+    requiredRoles.length
+    === 0
   ) {
     return true
   }
-
-  /*
-  |--------------------------------------------------------------------------
-  | User Tidak Ada
-  |--------------------------------------------------------------------------
-  */
 
   if (!authStore.user) {
     return false
   }
 
-  return requiredRoles.includes(
-    authStore.user.role,
-  )
+  return requiredRoles
+    .includes(
+      authStore
+        .user
+        .role,
+    )
 }
 
-/*
-|--------------------------------------------------------------------------
-| Global Navigation Guard
-|--------------------------------------------------------------------------
-*/
-
 router.beforeEach(
-  async (to) => {
+  async (
+    to,
+  ) => {
     const authStore =
       useAuthStore()
 
-    /*
-    |--------------------------------------------------------------------------
-    | Restore Authentication
-    |--------------------------------------------------------------------------
-    |
-    | Hanya berjalan sampai initialized menjadi true.
-    |
-    */
-
     await restoreAuthSession()
-
-    /*
-    |--------------------------------------------------------------------------
-    | Guest Only
-    |--------------------------------------------------------------------------
-    |
-    | User yang sudah login tidak boleh membuka /login.
-    |
-    */
 
     if (
       isGuestOnly(to)
       &&
-      authStore.isAuthenticated
+      authStore
+        .isAuthenticated
     ) {
       return {
-        name: 'dashboard',
+        name:
+          'dashboard',
       }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Authentication Guard
-    |--------------------------------------------------------------------------
-    |
-    | User guest yang membuka protected route dikirim ke login.
-    |
-    */
-
     if (
-      requiresAuthentication(to)
+      requiresAuthentication(
+        to,
+      )
       &&
-      !authStore.isAuthenticated
+      !authStore
+        .isAuthenticated
     ) {
       return {
-        name: 'login',
+        name:
+          'login',
 
         query: {
           redirect:
@@ -491,30 +457,21 @@ router.beforeEach(
       }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Role Guard
-    |--------------------------------------------------------------------------
-    |
-    | Contoh:
-    |
-    | /admin/bnba/import
-    | -> admin_dinsos
-    |
-    | /management/bnba
-    | -> admin_dinsos, manager
-    |
-    */
-
     if (
-      requiresAuthentication(to)
+      requiresAuthentication(
+        to,
+      )
       &&
-      authStore.isAuthenticated
+      authStore
+        .isAuthenticated
       &&
-      !hasRequiredRole(to)
+      !hasRequiredRole(
+        to,
+      )
     ) {
       return {
-        name: 'dashboard',
+        name:
+          'dashboard',
       }
     }
 

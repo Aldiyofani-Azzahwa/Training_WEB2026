@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class BpntPeriod extends Model
 {
@@ -39,5 +40,14 @@ class BpntPeriod extends Model
         return $this->hasMany(
             BpntParticipant::class
         );
+    }
+
+    public function latestImport(): HasOne
+    {
+        return $this
+            ->hasOne(
+                BnbaImport::class
+            )
+            ->latestOfMany();
     }
 }

@@ -16,7 +16,7 @@ import {
   ArrowRight,
   Menu,
   X,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 
 import BrandLogo from './BrandLogo.vue'
 

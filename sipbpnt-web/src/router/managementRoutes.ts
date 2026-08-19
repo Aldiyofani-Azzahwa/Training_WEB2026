@@ -6,7 +6,7 @@ export const managementRoutes:
   RouteRecordRaw[] = [
     {
       path:
-        '/management/bnba',
+        'management/bnba',
 
       name:
         'management-bnba',
@@ -17,12 +17,13 @@ export const managementRoutes:
         ),
 
       meta: {
-        requiresAuth: true,
-
         roles: [
           'admin_dinsos',
           'manager',
         ],
+
+        title:
+          'Data BNBA',
       },
     },
   ]
