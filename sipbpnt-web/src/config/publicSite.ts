@@ -16,11 +16,11 @@ export const publicNavigation:
       routeName: 'home',
     },
     {
-      label: 'Tentang BPNT',
+      label: 'BPNT',
       routeName: 'about-bpnt',
     },
     {
-      label: 'Tentang SIPBPNT',
+      label: 'SIPBPNT',
       routeName: 'about-sipbpnt',
     },
     {

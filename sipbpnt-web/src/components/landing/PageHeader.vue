@@ -28,7 +28,7 @@ withDefaults(
   >
     <BatikCorner
       position="top-right"
-      color="#E8312D"
+      color="#F97316"
       :opacity="0.04"
     />
 
@@ -44,7 +44,7 @@ withDefaults(
       >
         <RouterLink
           :to="{ name: 'home' }"
-          class="transition-colors hover:text-brand-600"
+          class="transition-colors hover:text-[#0F766E]"
         >
           Beranda
         </RouterLink>
@@ -65,7 +65,7 @@ withDefaults(
             direction: 'left',
             delay: 70,
           }"
-          class="inline-block border-l-4 border-[#E8312D] pl-3 text-sm font-medium uppercase tracking-[0.12em] text-[#E8312D]"
+          class="inline-block border-l-4 border-[#F97316] pl-3 text-sm font-medium uppercase tracking-[0.12em] text-[#EA580C]"
         >
           {{ eyebrow }}
         </span>
@@ -94,7 +94,7 @@ withDefaults(
 
     <SectionWave
       :target-color="waveTargetColor"
-      accent-color="#E8312D"
+      accent-color="#F97316"
       :duration="38"
       height-class="h-20 sm:h-24 lg:h-28"
     />
