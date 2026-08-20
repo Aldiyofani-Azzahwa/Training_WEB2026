@@ -25,4 +25,26 @@ export const adminRoutes:
           'Import BNBA',
       },
     },
+
+    {
+      path:
+        'admin/surveyors',
+
+      name:
+        'admin-surveyors',
+
+      component: () =>
+        import(
+          '@/views/admin/SurveyorView.vue'
+        ),
+
+      meta: {
+        roles: [
+          'admin_dinsos',
+        ],
+
+        title:
+          'Akun Surveyor',
+      },
+    },
   ]

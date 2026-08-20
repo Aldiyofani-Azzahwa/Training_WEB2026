@@ -12,7 +12,7 @@ describe(
   'internal navigation',
   () => {
     it(
-      'provides admin BNBA routes',
+      'provides admin BNBA and surveyor routes',
       () => {
         const navigation =
           getInternalNavigation(
@@ -31,6 +31,13 @@ describe(
             (item) =>
               item.key
               === 'data-bnba',
+          )
+
+        const surveyorAccounts =
+          navigation.find(
+            (item) =>
+              item.key
+              === 'surveyor-accounts',
           )
 
         expect(
@@ -54,6 +61,22 @@ describe(
         ).toBe(
           'management-bnba',
         )
+
+        expect(
+          surveyorAccounts,
+        ).toBeDefined()
+
+        expect(
+          surveyorAccounts
+            ?.routeName,
+        ).toBe(
+          'admin-surveyors',
+        )
+
+        expect(
+          surveyorAccounts
+            ?.available,
+        ).toBe(true)
       },
     )
 

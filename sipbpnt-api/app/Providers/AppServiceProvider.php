@@ -9,14 +9,19 @@ use App\Contracts\Repositories\BnbaImportRepositoryInterface;
 use App\Contracts\Repositories\BpntParticipantRepositoryInterface;
 use App\Contracts\Repositories\BpntPeriodRepositoryInterface;
 use App\Contracts\Repositories\KpmRepositoryInterface;
+use App\Contracts\Repositories\SurveyorRepositoryInterface;
+use App\Contracts\Repositories\WilayahRepositoryInterface;
 use App\Repositories\EloquentAuditLogRepository;
 use App\Repositories\EloquentBnbaImportRepository;
 use App\Repositories\EloquentBpntParticipantRepository;
 use App\Repositories\EloquentBpntPeriodRepository;
 use App\Repositories\EloquentKpmRepository;
+use App\Repositories\EloquentSurveyorRepository;
+use App\Repositories\EloquentWilayahRepository;
 use Illuminate\Support\ServiceProvider;
 
-class AppServiceProvider extends ServiceProvider
+class AppServiceProvider
+    extends ServiceProvider
 {
     public function register(): void
     {
@@ -43,6 +48,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             AuditLogRepositoryInterface::class,
             EloquentAuditLogRepository::class
+        );
+
+        $this->app->bind(
+            WilayahRepositoryInterface::class,
+            EloquentWilayahRepository::class
+        );
+
+        $this->app->bind(
+            SurveyorRepositoryInterface::class,
+            EloquentSurveyorRepository::class
         );
     }
 

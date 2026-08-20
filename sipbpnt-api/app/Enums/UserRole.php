@@ -14,15 +14,23 @@ enum UserRole: string
     public function label(): string
     {
         return match ($this) {
-            self::ADMIN_DINSOS => 'Admin Dinsos',
-            self::MANAGER => 'Manager',
-            self::SURVEYOR => 'Surveyor',
-            self::KEPALA_DINAS => 'Kepala Dinas',
+            self::ADMIN_DINSOS
+                => 'Admin Dinsos',
+
+            self::MANAGER
+                => 'Manager',
+
+            self::SURVEYOR
+                => 'Surveyor',
+
+            self::KEPALA_DINAS
+                => 'Kepala Dinas',
         };
     }
 
     /**
-     * Daftar modul utama yang dapat diakses pengguna.
+     * Daftar modul utama
+     * yang dapat diakses pengguna.
      *
      * @return array<int, string>
      */
@@ -34,6 +42,7 @@ enum UserRole: string
                 'Periode BPNT',
                 'Import BNBA',
                 'Data KPM',
+                'Akun Surveyor',
                 'Rekapitulasi',
                 'Laporan',
             ],

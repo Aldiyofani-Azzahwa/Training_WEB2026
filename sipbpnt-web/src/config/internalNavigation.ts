@@ -95,6 +95,23 @@ const navigationByRole:
 
       {
         key:
+          'surveyor-accounts',
+
+        label:
+          'Akun Surveyor',
+
+        icon:
+          Users,
+
+        routeName:
+          'admin-surveyors',
+
+        available:
+          true,
+      },
+
+      {
+        key:
           'rekapitulasi',
 
         label:

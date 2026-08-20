@@ -4,19 +4,12 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Api\V1\Admin\BnbaImportController;
 use App\Http\Controllers\Api\V1\Admin\BpntPeriodController;
+use App\Http\Controllers\Api\V1\Admin\SurveyorController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Management\BnbaParticipantController;
+use App\Http\Controllers\Api\V1\Management\SurveyorOptionController;
+use App\Http\Controllers\Api\V1\Management\WilayahController;
 use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| API Version 1
-|--------------------------------------------------------------------------
-|
-| Seluruh endpoint SIPBPNT berada
-| di bawah prefix /api/v1.
-|
-*/
 
 Route::prefix('v1')
     ->group(function (): void {
@@ -30,15 +23,18 @@ Route::prefix('v1')
             '/health',
             function () {
                 return response()->json([
-                    'application' => 'SIPBPNT',
+                    'application'
+                        => 'SIPBPNT',
 
-                    'status' => 'healthy',
+                    'status'
+                        => 'healthy',
 
-                    'timestamp' => now()
-                        ->timezone(
-                            'Asia/Jakarta'
-                        )
-                        ->toIso8601String(),
+                    'timestamp'
+                        => now()
+                            ->timezone(
+                                'Asia/Jakarta'
+                            )
+                            ->toIso8601String(),
                 ]);
             }
         );
@@ -90,15 +86,6 @@ Route::prefix('v1')
         |--------------------------------------------------------------------------
         | Admin + Manager
         |--------------------------------------------------------------------------
-        |
-        | Admin dan Manager boleh membaca:
-        |
-        | - daftar periode BPNT
-        | - data BNBA terkonfirmasi
-        | - pilihan filter BNBA
-        |
-        | Manager tidak boleh melakukan perubahan data.
-        |
         */
 
         Route::middleware([
@@ -106,16 +93,24 @@ Route::prefix('v1')
             'active.user',
             'role:admin_dinsos,manager',
         ])->group(function (): void {
-            /*
-            |--------------------------------------------------------------------------
-            | Periode BPNT - Read
-            |--------------------------------------------------------------------------
-            */
-
             Route::get(
                 '/bpnt-periods',
                 [
                     BpntPeriodController::class,
+                    'index',
+                ]
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Wilayah
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get(
+                '/wilayah',
+                [
+                    WilayahController::class,
                     'index',
                 ]
             );
@@ -144,16 +139,27 @@ Route::prefix('v1')
 
             /*
             |--------------------------------------------------------------------------
-            | Management Access Check
+            | Surveyor Aktif
             |--------------------------------------------------------------------------
+            |
+            | Dipakai Manager pada Assignment.
+            |
             */
+
+            Route::get(
+                '/surveyors/options',
+                [
+                    SurveyorOptionController::class,
+                    'index',
+                ]
+            );
 
             Route::get(
                 '/management/check-access',
                 function () {
                     return response()->json([
-                        'message' =>
-                            'Akses manajemen diberikan.',
+                        'message'
+                            => 'Akses manajemen diberikan.',
                     ]);
                 }
             );
@@ -163,17 +169,6 @@ Route::prefix('v1')
         |--------------------------------------------------------------------------
         | Admin Dinas Sosial
         |--------------------------------------------------------------------------
-        |
-        | Hanya Admin Dinas Sosial yang boleh:
-        |
-        | - membuat periode
-        | - mengedit periode
-        | - menghapus periode kosong
-        | - upload BNBA
-        | - melihat preview import
-        | - mengonfirmasi import
-        | - menghapus BNBA suatu periode
-        |
         */
 
         Route::middleware([
@@ -183,7 +178,58 @@ Route::prefix('v1')
         ])->group(function (): void {
             /*
             |--------------------------------------------------------------------------
-            | Periode BPNT - Create
+            | Master Akun Surveyor
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get(
+                '/admin/surveyors',
+                [
+                    SurveyorController::class,
+                    'index',
+                ]
+            );
+
+            Route::post(
+                '/admin/surveyors',
+                [
+                    SurveyorController::class,
+                    'store',
+                ]
+            );
+
+            Route::patch(
+                '/admin/surveyors/{surveyor}',
+                [
+                    SurveyorController::class,
+                    'update',
+                ]
+            )->whereNumber(
+                'surveyor'
+            );
+
+            Route::patch(
+                '/admin/surveyors/{surveyor}/status',
+                [
+                    SurveyorController::class,
+                    'updateStatus',
+                ]
+            )->whereNumber(
+                'surveyor'
+            );
+
+            /*
+             * PENTING:
+             *
+             * Tidak ada DELETE route Surveyor.
+             *
+             * Surveyor lama harus dinonaktifkan,
+             * bukan dihapus.
+             */
+
+            /*
+            |--------------------------------------------------------------------------
+            | Periode BPNT
             |--------------------------------------------------------------------------
             */
 
@@ -195,18 +241,6 @@ Route::prefix('v1')
                 ]
             );
 
-            /*
-            |--------------------------------------------------------------------------
-            | Periode BPNT - Update
-            |--------------------------------------------------------------------------
-            |
-            | Nama periode dapat diedit.
-            |
-            | Tahun hanya dapat diubah
-            | apabila periode belum memiliki BNBA.
-            |
-            */
-
             Route::patch(
                 '/bpnt-periods/{period}',
                 [
@@ -216,21 +250,6 @@ Route::prefix('v1')
             )->whereNumber(
                 'period'
             );
-
-            /*
-            |--------------------------------------------------------------------------
-            | Periode BPNT - Delete
-            |--------------------------------------------------------------------------
-            |
-            | Periode hanya dapat dihapus apabila:
-            |
-            | imports = 0
-            | participants = 0
-            |
-            | Business rule tetap diperiksa
-            | kembali pada BpntPeriodService.
-            |
-            */
 
             Route::delete(
                 '/bpnt-periods/{period}',
@@ -244,7 +263,7 @@ Route::prefix('v1')
 
             /*
             |--------------------------------------------------------------------------
-            | Import History
+            | Import BNBA
             |--------------------------------------------------------------------------
             */
 
@@ -256,20 +275,6 @@ Route::prefix('v1')
                 ]
             );
 
-            /*
-            |--------------------------------------------------------------------------
-            | Upload BNBA
-            |--------------------------------------------------------------------------
-            |
-            | Satu periode hanya memiliki
-            | satu BNBA.
-            |
-            | Apabila BNBA sudah ada,
-            | Admin harus menghapus BNBA tersebut
-            | terlebih dahulu sebelum upload ulang.
-            |
-            */
-
             Route::post(
                 '/bnba/imports',
                 [
@@ -277,12 +282,6 @@ Route::prefix('v1')
                     'store',
                 ]
             );
-
-            /*
-            |--------------------------------------------------------------------------
-            | Preview BNBA
-            |--------------------------------------------------------------------------
-            */
 
             Route::get(
                 '/bnba/imports/{import}/preview',
@@ -294,16 +293,6 @@ Route::prefix('v1')
                 'import'
             );
 
-            /*
-            |--------------------------------------------------------------------------
-            | Confirm BNBA
-            |--------------------------------------------------------------------------
-            |
-            | Baris valid dan warning
-            | menjadi participant periode.
-            |
-            */
-
             Route::post(
                 '/bnba/imports/{import}/confirm',
                 [
@@ -313,28 +302,6 @@ Route::prefix('v1')
             )->whereNumber(
                 'import'
             );
-
-            /*
-            |--------------------------------------------------------------------------
-            | Hapus BNBA Periode
-            |--------------------------------------------------------------------------
-            |
-            | Digunakan apabila Admin salah upload
-            | atau ingin mengganti file BNBA.
-            |
-            | Flow:
-            |
-            | Hapus BNBA
-            |     ↓
-            | periode kembali kosong
-            |     ↓
-            | upload file BNBA baru
-            |
-            | BnbaImportService bertanggung jawab
-            | menghapus participant, staging/import,
-            | file sumber, dan mencatat audit log.
-            |
-            */
 
             Route::delete(
                 '/bpnt-periods/{period}/bnba',
@@ -351,10 +318,6 @@ Route::prefix('v1')
         |--------------------------------------------------------------------------
         | Kepala Dinas
         |--------------------------------------------------------------------------
-        |
-        | Modul monitoring Kepala Dinas
-        | belum dibangun pada tahap ini.
-        |
         */
 
         Route::middleware([
@@ -366,8 +329,8 @@ Route::prefix('v1')
                 '/head-office/check-access',
                 function () {
                     return response()->json([
-                        'message' =>
-                            'Akses Kepala Dinas diberikan.',
+                        'message'
+                            => 'Akses Kepala Dinas diberikan.',
                     ]);
                 }
             );
