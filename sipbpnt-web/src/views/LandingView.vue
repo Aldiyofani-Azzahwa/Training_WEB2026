@@ -16,9 +16,15 @@ import {
   ClipboardCheck,
   FileSpreadsheet,
   FileText,
+  HandCoins,
+  History,
   Landmark,
+  Lock,
   Monitor,
+  PenLine,
   Quote,
+  Send,
+  ShieldCheck,
   Store,
   Users,
 } from '@lucide/vue'
@@ -84,6 +90,41 @@ const currentTestimonial =
       ] ?? fallbackTestimonial
     )
   })
+
+// Strip fitur ringkas, tampil tepat di bawah hero
+// (gaya ikon-kotak seperti pada referensi desain).
+const quickFeatures = [
+  {
+    icon: PenLine,
+    title: 'Pendataan KPM',
+    tone: 'orange',
+  },
+  {
+    icon: HandCoins,
+    title: 'Penyaluran Tepat Sasaran',
+    tone: 'green',
+  },
+  {
+    icon: Store,
+    title: 'Transaksi E-Warung',
+    tone: 'orange',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Verifikasi & Validasi',
+    tone: 'green',
+  },
+  {
+    icon: Lock,
+    title: 'Keamanan Data',
+    tone: 'orange',
+  },
+  {
+    icon: History,
+    title: 'Riwayat & Laporan',
+    tone: 'green',
+  },
+]
 
 const benefits = [
   {
@@ -176,23 +217,21 @@ onBeforeUnmount(stopTimer)
   <div>
     <!-- Hero -->
     <section
-      class="relative isolate flex min-h-[760px] items-center overflow-hidden bg-[#E8312D] pb-28 pt-32 sm:min-h-[800px] sm:pb-32 sm:pt-36 lg:min-h-[820px]"
+      class="relative isolate flex min-h-[680px] items-center overflow-hidden bg-government-900 pb-24 pt-32 sm:min-h-[760px] sm:pb-28 sm:pt-36"
     >
-      <!-- Foto kantor -->
+      <!-- Foto latar dengan animasi zoom halus saat halaman dibuka -->
       <div
-        class="absolute inset-0 -z-30 bg-cover bg-center bg-no-repeat"
+        class="hero-bg absolute inset-0 -z-30 bg-cover bg-center bg-no-repeat"
         :style="{
-          backgroundImage:
-            `url('/images/kantor.jpg')`,
-          backgroundPosition:
-            'center 42%',
+          backgroundImage: `url('/images/kantor.jpg')`,
+          backgroundPosition: 'center 42%',
         }"
         aria-hidden="true"
       />
 
-      <!-- Overlay merah transparan -->
+      <!-- Overlay gradasi oranye-hijau -->
       <div
-        class="absolute inset-0 -z-20 bg-[linear-gradient(90deg,rgba(232,49,45,0.72)_0%,rgba(232,49,45,0.52)_48%,rgba(232,49,45,0.22)_100%)]"
+        class="absolute inset-0 -z-20 bg-[linear-gradient(100deg,rgba(8,51,42,0.94)_0%,rgba(15,118,110,0.82)_38%,rgba(15,118,110,0.35)_68%,rgba(15,118,110,0.1)_100%)]"
         aria-hidden="true"
       />
 
@@ -204,15 +243,15 @@ onBeforeUnmount(stopTimer)
       <div
         class="mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-8"
       >
-        <div class="max-w-3xl">
+        <div class="max-w-2xl">
           <div
             v-reveal="{
               direction: 'left',
             }"
-            class="inline-flex items-center gap-3 border-l-4 border-[#FFAF1C] pl-3 text-xs font-medium uppercase tracking-[0.13em] text-white"
+            class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.13em] text-white backdrop-blur-sm"
           >
             <Landmark
-              :size="17"
+              :size="16"
               aria-hidden="true"
             />
 
@@ -224,10 +263,11 @@ onBeforeUnmount(stopTimer)
               direction: 'left',
               delay: 100,
             }"
-            class="mt-7 text-[42px] font-semibold leading-[1.12] tracking-[-0.04em] text-white sm:text-5xl lg:text-[64px]"
+            class="mt-6 text-[38px] font-semibold leading-[1.15] tracking-[-0.03em] text-white sm:text-5xl lg:text-[54px]"
           >
-            Sistem Informasi Pendataan dan
-            Monitoring BPNT
+            <span class="text-[#FDBA74]">Transparansi dan</span><br>
+            <span class="text-[#FDBA74]">Kemudahan Pendataan</span><br>
+            Bantuan Pangan BPNT
           </h1>
 
           <p
@@ -235,13 +275,13 @@ onBeforeUnmount(stopTimer)
               direction: 'up',
               delay: 190,
             }"
-            class="mt-6 max-w-2xl text-base leading-8 text-white/90 sm:text-lg"
+            class="mt-6 max-w-xl text-base leading-8 text-white/85 sm:text-lg"
           >
-            Sistem resmi yang membantu proses
-            pendataan KPM, pencatatan transaksi,
+            Sistem digital terintegrasi yang membantu
+            proses pendataan KPM, pencatatan transaksi,
             validasi, monitoring, dan pelaporan
-            penyaluran Bantuan Pangan Non Tunai
-            di Kota Mojokerto.
+            penyaluran Bantuan Pangan Non Tunai di
+            Kota Mojokerto.
           </p>
 
           <div
@@ -253,13 +293,12 @@ onBeforeUnmount(stopTimer)
           >
             <RouterLink
               :to="{ name: 'login' }"
-              class="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-[14px] bg-white px-6 text-sm font-semibold text-[#E8312D] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#FFAF1C] hover:text-government-900"
+              class="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full bg-[#F97316] px-7 text-sm font-semibold text-white shadow-lg shadow-orange-900/30 transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#EA580C]"
             >
               Masuk Sistem
 
-              <ArrowRight
-                :size="18"
-                class="text-[#006855]"
+              <Send
+                :size="17"
                 aria-hidden="true"
               />
             </RouterLink>
@@ -268,12 +307,12 @@ onBeforeUnmount(stopTimer)
               :to="{
                 name: 'about-sipbpnt',
               }"
-              class="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-[14px] border border-white/75 bg-transparent px-6 text-sm font-medium text-white transition-colors hover:border-white hover:bg-white hover:text-[#E8312D]"
+              class="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full border border-white/70 bg-transparent px-7 text-sm font-medium text-white transition-colors hover:bg-white hover:text-[#0F766E]"
             >
               Pelajari SIPBPNT
 
               <ArrowRight
-                :size="18"
+                :size="17"
                 aria-hidden="true"
               />
             </RouterLink>
@@ -284,12 +323,12 @@ onBeforeUnmount(stopTimer)
               direction: 'up',
               delay: 360,
             }"
-            class="mt-8 flex flex-col gap-3 border-t border-white/30 pt-6 text-sm text-white/90 sm:flex-row sm:flex-wrap sm:gap-6"
+            class="mt-8 flex flex-col gap-3 border-t border-white/25 pt-6 text-sm text-white/85 sm:flex-row sm:flex-wrap sm:gap-6"
           >
             <div class="flex items-center gap-2">
               <Check
                 :size="18"
-                class="text-[#FFAF1C]"
+                class="text-[#FDBA74]"
                 aria-hidden="true"
               />
 
@@ -309,7 +348,7 @@ onBeforeUnmount(stopTimer)
             <div class="flex items-center gap-2">
               <Check
                 :size="18"
-                class="text-[#FFAF1C]"
+                class="text-[#FDBA74]"
                 aria-hidden="true"
               />
 
@@ -321,18 +360,56 @@ onBeforeUnmount(stopTimer)
 
       <SectionWave
         target-color="#FFFFFF"
-        accent-color="#E8312D"
+        accent-color="#08332A"
         :duration="38"
       />
     </section>
 
+    <!-- Strip fitur ringkas -->
+    <section class="relative bg-white py-16 sm:py-20">
+      <div
+        class="mx-auto grid w-full max-w-7xl grid-cols-2 gap-x-8 gap-y-10 px-5 sm:grid-cols-3 sm:px-6 lg:px-8"
+      >
+        <div
+          v-for="(feature, index) in quickFeatures"
+          :key="feature.title"
+          v-reveal="{
+            direction: 'up',
+            delay: index * 60,
+          }"
+          class="flex items-center gap-3"
+        >
+          <div
+            :class="[
+              'flex size-12 shrink-0 items-center justify-center rounded-2xl text-white',
+              feature.tone === 'orange'
+                ? 'bg-[#F97316]'
+                : 'bg-[#0F766E]',
+            ]"
+          >
+            <component
+              :is="feature.icon"
+              :size="22"
+              aria-hidden="true"
+            />
+          </div>
+
+          <span
+            class="text-sm font-medium leading-5 text-government-800"
+          >
+            {{ feature.title }}
+          </span>
+        </div>
+      </div>
+    </section>
+
     <!-- Tentang BPNT -->
     <section
-      class="relative overflow-hidden bg-white py-24 sm:py-28"
+      class="relative overflow-hidden bg-cream-100 py-24 sm:py-28"
     >
       <BatikCorner
         position="top-right"
-        color="#E8312D"
+        color="#F97316"
         :opacity="0.04"
       />
 
@@ -345,7 +422,7 @@ onBeforeUnmount(stopTimer)
           }"
         >
           <span
-            class="border-l-4 border-brand-500 pl-3 text-sm font-medium uppercase tracking-[0.12em] text-brand-600"
+            class="border-l-4 border-[#F97316] pl-3 text-sm font-medium uppercase tracking-[0.12em] text-[#EA580C]"
           >
             Tentang BPNT
           </span>
@@ -369,7 +446,7 @@ onBeforeUnmount(stopTimer)
 
           <RouterLink
             :to="{ name: 'about-bpnt' }"
-            class="group mt-7 inline-flex items-center gap-2 text-sm font-medium text-brand-600 transition-colors hover:text-government-green-500"
+            class="group mt-7 inline-flex items-center gap-2 text-sm font-medium text-[#EA580C] transition-colors hover:text-[#0F766E]"
           >
             Selengkapnya tentang BPNT
 
@@ -389,11 +466,11 @@ onBeforeUnmount(stopTimer)
               direction: 'right',
               delay: 90,
             }"
-            class="border-l-2 border-brand-500 pl-5"
+            class="border-l-2 border-[#F97316] pl-5"
           >
             <Users
               :size="29"
-              class="text-brand-500"
+              class="text-[#F97316]"
               aria-hidden="true"
             />
 
@@ -416,11 +493,11 @@ onBeforeUnmount(stopTimer)
               direction: 'right',
               delay: 180,
             }"
-            class="border-l-2 border-[#FFAF1C] pl-5"
+            class="border-l-2 border-[#0F766E] pl-5"
           >
             <Store
               :size="29"
-              class="text-[#006855]"
+              class="text-[#0F766E]"
               aria-hidden="true"
             />
 
@@ -443,11 +520,11 @@ onBeforeUnmount(stopTimer)
 
     <!-- Tentang SIPBPNT -->
     <section
-      class="relative overflow-hidden bg-cream-100 py-24 sm:py-28"
+      class="relative overflow-hidden bg-white py-24 sm:py-28"
     >
       <BatikCorner
         position="bottom-left"
-        color="#006855"
+        color="#0F766E"
         :opacity="0.035"
       />
 
@@ -461,10 +538,10 @@ onBeforeUnmount(stopTimer)
           class="flex min-h-[330px] items-center justify-center"
         >
           <div
-            class="flex w-full max-w-sm flex-col items-center border-y border-brand-200 py-12 text-center"
+            class="flex w-full max-w-sm flex-col items-center border-y border-[#F97316]/30 py-12 text-center"
           >
             <div
-              class="flex size-24 items-center justify-center rounded-full bg-brand-500 text-white"
+              class="flex size-24 items-center justify-center rounded-full bg-[#F97316] text-white"
             >
               <ClipboardCheck
                 :size="42"
@@ -480,7 +557,7 @@ onBeforeUnmount(stopTimer)
             </span>
 
             <span
-              class="my-3 h-7 w-px bg-brand-300"
+              class="my-3 h-7 w-px bg-[#F97316]/40"
               aria-hidden="true"
             />
 
@@ -491,7 +568,7 @@ onBeforeUnmount(stopTimer)
             </span>
 
             <span
-              class="my-3 h-7 w-px bg-brand-300"
+              class="my-3 h-7 w-px bg-[#F97316]/40"
               aria-hidden="true"
             />
 
@@ -510,7 +587,7 @@ onBeforeUnmount(stopTimer)
           }"
         >
           <span
-            class="border-l-4 border-brand-500 pl-3 text-sm font-medium uppercase tracking-[0.12em] text-brand-600"
+            class="border-l-4 border-[#0F766E] pl-3 text-sm font-medium uppercase tracking-[0.12em] text-[#0F766E]"
           >
             Tentang SIPBPNT
           </span>
@@ -536,7 +613,7 @@ onBeforeUnmount(stopTimer)
             :to="{
               name: 'about-sipbpnt',
             }"
-            class="group mt-7 inline-flex items-center gap-2 text-sm font-medium text-brand-600 transition-colors hover:text-government-green-500"
+            class="group mt-7 inline-flex items-center gap-2 text-sm font-medium text-[#0F766E] transition-colors hover:text-[#EA580C]"
           >
             Mengenal SIPBPNT
 
@@ -552,7 +629,7 @@ onBeforeUnmount(stopTimer)
 
     <!-- Mengapa dibangun -->
     <section
-      class="relative overflow-hidden bg-white py-24 sm:py-28"
+      class="relative overflow-hidden bg-cream-100 py-24 sm:py-28"
     >
       <div
         class="mx-auto grid w-full max-w-7xl items-center gap-14 px-5 sm:px-6 lg:grid-cols-2 lg:gap-20 lg:px-8"
@@ -563,7 +640,7 @@ onBeforeUnmount(stopTimer)
           }"
         >
           <span
-            class="border-l-4 border-brand-500 pl-3 text-sm font-medium uppercase tracking-[0.12em] text-brand-600"
+            class="border-l-4 border-[#F97316] pl-3 text-sm font-medium uppercase tracking-[0.12em] text-[#EA580C]"
           >
             Latar Belakang
           </span>
@@ -596,7 +673,7 @@ onBeforeUnmount(stopTimer)
           >
             <ClipboardCheck
               :size="27"
-              class="shrink-0 text-brand-500"
+              class="shrink-0 text-[#F97316]"
               aria-hidden="true"
             />
 
@@ -625,7 +702,7 @@ onBeforeUnmount(stopTimer)
           >
             <Monitor
               :size="27"
-              class="shrink-0 text-[#006855]"
+              class="shrink-0 text-[#0F766E]"
               aria-hidden="true"
             />
 
@@ -654,7 +731,7 @@ onBeforeUnmount(stopTimer)
           >
             <FileText
               :size="27"
-              class="shrink-0 text-[#FFAF1C]"
+              class="shrink-0 text-[#F97316]"
               aria-hidden="true"
             />
 
@@ -679,11 +756,11 @@ onBeforeUnmount(stopTimer)
 
     <!-- Manfaat -->
     <section
-      class="relative overflow-hidden bg-cream-100 py-24 sm:py-28"
+      class="relative overflow-hidden bg-white py-24 sm:py-28"
     >
       <BatikCorner
         position="top-right"
-        color="#FFAF1C"
+        color="#F97316"
         :opacity="0.045"
       />
 
@@ -697,7 +774,7 @@ onBeforeUnmount(stopTimer)
           class="max-w-3xl"
         >
           <span
-            class="border-l-4 border-brand-500 pl-3 text-sm font-medium uppercase tracking-[0.12em] text-brand-600"
+            class="border-l-4 border-[#F97316] pl-3 text-sm font-medium uppercase tracking-[0.12em] text-[#EA580C]"
           >
             Manfaat SIPBPNT
           </span>
@@ -724,10 +801,10 @@ onBeforeUnmount(stopTimer)
               delay:
                 (index % 2) * 90,
             }"
-            class="flex gap-5 border-b border-brand-200/70 py-7"
+            class="flex gap-5 border-b border-government-200 py-7"
           >
             <div
-              class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white text-brand-500"
+              class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-cream-100 text-[#F97316]"
             >
               <component
                 :is="benefit.icon"
@@ -754,7 +831,7 @@ onBeforeUnmount(stopTimer)
 
         <RouterLink
           :to="{ name: 'benefits' }"
-          class="group mt-9 inline-flex items-center gap-2 text-sm font-medium text-brand-600 transition-colors hover:text-government-green-500"
+          class="group mt-9 inline-flex items-center gap-2 text-sm font-medium text-[#EA580C] transition-colors hover:text-[#0F766E]"
         >
           Lihat seluruh manfaat
 
@@ -769,7 +846,7 @@ onBeforeUnmount(stopTimer)
 
     <!-- Testimoni -->
     <section
-      class="relative overflow-hidden bg-white py-24 sm:py-28"
+      class="relative overflow-hidden bg-cream-100 py-24 sm:py-28"
     >
       <div
         class="mx-auto w-full max-w-5xl px-5 sm:px-6 lg:px-8"
@@ -781,7 +858,7 @@ onBeforeUnmount(stopTimer)
           class="text-center"
         >
           <span
-            class="text-sm font-medium uppercase tracking-[0.12em] text-brand-600"
+            class="text-sm font-medium uppercase tracking-[0.12em] text-[#EA580C]"
           >
             Perspektif Pengguna
           </span>
@@ -799,7 +876,7 @@ onBeforeUnmount(stopTimer)
             direction: 'pop',
             delay: 100,
           }"
-          class="mt-12 border-y border-government-200 py-9 sm:px-8"
+          class="mt-12 rounded-3xl border border-government-200 bg-white py-9 shadow-sm sm:px-8"
           @mouseenter="stopTimer"
           @mouseleave="startTimer"
           @focusin="stopTimer"
@@ -817,24 +894,25 @@ onBeforeUnmount(stopTimer)
             <article
               :key="activeTestimonialIndex"
               aria-live="polite"
+              class="px-6 sm:px-2"
             >
               <Quote
                 :size="38"
-                class="text-brand-200"
+                class="text-[#F97316]/30"
                 aria-hidden="true"
               />
 
               <p
                 class="mt-5 max-w-3xl text-lg leading-9 text-government-700 sm:text-xl"
               >
-                “{{ currentTestimonial.quote }}”
+                "{{ currentTestimonial.quote }}"
               </p>
 
               <div
                 class="mt-7 flex items-center gap-4"
               >
                 <div
-                  class="flex size-11 items-center justify-center rounded-full bg-[#006855] text-sm font-medium text-white"
+                  class="flex size-11 items-center justify-center rounded-full bg-[#0F766E] text-sm font-medium text-white"
                 >
                   {{ currentTestimonial.initials }}
                 </div>
@@ -859,7 +937,7 @@ onBeforeUnmount(stopTimer)
           </Transition>
 
           <div
-            class="mt-8 flex items-center justify-between"
+            class="mt-8 flex items-center justify-between px-6 sm:px-2"
           >
             <div class="flex gap-2">
               <button
@@ -870,7 +948,7 @@ onBeforeUnmount(stopTimer)
                 :class="[
                   'h-2.5 rounded-full transition-all',
                   activeTestimonialIndex === index
-                    ? 'w-8 bg-brand-500'
+                    ? 'w-8 bg-[#F97316]'
                     : 'w-2.5 bg-government-300',
                 ]"
                 @click="selectTestimonial(index)"
@@ -880,7 +958,7 @@ onBeforeUnmount(stopTimer)
             <div class="flex gap-2">
               <button
                 type="button"
-                class="flex size-10 items-center justify-center rounded-full border border-government-200 text-government-600 transition-colors hover:border-brand-300 hover:text-brand-600"
+                class="flex size-10 items-center justify-center rounded-full border border-government-200 text-government-600 transition-colors hover:border-[#0F766E] hover:text-[#0F766E]"
                 aria-label="Testimoni sebelumnya"
                 @click="
                   previousTestimonial();
@@ -895,7 +973,7 @@ onBeforeUnmount(stopTimer)
 
               <button
                 type="button"
-                class="flex size-10 items-center justify-center rounded-full border border-government-200 text-government-600 transition-colors hover:border-brand-300 hover:text-brand-600"
+                class="flex size-10 items-center justify-center rounded-full border border-government-200 text-government-600 transition-colors hover:border-[#0F766E] hover:text-[#0F766E]"
                 aria-label="Testimoni berikutnya"
                 @click="
                   nextTestimonial();
@@ -915,11 +993,11 @@ onBeforeUnmount(stopTimer)
 
     <!-- FAQ dan Kontak -->
     <section
-      class="relative overflow-hidden bg-cream-100 py-24 sm:py-28"
+      class="relative overflow-hidden bg-white py-24 sm:py-28"
     >
       <BatikCorner
         position="bottom-left"
-        color="#006855"
+        color="#0F766E"
         :opacity="0.035"
       />
 
@@ -932,7 +1010,7 @@ onBeforeUnmount(stopTimer)
           }"
         >
           <span
-            class="border-l-4 border-brand-500 pl-3 text-sm font-medium uppercase tracking-[0.12em] text-brand-600"
+            class="border-l-4 border-[#F97316] pl-3 text-sm font-medium uppercase tracking-[0.12em] text-[#EA580C]"
           >
             Pertanyaan Umum
           </span>
@@ -953,7 +1031,7 @@ onBeforeUnmount(stopTimer)
 
           <RouterLink
             :to="{ name: 'faq' }"
-            class="group mt-7 inline-flex items-center gap-2 text-sm font-medium text-brand-600 transition-colors hover:text-government-green-500"
+            class="group mt-7 inline-flex items-center gap-2 text-sm font-medium text-[#EA580C] transition-colors hover:text-[#0F766E]"
           >
             Buka halaman FAQ
 
@@ -972,7 +1050,7 @@ onBeforeUnmount(stopTimer)
           }"
         >
           <span
-            class="border-l-4 border-[#006855] pl-3 text-sm font-medium uppercase tracking-[0.12em] text-[#006855]"
+            class="border-l-4 border-[#0F766E] pl-3 text-sm font-medium uppercase tracking-[0.12em] text-[#0F766E]"
           >
             Kontak
           </span>
@@ -993,7 +1071,7 @@ onBeforeUnmount(stopTimer)
 
           <RouterLink
             :to="{ name: 'contact' }"
-            class="group mt-7 inline-flex items-center gap-2 text-sm font-medium text-brand-600 transition-colors hover:text-government-green-500"
+            class="group mt-7 inline-flex items-center gap-2 text-sm font-medium text-[#EA580C] transition-colors hover:text-[#0F766E]"
           >
             Lihat informasi kontak
 
@@ -1008,3 +1086,26 @@ onBeforeUnmount(stopTimer)
     </section>
   </div>
 </template>
+
+<style scoped>
+.hero-bg {
+  animation: hero-zoom 16s ease-in-out infinite alternate;
+  transform-origin: center;
+}
+
+@keyframes hero-zoom {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-bg {
+    animation: none;
+  }
+}
+</style>

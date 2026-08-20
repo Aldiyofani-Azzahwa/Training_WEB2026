@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {
-  computed,
   onBeforeUnmount,
   onMounted,
   ref,
@@ -22,29 +21,13 @@ import BrandLogo from './BrandLogo.vue'
 
 import {
   publicNavigation,
+  publicSite,
   type PublicNavigationItem,
 } from '@/config/publicSite'
 
 const route = useRoute()
 
-const isScrolled = ref(false)
 const mobileMenuOpen = ref(false)
-
-const isHomePage = computed<boolean>(() => {
-  return route.name === 'home'
-})
-
-const useSolidNavbar = computed<boolean>(() => {
-  return (
-    !isHomePage.value ||
-    isScrolled.value ||
-    mobileMenuOpen.value
-  )
-})
-
-function updateScrollState(): void {
-  isScrolled.value = window.scrollY > 30
-}
 
 function isActive(
   routeName: PublicNavigationItem['routeName'],
@@ -85,16 +68,6 @@ watch(mobileMenuOpen, (isOpen) => {
 })
 
 onMounted(() => {
-  updateScrollState()
-
-  window.addEventListener(
-    'scroll',
-    updateScrollState,
-    {
-      passive: true,
-    },
-  )
-
   window.addEventListener(
     'keydown',
     handleEscape,
@@ -102,11 +75,6 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener(
-    'scroll',
-    updateScrollState,
-  )
-
   window.removeEventListener(
     'keydown',
     handleEscape,
@@ -117,84 +85,77 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <header
-    :class="[
-      'fixed inset-x-0 top-0 z-50 border-b transition-all duration-300',
-      useSolidNavbar
-        ? 'border-white/15 bg-[#E8312D]'
-        : 'border-white/20 bg-[rgba(232,49,45,0.75)]',
-    ]"
-  >
-    <div
-      :class="[
-        'mx-auto flex w-full max-w-7xl items-center justify-between px-5 transition-[height] duration-300 sm:px-6 lg:px-8',
-        useSolidNavbar
-          ? 'h-[74px]'
-          : 'h-[82px]',
-      ]"
-    >
-      <!-- Logo tanpa background putih -->
-      <RouterLink
-        :to="{ name: 'home' }"
-        class="shrink-0 rounded-lg bg-transparent"
-        aria-label="Beranda SIPBPNT"
-        @click="closeMobileMenu"
-      >
-        <BrandLogo />
-      </RouterLink>
+  <header class="fixed inset-x-0 top-0 z-50">
+    <!-- Strip informasi -->
+    
 
-      <!-- Navigasi desktop -->
-      <nav
-        class="hidden items-center gap-1 lg:flex"
-        aria-label="Navigasi utama"
+    <!-- Navbar utama -->
+    <div class="border-b border-slate-200 bg-white shadow-sm">
+      <div
+        class="mx-auto flex h-[68px] w-full max-w-7xl items-center justify-between px-5 sm:px-6 lg:px-8"
       >
+        <!-- Logo -->
         <RouterLink
-          v-for="item in publicNavigation"
-          :key="item.routeName"
-          :to="{ name: item.routeName }"
-          :aria-current="
-            isActive(item.routeName)
-              ? 'page'
-              : undefined
-          "
-          :class="[
-            'group relative rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-200',
-            isActive(item.routeName)
-              ? 'text-white'
-              : 'text-white/90 hover:text-[#FFAF1C]',
-          ]"
+          :to="{ name: 'home' }"
+          class="shrink-0 rounded-lg"
+          aria-label="Beranda SIPBPNT"
+          @click="closeMobileMenu"
         >
-          {{ item.label }}
+          <BrandLogo />
+        </RouterLink>
 
-          <span
-            :class="[
-              'absolute inset-x-3 -bottom-0.5 h-0.5 origin-left rounded-full bg-[#FFAF1C] transition-transform duration-300',
+        <!-- Navigasi desktop -->
+        <nav
+          class="hidden items-center gap-1 lg:flex"
+          aria-label="Navigasi utama"
+        >
+          <RouterLink
+            v-for="item in publicNavigation"
+            :key="item.routeName"
+            :to="{ name: item.routeName }"
+            :aria-current="
               isActive(item.routeName)
-                ? 'scale-x-100'
-                : 'scale-x-0 group-hover:scale-x-100',
+                ? 'page'
+                : undefined
+            "
+            :class="[
+              'group relative rounded-lg px-3 py-2 text-[13px] font-bold uppercase tracking-wide transition-colors duration-200',
+              isActive(item.routeName)
+                ? 'text-[#F58700]'
+                : 'text-slate-800 hover:text-[#F58700]',
             ]"
-            aria-hidden="true"
-          />
-        </RouterLink>
-      </nav>
+          >
+            {{ item.label }}
 
-      <div class="flex items-center gap-2">
-        <RouterLink
-          :to="{ name: 'login' }"
-          class="hidden min-h-11 items-center justify-center gap-2 rounded-[14px] bg-white px-5 text-sm font-semibold text-[#E8312D] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#FFAF1C] hover:text-government-900 sm:inline-flex"
-        >
-          Masuk Sistem
+            <span
+              :class="[
+                'absolute inset-x-3 -bottom-0.5 h-0.5 origin-left rounded-full bg-[#F58700] transition-transform duration-300',
+                isActive(item.routeName)
+                  ? 'scale-x-100'
+                  : 'scale-x-0 group-hover:scale-x-100',
+              ]"
+              aria-hidden="true"
+            />
+          </RouterLink>
 
-          <ArrowRight
-            :size="17"
-            class="text-[#006855]"
-            aria-hidden="true"
-          />
-        </RouterLink>
+          <RouterLink
+            :to="{ name: 'login' }"
+            class="group relative ml-2 flex items-center gap-1.5 rounded-lg px-3 py-2 text-[13px] font-bold uppercase tracking-wide text-slate-800 transition-colors duration-200 hover:text-[#F58700]"
+          >
+            Log Masuk
 
+            <ArrowRight
+              :size="15"
+              class="text-[#087D69] transition-transform duration-200 group-hover:translate-x-0.5"
+              aria-hidden="true"
+            />
+          </RouterLink>
+        </nav>
+
+        <!-- Tombol menu mobile -->
         <button
           type="button"
-          class="flex size-11 items-center justify-center rounded-[14px] border border-white/30 bg-white text-[#E8312D] transition-colors hover:bg-[#FFAF1C] lg:hidden"
+          class="flex size-11 items-center justify-center rounded-[14px] border border-slate-200 bg-white text-slate-800 transition-colors hover:border-[#F58700]/40 hover:text-[#F58700] lg:hidden"
           :aria-expanded="mobileMenuOpen"
           aria-controls="mobile-navigation"
           :aria-label="
@@ -223,10 +184,10 @@ onBeforeUnmount(() => {
     <div
       id="mobile-navigation"
       :class="[
-        'overflow-hidden border-t bg-[#E8312D] transition-all duration-300 lg:hidden',
+        'overflow-hidden border-b border-slate-200 bg-white transition-all duration-300 lg:hidden',
         mobileMenuOpen
-          ? 'max-h-[600px] border-white/15 opacity-100'
-          : 'pointer-events-none max-h-0 border-transparent opacity-0',
+          ? 'max-h-[600px] opacity-100'
+          : 'pointer-events-none max-h-0 opacity-0',
       ]"
     >
       <nav
@@ -243,10 +204,10 @@ onBeforeUnmount(() => {
               : undefined
           "
           :class="[
-            'flex min-h-12 items-center justify-between rounded-xl px-4 text-sm font-medium transition-colors',
+            'flex min-h-12 items-center justify-between rounded-xl px-4 text-sm font-bold uppercase tracking-wide transition-colors',
             isActive(item.routeName)
-              ? 'bg-white text-[#E8312D]'
-              : 'text-white hover:bg-white/10',
+              ? 'bg-[#FFF5E5] text-[#F58700]'
+              : 'text-slate-800 hover:bg-slate-50',
           ]"
           @click="closeMobileMenu"
         >
@@ -254,21 +215,20 @@ onBeforeUnmount(() => {
 
           <span
             v-if="isActive(item.routeName)"
-            class="size-2 rounded-full bg-[#FFAF1C]"
+            class="size-2 rounded-full bg-[#F58700]"
             aria-hidden="true"
           />
         </RouterLink>
 
         <RouterLink
           :to="{ name: 'login' }"
-          class="mt-3 inline-flex min-h-12 items-center justify-center gap-2 rounded-[14px] bg-white px-5 text-sm font-semibold text-[#E8312D] transition-colors hover:bg-[#FFAF1C]"
+          class="mt-3 inline-flex min-h-12 items-center justify-center gap-2 rounded-[14px] bg-[#087D69] px-5 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#056453]"
           @click="closeMobileMenu"
         >
-          Masuk Sistem
+          Log Masuk
 
           <ArrowRight
             :size="17"
-            class="text-[#006855]"
             aria-hidden="true"
           />
         </RouterLink>
