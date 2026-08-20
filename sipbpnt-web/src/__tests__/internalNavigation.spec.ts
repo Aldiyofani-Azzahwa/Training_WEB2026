@@ -12,7 +12,7 @@ describe(
   'internal navigation',
   () => {
     it(
-      'provides admin BNBA and surveyor routes',
+      'provides admin BNBA, surveyor, and E-Warung routes',
       () => {
         const navigation =
           getInternalNavigation(
@@ -38,6 +38,13 @@ describe(
             (item) =>
               item.key
               === 'surveyor-accounts',
+          )
+
+        const eWarung =
+          navigation.find(
+            (item) =>
+              item.key
+              === 'ewarung',
           )
 
         expect(
@@ -77,11 +84,27 @@ describe(
           surveyorAccounts
             ?.available,
         ).toBe(true)
+
+        expect(
+          eWarung,
+        ).toBeDefined()
+
+        expect(
+          eWarung
+            ?.routeName,
+        ).toBe(
+          'admin-e-warungs',
+        )
+
+        expect(
+          eWarung
+            ?.available,
+        ).toBe(true)
       },
     )
 
     it(
-      'provides manager BNBA data access',
+      'provides manager BNBA data access without master E-Warung ownership',
       () => {
         const navigation =
           getInternalNavigation(
@@ -93,6 +116,13 @@ describe(
             (item) =>
               item.key
               === 'data-bnba',
+          )
+
+        const eWarung =
+          navigation.find(
+            (item) =>
+              item.key
+              === 'ewarung',
           )
 
         expect(
@@ -110,6 +140,10 @@ describe(
         ).toBe(
           'management-bnba',
         )
+
+        expect(
+          eWarung,
+        ).toBeUndefined()
       },
     )
 

@@ -26,4 +26,26 @@ export const managementRoutes:
           'Data BNBA',
       },
     },
+
+    {
+      path:
+        'manager/surveyor-assignments',
+
+      name:
+        'manager-surveyor-assignments',
+
+      component: () =>
+        import(
+          '@/views/manager/SurveyorAssignmentView.vue'
+        ),
+
+      meta: {
+        roles: [
+          'manager',
+        ],
+
+        title:
+          'Penugasan Surveyor',
+      },
+    },
   ]

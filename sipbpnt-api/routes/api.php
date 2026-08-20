@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Api\V1\Admin\BnbaImportController;
 use App\Http\Controllers\Api\V1\Admin\BpntPeriodController;
+use App\Http\Controllers\Api\V1\Admin\EWarungController;
 use App\Http\Controllers\Api\V1\Admin\SurveyorController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Management\BnbaParticipantController;
 use App\Http\Controllers\Api\V1\Management\SurveyorOptionController;
 use App\Http\Controllers\Api\V1\Management\WilayahController;
+use App\Http\Controllers\Api\V1\Manager\SurveyorAssignmentController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')
@@ -57,7 +59,7 @@ Route::prefix('v1')
 
         /*
         |--------------------------------------------------------------------------
-        | Authenticated User
+        | Authenticated
         |--------------------------------------------------------------------------
         */
 
@@ -84,7 +86,7 @@ Route::prefix('v1')
 
         /*
         |--------------------------------------------------------------------------
-        | Admin + Manager
+        | Admin + Manager Shared Data
         |--------------------------------------------------------------------------
         */
 
@@ -101,12 +103,6 @@ Route::prefix('v1')
                 ]
             );
 
-            /*
-            |--------------------------------------------------------------------------
-            | Wilayah
-            |--------------------------------------------------------------------------
-            */
-
             Route::get(
                 '/wilayah',
                 [
@@ -114,12 +110,6 @@ Route::prefix('v1')
                     'index',
                 ]
             );
-
-            /*
-            |--------------------------------------------------------------------------
-            | BNBA Confirmed
-            |--------------------------------------------------------------------------
-            */
 
             Route::get(
                 '/bnba/participants/options',
@@ -136,15 +126,6 @@ Route::prefix('v1')
                     'index',
                 ]
             );
-
-            /*
-            |--------------------------------------------------------------------------
-            | Surveyor Aktif
-            |--------------------------------------------------------------------------
-            |
-            | Dipakai Manager pada Assignment.
-            |
-            */
 
             Route::get(
                 '/surveyors/options',
@@ -178,7 +159,59 @@ Route::prefix('v1')
         ])->group(function (): void {
             /*
             |--------------------------------------------------------------------------
-            | Master Akun Surveyor
+            | Master E-Warung
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get(
+                '/admin/e-warungs',
+                [
+                    EWarungController::class,
+                    'index',
+                ]
+            );
+
+            Route::post(
+                '/admin/e-warungs',
+                [
+                    EWarungController::class,
+                    'store',
+                ]
+            );
+
+            Route::patch(
+                '/admin/e-warungs/{eWarung}',
+                [
+                    EWarungController::class,
+                    'update',
+                ]
+            )->whereNumber(
+                'eWarung'
+            );
+
+            Route::patch(
+                '/admin/e-warungs/{eWarung}/status',
+                [
+                    EWarungController::class,
+                    'updateStatus',
+                ]
+            )->whereNumber(
+                'eWarung'
+            );
+
+            Route::delete(
+                '/admin/e-warungs/{eWarung}',
+                [
+                    EWarungController::class,
+                    'destroy',
+                ]
+            )->whereNumber(
+                'eWarung'
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Surveyor Account
             |--------------------------------------------------------------------------
             */
 
@@ -219,17 +252,8 @@ Route::prefix('v1')
             );
 
             /*
-             * PENTING:
-             *
-             * Tidak ada DELETE route Surveyor.
-             *
-             * Surveyor lama harus dinonaktifkan,
-             * bukan dihapus.
-             */
-
-            /*
             |--------------------------------------------------------------------------
-            | Periode BPNT
+            | Periode
             |--------------------------------------------------------------------------
             */
 
@@ -263,7 +287,7 @@ Route::prefix('v1')
 
             /*
             |--------------------------------------------------------------------------
-            | Import BNBA
+            | BNBA
             |--------------------------------------------------------------------------
             */
 
@@ -311,6 +335,44 @@ Route::prefix('v1')
                 ]
             )->whereNumber(
                 'period'
+            );
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Manager
+        |--------------------------------------------------------------------------
+        */
+
+        Route::middleware([
+            'auth:sanctum',
+            'active.user',
+            'role:manager',
+        ])->group(function (): void {
+            Route::get(
+                '/manager/surveyor-assignments',
+                [
+                    SurveyorAssignmentController::class,
+                    'index',
+                ]
+            );
+
+            Route::put(
+                '/manager/surveyor-assignments',
+                [
+                    SurveyorAssignmentController::class,
+                    'store',
+                ]
+            );
+
+            Route::delete(
+                '/manager/surveyor-assignments/{assignment}',
+                [
+                    SurveyorAssignmentController::class,
+                    'destroy',
+                ]
+            )->whereNumber(
+                'assignment'
             );
         });
 

@@ -23,13 +23,9 @@ import type {
 
 export interface InternalNavigationItem {
   key: string
-
   label: string
-
   icon: Component
-
   routeName?: string
-
   available: boolean
 }
 
@@ -112,6 +108,23 @@ const navigationByRole:
 
       {
         key:
+          'ewarung',
+
+        label:
+          'E-Warung',
+
+        icon:
+          Store,
+
+        routeName:
+          'admin-e-warungs',
+
+        available:
+          true,
+      },
+
+      {
+        key:
           'rekapitulasi',
 
         label:
@@ -161,20 +174,6 @@ const navigationByRole:
 
       {
         key:
-          'ewarung',
-
-        label:
-          'E-Warung',
-
-        icon:
-          Store,
-
-        available:
-          false,
-      },
-
-      {
-        key:
           'surveyor',
 
         label:
@@ -183,8 +182,11 @@ const navigationByRole:
         icon:
           Users,
 
+        routeName:
+          'manager-surveyor-assignments',
+
         available:
-          false,
+          true,
       },
 
       {

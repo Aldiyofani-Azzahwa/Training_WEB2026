@@ -28,6 +28,28 @@ export const adminRoutes:
 
     {
       path:
+        'admin/e-warungs',
+
+      name:
+        'admin-e-warungs',
+
+      component: () =>
+        import(
+          '@/views/admin/EWarungView.vue'
+        ),
+
+      meta: {
+        roles: [
+          'admin_dinsos',
+        ],
+
+        title:
+          'Master E-Warung',
+      },
+    },
+
+    {
+      path:
         'admin/surveyors',
 
       name:

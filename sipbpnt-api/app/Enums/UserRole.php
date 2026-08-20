@@ -43,13 +43,13 @@ enum UserRole: string
                 'Import BNBA',
                 'Data KPM',
                 'Akun Surveyor',
+                'E-Warung',
                 'Rekapitulasi',
                 'Laporan',
             ],
 
             self::MANAGER => [
                 'Dashboard',
-                'E-Warung',
                 'Penugasan Surveyor',
                 'Monitoring Transaksi',
                 'Validasi Periode',
