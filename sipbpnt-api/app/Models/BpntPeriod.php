@@ -18,6 +18,7 @@ class BpntPeriod extends Model
         'name',
         'year',
         'is_active',
+        'active_slot',
     ];
 
     protected function casts(): array
@@ -25,6 +26,7 @@ class BpntPeriod extends Model
         return [
             'year' => 'integer',
             'is_active' => 'boolean',
+            'active_slot' => 'integer',
         ];
     }
 
@@ -39,6 +41,14 @@ class BpntPeriod extends Model
     {
         return $this->hasMany(
             BpntParticipant::class
+        );
+    }
+
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(
+            SurveyorAssignment::class,
+            'period_id'
         );
     }
 

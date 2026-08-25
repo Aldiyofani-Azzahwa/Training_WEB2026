@@ -8,6 +8,7 @@ use App\Contracts\Repositories\AuditLogRepositoryInterface;
 use App\Contracts\Repositories\BpntPeriodRepositoryInterface;
 use App\Contracts\Repositories\SurveyorAssignmentRepositoryInterface;
 use App\Contracts\Repositories\SurveyorRepositoryInterface;
+use App\Models\BpntPeriod;
 use App\Models\SurveyorAssignment;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +16,8 @@ use Illuminate\Validation\ValidationException;
 
 final class SurveyorAssignmentService
 {
+    public const MAX_SURVEYORS_PER_KELURAHAN = 3;
+
     public function __construct(
         private readonly SurveyorAssignmentRepositoryInterface $assignments,
         private readonly BpntPeriodRepositoryInterface $periods,
@@ -22,26 +25,30 @@ final class SurveyorAssignmentService
         private readonly AuditLogRepositoryInterface $auditLogs,
     ) {}
 
-    public function listForPeriod(
-        int $periodId
-    ): array {
+    public function listForActivePeriod(): array
+    {
         $period =
-            $this->periods
-                ->findOrFail(
-                    $periodId
-                );
+            $this->requireActivePeriod();
 
         $assignments =
             $this->assignments
                 ->forPeriod(
-                    $periodId
+                    $period->id
                 );
 
         $totalKelurahans =
             $this->assignments
                 ->countKelurahansForPeriod(
-                    $periodId
+                    $period->id
                 );
+
+        $assignedKelurahans =
+            $assignments
+                ->pluck(
+                    'kelurahan_id'
+                )
+                ->unique()
+                ->count();
 
         return [
             'period'
@@ -54,17 +61,19 @@ final class SurveyorAssignmentService
                 => $totalKelurahans,
 
             'assigned_count'
-                => $assignments
-                    ->count(),
+                => $assignedKelurahans,
 
             'unassigned_count'
                 => max(
                     0,
                     $totalKelurahans
                     -
-                    $assignments
-                        ->count()
+                    $assignedKelurahans
                 ),
+
+            'total_assignments'
+                => $assignments
+                    ->count(),
         ];
     }
 
@@ -81,10 +90,43 @@ final class SurveyorAssignmentService
                 $ipAddress,
                 $userAgent
             ): SurveyorAssignment {
+                $period =
+                    $this->requireActivePeriod();
+
+                /*
+                 * Lock periode aktif agar request
+                 * assignment pada periode yang sama
+                 * berjalan berurutan.
+                 *
+                 * Ini membantu menjaga batas
+                 * maksimal 3 Surveyor per kelurahan.
+                 */
+                $lockedPeriod =
+                    BpntPeriod::query()
+                        ->whereKey(
+                            $period->id
+                        )
+                        ->lockForUpdate()
+                        ->firstOrFail();
+
+                if (
+                    ! (bool) $lockedPeriod
+                        ->is_active
+                    ||
+                    (int) $lockedPeriod
+                        ->active_slot !== 1
+                ) {
+                    throw ValidationException
+                        ::withMessages([
+                            'period' => [
+                                'Periode aktif berubah. Muat ulang halaman lalu coba kembali.',
+                            ],
+                        ]);
+                }
+
                 $periodId =
-                    (int) $data[
-                        'period_id'
-                    ];
+                    (int) $lockedPeriod
+                        ->id;
 
                 $kelurahanId =
                     (int) $data[
@@ -96,25 +138,10 @@ final class SurveyorAssignmentService
                         'surveyor_id'
                     ];
 
-                $period =
-                    $this->periods
-                        ->findOrFail(
-                            $periodId
-                        );
-
-                if (
-                    (int) $period
-                        ->participants_count
-                    === 0
-                ) {
-                    throw ValidationException
-                        ::withMessages([
-                            'period_id' => [
-                                'Periode belum memiliki data BNBA/KPM yang dapat ditugaskan.',
-                            ],
-                        ]);
-                }
-
+                /*
+                 * Kelurahan wajib memiliki KPM
+                 * pada periode aktif.
+                 */
                 if (
                     ! $this
                         ->assignments
@@ -126,7 +153,7 @@ final class SurveyorAssignmentService
                     throw ValidationException
                         ::withMessages([
                             'kelurahan_id' => [
-                                'Kelurahan tidak memiliki KPM pada periode yang dipilih.',
+                                'Kelurahan tidak memiliki KPM pada periode aktif.',
                             ],
                         ]);
                 }
@@ -149,27 +176,62 @@ final class SurveyorAssignmentService
                         ]);
                 }
 
-                $existing =
+                /*
+                 * 1 Surveyor hanya boleh berada
+                 * pada 1 kelurahan dalam periode
+                 * aktif yang sama.
+                 */
+                $existingSurveyorAssignment =
                     $this->assignments
-                        ->findByScope(
+                        ->findForSurveyorInPeriod(
+                            $periodId,
+                            $surveyorId
+                        );
+
+                if (
+                    $existingSurveyorAssignment
+                    instanceof SurveyorAssignment
+                ) {
+                    throw ValidationException
+                        ::withMessages([
+                            'surveyor_id' => [
+                                sprintf(
+                                    'Surveyor sudah ditugaskan di Kelurahan %s pada periode aktif.',
+                                    $existingSurveyorAssignment
+                                        ->kelurahan
+                                        ->name
+                                ),
+                            ],
+                        ]);
+                }
+
+                /*
+                 * Maksimum 3 Surveyor
+                 * per kelurahan.
+                 */
+                $kelurahanAssignmentCount =
+                    $this->assignments
+                        ->countForKelurahan(
                             $periodId,
                             $kelurahanId
                         );
 
                 if (
-                    $existing
-                    instanceof SurveyorAssignment
-                    &&
-                    (int) $existing
-                        ->surveyor_id
-                    === $surveyorId
+                    $kelurahanAssignmentCount
+                    >=
+                    self::MAX_SURVEYORS_PER_KELURAHAN
                 ) {
-                    return $existing;
+                    throw ValidationException
+                        ::withMessages([
+                            'kelurahan_id' => [
+                                'Kelurahan sudah memiliki maksimal 3 Surveyor pada periode aktif.',
+                            ],
+                        ]);
                 }
 
                 $saved =
                     $this->assignments
-                        ->saveForScope(
+                        ->create(
                             $periodId,
                             $kelurahanId,
                             $surveyorId,
@@ -182,9 +244,7 @@ final class SurveyorAssignmentService
                             => $actor->id,
 
                         'action'
-                            => $existing
-                                ? 'surveyor_assignment.reassigned'
-                                : 'surveyor_assignment.created',
+                            => 'surveyor_assignment.created',
 
                         'auditable_type'
                             => SurveyorAssignment::class,
@@ -209,10 +269,6 @@ final class SurveyorAssignmentService
                                     ->kelurahan
                                     ->name,
 
-                            'previous_surveyor_id'
-                                => $existing
-                                    ?->surveyor_id,
-
                             'surveyor_id'
                                 => $saved
                                     ->surveyor_id,
@@ -221,6 +277,13 @@ final class SurveyorAssignmentService
                                 => $saved
                                     ->surveyor
                                     ->name,
+
+                            'kelurahan_assignment_count'
+                                => $kelurahanAssignmentCount
+                                    + 1,
+
+                            'max_surveyors_per_kelurahan'
+                                => self::MAX_SURVEYORS_PER_KELURAHAN,
                         ],
 
                         'ip_address'
@@ -248,11 +311,33 @@ final class SurveyorAssignmentService
                 $ipAddress,
                 $userAgent
             ): void {
+                $activePeriod =
+                    $this->requireActivePeriod();
+
                 $assignment =
                     $this->assignments
                         ->findOrFail(
                             $assignmentId
                         );
+
+                /*
+                 * Manager hanya boleh mengubah
+                 * assignment periode aktif.
+                 */
+                if (
+                    (int) $assignment
+                        ->period_id
+                    !==
+                    (int) $activePeriod
+                        ->id
+                ) {
+                    throw ValidationException
+                        ::withMessages([
+                            'assignment' => [
+                                'Penugasan hanya dapat diubah pada periode yang sedang aktif.',
+                            ],
+                        ]);
+                }
 
                 $this->auditLogs
                     ->record([
@@ -310,5 +395,165 @@ final class SurveyorAssignmentService
                     );
             }
         );
+    }
+
+    /*
+     * Dipakai saat Admin menghapus BNBA
+     * dari periode NONAKTIF.
+     *
+     * Method ini tetap dipertahankan dari
+     * bug fix sebelumnya.
+     */
+    public function clearForPeriod(
+        int $periodId,
+        User $actor,
+        ?string $ipAddress,
+        ?string $userAgent
+    ): int {
+        return DB::transaction(
+            function () use (
+                $periodId,
+                $actor,
+                $ipAddress,
+                $userAgent
+            ): int {
+                $period =
+                    $this->periods
+                        ->findOrFail(
+                            $periodId
+                        );
+
+                if (
+                    (bool) $period
+                        ->is_active
+                    &&
+                    (int) $period
+                        ->active_slot === 1
+                ) {
+                    throw ValidationException
+                        ::withMessages([
+                            'period' => [
+                                'Penugasan Surveyor pada periode aktif tidak dapat dibersihkan melalui penghapusan BNBA.',
+                            ],
+                        ]);
+                }
+
+                $periodAssignments =
+                    $this->assignments
+                        ->forPeriod(
+                            $periodId
+                        );
+
+                if (
+                    $periodAssignments
+                        ->isEmpty()
+                ) {
+                    return 0;
+                }
+
+                $deleted = 0;
+
+                foreach (
+                    $periodAssignments
+                    as $assignment
+                ) {
+                    $this->auditLogs
+                        ->record([
+                            'user_id'
+                                => $actor->id,
+
+                            'action'
+                                => 'surveyor_assignment.deleted_with_bnba',
+
+                            'auditable_type'
+                                => SurveyorAssignment::class,
+
+                            'auditable_id'
+                                => $assignment->id,
+
+                            'metadata' => [
+                                'period_id'
+                                    => $assignment
+                                        ->period_id,
+
+                                'period_name'
+                                    => $assignment
+                                        ->period
+                                        ->name,
+
+                                'kelurahan_id'
+                                    => $assignment
+                                        ->kelurahan_id,
+
+                                'kelurahan_name'
+                                    => $assignment
+                                        ->kelurahan
+                                        ->name,
+
+                                'surveyor_id'
+                                    => $assignment
+                                        ->surveyor_id,
+
+                                'surveyor_name'
+                                    => $assignment
+                                        ->surveyor
+                                        ->name,
+
+                                'reason'
+                                    => 'bnba_deleted',
+                            ],
+
+                            'ip_address'
+                                => $ipAddress,
+
+                            'user_agent'
+                                => $userAgent,
+                        ]);
+
+                    $this->assignments
+                        ->delete(
+                            $assignment
+                        );
+
+                    $deleted++;
+                }
+
+                return $deleted;
+            }
+        );
+    }
+
+    private function requireActivePeriod(): BpntPeriod
+    {
+        $period =
+            $this->periods
+                ->active();
+
+        if (
+            ! $period
+            instanceof BpntPeriod
+        ) {
+            throw ValidationException
+                ::withMessages([
+                    'period' => [
+                        'Belum ada periode BPNT aktif. Hubungi Admin Dinsos.',
+                    ],
+                ]);
+        }
+
+        if (
+            (int) $period
+                ->participants_count
+            <= 0
+        ) {
+            throw ValidationException
+                ::withMessages([
+                    'period' => [
+                        'Periode aktif belum memiliki data KPM.',
+                    ],
+                ]);
+        }
+
+        return $period;
     }
 }

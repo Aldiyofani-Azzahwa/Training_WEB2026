@@ -7,6 +7,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class BpntParticipant extends Model
 {
@@ -71,6 +73,25 @@ class BpntParticipant extends Model
         return $this->belongsTo(
             BnbaImport::class,
             'bnba_import_id'
+        );
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(
+            BpntTransaction::class,
+            'bpnt_participant_id'
+        );
+    }
+
+    public function activeVerification(): HasOne
+    {
+        return $this->hasOne(
+            KpmVerification::class,
+            'bpnt_participant_id'
+        )->where(
+            'active_slot',
+            1
         );
     }
 }

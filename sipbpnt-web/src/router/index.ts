@@ -24,6 +24,7 @@ import {
 import type {
   ApiResponse,
   AuthUser,
+  UserRole,
 } from '@/types/auth'
 
 import {
@@ -33,6 +34,10 @@ import {
 import {
   managementRoutes,
 } from './managementRoutes'
+
+import {
+  surveyorRoute,
+} from './surveyorRoutes'
 
 const routes:
   RouteRecordRaw[] = [
@@ -159,7 +164,7 @@ const routes:
 
     /*
     |--------------------------------------------------------------------------
-    | Internal
+    | Internal Admin / Manager / Kepala Dinas
     |--------------------------------------------------------------------------
     */
 
@@ -173,6 +178,12 @@ const routes:
       meta: {
         requiresAuth:
           true,
+
+        roles: [
+          'admin_dinsos',
+          'manager',
+          'kepala_dinas',
+        ],
       },
 
       children: [
@@ -199,6 +210,14 @@ const routes:
         ...managementRoutes,
       ],
     },
+
+    /*
+    |--------------------------------------------------------------------------
+    | Surveyor Mobile Workspace
+    |--------------------------------------------------------------------------
+    */
+
+    surveyorRoute,
 
     /*
     |--------------------------------------------------------------------------
@@ -367,7 +386,7 @@ function isGuestOnly(
 function getRequiredRoles(
   to:
     RouteLocationNormalized,
-): string[] {
+): UserRole[] {
   const roles =
     to.meta.roles
 
@@ -379,11 +398,7 @@ function getRequiredRoles(
     return []
   }
 
-  return roles.filter(
-    (role) =>
-      typeof role
-      === 'string',
-  )
+  return roles
 }
 
 function hasRequiredRole(
@@ -411,10 +426,29 @@ function hasRequiredRole(
 
   return requiredRoles
     .includes(
-      authStore
-        .user
-        .role,
+      authStore.user.role,
     )
+}
+
+function authenticatedHomeRoute(
+  role: UserRole | null,
+): {
+  name: 'dashboard' | 'surveyor-home'
+} {
+  if (
+    role
+    === 'surveyor'
+  ) {
+    return {
+      name:
+        'surveyor-home',
+    }
+  }
+
+  return {
+    name:
+      'dashboard',
+  }
 }
 
 router.beforeEach(
@@ -429,13 +463,11 @@ router.beforeEach(
     if (
       isGuestOnly(to)
       &&
-      authStore
-        .isAuthenticated
+      authStore.isAuthenticated
     ) {
-      return {
-        name:
-          'dashboard',
-      }
+      return authenticatedHomeRoute(
+        authStore.role,
+      )
     }
 
     if (
@@ -443,8 +475,7 @@ router.beforeEach(
         to,
       )
       &&
-      !authStore
-        .isAuthenticated
+      !authStore.isAuthenticated
     ) {
       return {
         name:
@@ -462,17 +493,13 @@ router.beforeEach(
         to,
       )
       &&
-      authStore
-        .isAuthenticated
+      authStore.isAuthenticated
       &&
-      !hasRequiredRole(
-        to,
-      )
+      !hasRequiredRole(to)
     ) {
-      return {
-        name:
-          'dashboard',
-      }
+      return authenticatedHomeRoute(
+        authStore.role,
+      )
     }
 
     return true

@@ -48,6 +48,8 @@ export interface SurveyorAssignmentMeta {
   total_kelurahans: number
   assigned_count: number
   unassigned_count: number
+  total_assignments: number
+  max_surveyors_per_kelurahan: number
 }
 
 export interface SurveyorAssignmentListResponse {
@@ -61,7 +63,6 @@ export interface SurveyorAssignmentResponse {
 }
 
 export interface SurveyorAssignmentPayload {
-  period_id: number
   kelurahan_id: number
   surveyor_id: number
 }

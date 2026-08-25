@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1\Manager;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Assignment\ListSurveyorAssignmentRequest;
 use App\Http\Requests\Assignment\StoreSurveyorAssignmentRequest;
 use App\Http\Resources\Assignment\SurveyorAssignmentResource;
 use App\Services\Assignment\SurveyorAssignmentService;
@@ -19,17 +18,11 @@ class SurveyorAssignmentController
         private readonly SurveyorAssignmentService $service,
     ) {}
 
-    public function index(
-        ListSurveyorAssignmentRequest $request
-    ): JsonResponse {
+    public function index(): JsonResponse
+    {
         $result =
             $this->service
-                ->listForPeriod(
-                    (int) $request
-                        ->validated(
-                            'period_id'
-                        )
-                );
+                ->listForActivePeriod();
 
         return response()->json([
             'data'
@@ -77,6 +70,15 @@ class SurveyorAssignmentController
                     => $result[
                         'unassigned_count'
                     ],
+
+                'total_assignments'
+                    => $result[
+                        'total_assignments'
+                    ],
+
+                'max_surveyors_per_kelurahan'
+                    => SurveyorAssignmentService
+                        ::MAX_SURVEYORS_PER_KELURAHAN,
             ],
         ]);
     }

@@ -7,6 +7,7 @@ import {
 } from '@/services/http'
 
 import type {
+  ActiveBpntPeriodResponse,
   ApiMessageResponse,
   BnbaHistoryParams,
   BnbaImport,
@@ -41,6 +42,18 @@ class BnbaService {
     return response.data.data
   }
 
+  async getActivePeriod():
+    Promise<BpntPeriod | null> {
+    const response =
+      await http.get<
+        ActiveBpntPeriodResponse
+      >(
+        `${BASE_PATH}/bpnt-periods/active`,
+      )
+
+    return response.data.data
+  }
+
   async createPeriod(
     payload:
       CreateBpntPeriodPayload,
@@ -67,6 +80,32 @@ class BnbaService {
       >(
         `${BASE_PATH}/bpnt-periods/${periodId}`,
         payload,
+      )
+
+    return response.data.data
+  }
+
+  async activatePeriod(
+    periodId: number,
+  ): Promise<BpntPeriod> {
+    const response =
+      await http.put<
+        BpntPeriodResponse
+      >(
+        `${BASE_PATH}/bpnt-periods/${periodId}/activate`,
+      )
+
+    return response.data.data
+  }
+
+  async deactivatePeriod(
+    periodId: number,
+  ): Promise<BpntPeriod> {
+    const response =
+      await http.put<
+        BpntPeriodResponse
+      >(
+        `${BASE_PATH}/bpnt-periods/${periodId}/deactivate`,
       )
 
     return response.data.data

@@ -1,17 +1,14 @@
 import axios from 'axios'
-
-const apiUrl =
-  import.meta.env.VITE_API_URL ||
-  'http://localhost:8000'
-
 export const http = axios.create({
-  baseURL: apiUrl,
+  baseURL: '/',
   withCredentials: true,
   withXSRFToken: true,
+
   headers: {
     Accept: 'application/json',
     'X-Requested-With': 'XMLHttpRequest',
   },
+
   timeout: 30_000,
 })
 
@@ -19,6 +16,11 @@ http.interceptors.response.use(
   (response) => response,
 
   async (error) => {
+    /*
+     * Jika session / CSRF expired,
+     * ambil CSRF cookie baru satu kali
+     * kemudian ulang request.
+     */
     if (
       error.response?.status === 419 &&
       error.config &&
@@ -26,9 +28,13 @@ http.interceptors.response.use(
     ) {
       error.config.__csrfRetried = true
 
-      await http.get('/sanctum/csrf-cookie')
+      await http.get(
+        '/sanctum/csrf-cookie',
+      )
 
-      return http.request(error.config)
+      return http.request(
+        error.config,
+      )
     }
 
     return Promise.reject(error)

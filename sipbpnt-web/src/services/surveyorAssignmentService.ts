@@ -10,20 +10,13 @@ import type {
 } from '@/types/surveyorAssignment'
 
 class SurveyorAssignmentService {
-  async getByPeriod(
-    periodId: number,
-  ): Promise<SurveyorAssignmentListResponse> {
+  async getActive():
+    Promise<SurveyorAssignmentListResponse> {
     const response =
       await http.get<
         SurveyorAssignmentListResponse
       >(
         '/api/v1/manager/surveyor-assignments',
-        {
-          params: {
-            period_id:
-              periodId,
-          },
-        },
       )
 
     return response.data

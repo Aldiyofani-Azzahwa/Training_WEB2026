@@ -12,6 +12,7 @@ use App\Contracts\Repositories\EWarungRepositoryInterface;
 use App\Contracts\Repositories\KpmRepositoryInterface;
 use App\Contracts\Repositories\SurveyorAssignmentRepositoryInterface;
 use App\Contracts\Repositories\SurveyorRepositoryInterface;
+use App\Contracts\Repositories\SurveyorWorkspaceRepositoryInterface;
 use App\Contracts\Repositories\WilayahRepositoryInterface;
 use App\Repositories\EloquentAuditLogRepository;
 use App\Repositories\EloquentBnbaImportRepository;
@@ -21,6 +22,7 @@ use App\Repositories\EloquentEWarungRepository;
 use App\Repositories\EloquentKpmRepository;
 use App\Repositories\EloquentSurveyorAssignmentRepository;
 use App\Repositories\EloquentSurveyorRepository;
+use App\Repositories\EloquentSurveyorWorkspaceRepository;
 use App\Repositories\EloquentWilayahRepository;
 use Illuminate\Support\ServiceProvider;
 
@@ -72,6 +74,11 @@ class AppServiceProvider
         $this->app->bind(
             SurveyorAssignmentRepositoryInterface::class,
             EloquentSurveyorAssignmentRepository::class
+        );
+
+        $this->app->bind(
+            SurveyorWorkspaceRepositoryInterface::class,
+            EloquentSurveyorWorkspaceRepository::class
         );
     }
 

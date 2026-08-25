@@ -18,24 +18,233 @@ class SurveyorAssignmentTest
 {
     use RefreshDatabase;
 
-    public function test_manager_can_assign_active_surveyor(): void
+    public function test_manager_can_list_assignments_from_active_period_without_selecting_period(): void
     {
         $manager =
             $this->user(
                 UserRole::MANAGER
             );
 
-        $surveyor =
+        [
+            $period,
+        ] =
+            $this->activePeriodWithKelurahans(
+                $manager,
+                1
+            );
+
+        $this
+            ->actingAs(
+                $manager
+            )
+            ->getJson(
+                '/api/v1/manager/surveyor-assignments'
+            )
+            ->assertOk()
+            ->assertJsonPath(
+                'meta.period.id',
+                $period->id
+            )
+            ->assertJsonPath(
+                'meta.total_kelurahans',
+                1
+            )
+            ->assertJsonPath(
+                'meta.assigned_count',
+                0
+            )
+            ->assertJsonPath(
+                'meta.unassigned_count',
+                1
+            )
+            ->assertJsonPath(
+                'meta.total_assignments',
+                0
+            )
+            ->assertJsonPath(
+                'meta.max_surveyors_per_kelurahan',
+                3
+            );
+    }
+
+    public function test_manager_can_assign_three_surveyors_to_same_kelurahan(): void
+    {
+        $manager =
             $this->user(
-                UserRole::SURVEYOR
+                UserRole::MANAGER
             );
 
         [
             $period,
-            $kelurahan,
+            $kelurahans,
         ] =
-            $this->periodWithParticipant(
+            $this->activePeriodWithKelurahans(
+                $manager,
+                1
+            );
+
+        $kelurahan =
+            $kelurahans[0];
+
+        $surveyors = [
+            $this->user(
+                UserRole::SURVEYOR
+            ),
+
+            $this->user(
+                UserRole::SURVEYOR
+            ),
+
+            $this->user(
+                UserRole::SURVEYOR
+            ),
+        ];
+
+        foreach (
+            $surveyors
+            as $surveyor
+        ) {
+            $this
+                ->actingAs(
+                    $manager
+                )
+                ->putJson(
+                    '/api/v1/manager/surveyor-assignments',
+                    [
+                        'kelurahan_id'
+                            => $kelurahan->id,
+
+                        'surveyor_id'
+                            => $surveyor->id,
+                    ]
+                )
+                ->assertOk()
+                ->assertJsonPath(
+                    'data.period.id',
+                    $period->id
+                )
+                ->assertJsonPath(
+                    'data.kelurahan.id',
+                    $kelurahan->id
+                )
+                ->assertJsonPath(
+                    'data.surveyor.id',
+                    $surveyor->id
+                );
+        }
+
+        $this->assertDatabaseCount(
+            'surveyor_assignments',
+            3
+        );
+    }
+
+    public function test_fourth_surveyor_is_rejected_for_same_kelurahan(): void
+    {
+        $manager =
+            $this->user(
+                UserRole::MANAGER
+            );
+
+        [
+            ,
+            $kelurahans,
+        ] =
+            $this->activePeriodWithKelurahans(
+                $manager,
+                1
+            );
+
+        $kelurahan =
+            $kelurahans[0];
+
+        $surveyors = [
+            $this->user(
+                UserRole::SURVEYOR
+            ),
+
+            $this->user(
+                UserRole::SURVEYOR
+            ),
+
+            $this->user(
+                UserRole::SURVEYOR
+            ),
+
+            $this->user(
+                UserRole::SURVEYOR
+            ),
+        ];
+
+        foreach (
+            array_slice(
+                $surveyors,
+                0,
+                3
+            )
+            as $surveyor
+        ) {
+            $this
+                ->actingAs(
+                    $manager
+                )
+                ->putJson(
+                    '/api/v1/manager/surveyor-assignments',
+                    [
+                        'kelurahan_id'
+                            => $kelurahan->id,
+
+                        'surveyor_id'
+                            => $surveyor->id,
+                    ]
+                )
+                ->assertOk();
+        }
+
+        $this
+            ->actingAs(
                 $manager
+            )
+            ->putJson(
+                '/api/v1/manager/surveyor-assignments',
+                [
+                    'kelurahan_id'
+                        => $kelurahan->id,
+
+                    'surveyor_id'
+                        => $surveyors[3]->id,
+                ]
+            )
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(
+                'kelurahan_id'
+            );
+
+        $this->assertDatabaseCount(
+            'surveyor_assignments',
+            3
+        );
+    }
+
+    public function test_same_surveyor_cannot_be_assigned_to_two_kelurahans_in_same_period(): void
+    {
+        $manager =
+            $this->user(
+                UserRole::MANAGER
+            );
+
+        [
+            $period,
+            $kelurahans,
+        ] =
+            $this->activePeriodWithKelurahans(
+                $manager,
+                2
+            );
+
+        $surveyor =
+            $this->user(
+                UserRole::SURVEYOR
             );
 
         $this
@@ -45,11 +254,122 @@ class SurveyorAssignmentTest
             ->putJson(
                 '/api/v1/manager/surveyor-assignments',
                 [
+                    'kelurahan_id'
+                        => $kelurahans[0]->id,
+
+                    'surveyor_id'
+                        => $surveyor->id,
+                ]
+            )
+            ->assertOk();
+
+        $this
+            ->actingAs(
+                $manager
+            )
+            ->putJson(
+                '/api/v1/manager/surveyor-assignments',
+                [
+                    'kelurahan_id'
+                        => $kelurahans[1]->id,
+
+                    'surveyor_id'
+                        => $surveyor->id,
+                ]
+            )
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(
+                'surveyor_id'
+            );
+
+        $this->assertDatabaseHas(
+            'surveyor_assignments',
+            [
+                'period_id'
+                    => $period->id,
+
+                'kelurahan_id'
+                    => $kelurahans[0]->id,
+
+                'surveyor_id'
+                    => $surveyor->id,
+            ]
+        );
+
+        $this->assertDatabaseMissing(
+            'surveyor_assignments',
+            [
+                'period_id'
+                    => $period->id,
+
+                'kelurahan_id'
+                    => $kelurahans[1]->id,
+
+                'surveyor_id'
+                    => $surveyor->id,
+            ]
+        );
+    }
+
+    public function test_period_id_from_client_cannot_override_active_period(): void
+    {
+        $manager =
+            $this->user(
+                UserRole::MANAGER
+            );
+
+        [
+            $activePeriod,
+            $activeKelurahans,
+        ] =
+            $this->activePeriodWithKelurahans(
+                $manager,
+                1
+            );
+
+        $inactivePeriod =
+            BpntPeriod::query()
+                ->create([
+                    'code'
+                        => 'INACTIVE-'
+                            . uniqid(),
+
+                    'name'
+                        => 'Periode Nonaktif',
+
+                    'year'
+                        => 2025,
+
+                    'is_active'
+                        => false,
+
+                    'active_slot'
+                        => null,
+                ]);
+
+        $surveyor =
+            $this->user(
+                UserRole::SURVEYOR
+            );
+
+        $this
+            ->actingAs(
+                $manager
+            )
+            ->putJson(
+                '/api/v1/manager/surveyor-assignments',
+                [
+                    /*
+                     * Sengaja dikirim untuk
+                     * mencoba manipulasi.
+                     *
+                     * Backend wajib mengabaikannya.
+                     */
                     'period_id'
-                        => $period->id,
+                        => $inactivePeriod->id,
 
                     'kelurahan_id'
-                        => $kelurahan->id,
+                        => $activeKelurahans[0]->id,
 
                     'surveyor_id'
                         => $surveyor->id,
@@ -57,113 +377,29 @@ class SurveyorAssignmentTest
             )
             ->assertOk()
             ->assertJsonPath(
-                'data.surveyor.id',
-                $surveyor->id
-            )
-            ->assertJsonPath(
-                'data.kelurahan.id',
-                $kelurahan->id
+                'data.period.id',
+                $activePeriod->id
             );
 
         $this->assertDatabaseHas(
             'surveyor_assignments',
             [
                 'period_id'
-                    => $period->id,
-
-                'kelurahan_id'
-                    => $kelurahan->id,
+                    => $activePeriod->id,
 
                 'surveyor_id'
                     => $surveyor->id,
-
-                'assigned_by'
-                    => $manager->id,
             ]
         );
-    }
 
-    public function test_same_period_and_kelurahan_is_reassigned_not_duplicated(): void
-    {
-        $manager =
-            $this->user(
-                UserRole::MANAGER
-            );
-
-        $surveyorA =
-            $this->user(
-                UserRole::SURVEYOR
-            );
-
-        $surveyorB =
-            $this->user(
-                UserRole::SURVEYOR
-            );
-
-        [
-            $period,
-            $kelurahan,
-        ] =
-            $this->periodWithParticipant(
-                $manager
-            );
-
-        $payload = [
-            'period_id'
-                => $period->id,
-
-            'kelurahan_id'
-                => $kelurahan->id,
-
-            'surveyor_id'
-                => $surveyorA->id,
-        ];
-
-        $this
-            ->actingAs(
-                $manager
-            )
-            ->putJson(
-                '/api/v1/manager/surveyor-assignments',
-                $payload
-            )
-            ->assertOk();
-
-        $payload[
-            'surveyor_id'
-        ] =
-            $surveyorB->id;
-
-        $this
-            ->actingAs(
-                $manager
-            )
-            ->putJson(
-                '/api/v1/manager/surveyor-assignments',
-                $payload
-            )
-            ->assertOk()
-            ->assertJsonPath(
-                'data.surveyor.id',
-                $surveyorB->id
-            );
-
-        $this->assertDatabaseCount(
-            'surveyor_assignments',
-            1
-        );
-
-        $this->assertDatabaseHas(
+        $this->assertDatabaseMissing(
             'surveyor_assignments',
             [
                 'period_id'
-                    => $period->id,
-
-                'kelurahan_id'
-                    => $kelurahan->id,
+                    => $inactivePeriod->id,
 
                 'surveyor_id'
-                    => $surveyorB->id,
+                    => $surveyor->id,
             ]
         );
     }
@@ -182,11 +418,12 @@ class SurveyorAssignmentTest
             );
 
         [
-            $period,
-            $kelurahan,
+            ,
+            $kelurahans,
         ] =
-            $this->periodWithParticipant(
-                $manager
+            $this->activePeriodWithKelurahans(
+                $manager,
+                1
             );
 
         $this
@@ -196,11 +433,8 @@ class SurveyorAssignmentTest
             ->putJson(
                 '/api/v1/manager/surveyor-assignments',
                 [
-                    'period_id'
-                        => $period->id,
-
                     'kelurahan_id'
-                        => $kelurahan->id,
+                        => $kelurahans[0]->id,
 
                     'surveyor_id'
                         => $surveyor->id,
@@ -212,62 +446,23 @@ class SurveyorAssignmentTest
             );
     }
 
-    public function test_admin_cannot_manage_assignment(): void
+    public function test_manager_cannot_assign_when_no_period_is_active(): void
     {
-        $admin =
+        $manager =
             $this->user(
-                UserRole::ADMIN_DINSOS
+                UserRole::MANAGER
             );
 
-        $this
-            ->actingAs(
-                $admin
-            )
-            ->getJson(
-                '/api/v1/manager/surveyor-assignments?period_id=1'
-            )
-            ->assertForbidden();
-    }
-
-    private function user(
-        UserRole $role,
-        bool $isActive = true
-    ): User {
-        return User::factory()
-            ->create([
-                'role'
-                    => $role,
-
-                'is_active'
-                    => $isActive,
-            ]);
-    }
-
-    private function periodWithParticipant(
-        User $uploader
-    ): array {
-        $period =
-            BpntPeriod::query()
-                ->create([
-                    'code'
-                        => 'TEST-'
-                            . uniqid(),
-
-                    'name'
-                        => 'Periode Test',
-
-                    'year'
-                        => 2026,
-
-                    'is_active'
-                        => false,
-                ]);
+        $surveyor =
+            $this->user(
+                UserRole::SURVEYOR
+            );
 
         $kecamatan =
             Kecamatan::query()
                 ->create([
                     'code'
-                        => 'TEST01',
+                        => 'NOACTIVE',
 
                     'name'
                         => 'KECAMATAN TEST',
@@ -286,52 +481,178 @@ class SurveyorAssignmentTest
                         => 'KELURAHAN TEST',
                 ]);
 
+        $this
+            ->actingAs(
+                $manager
+            )
+            ->putJson(
+                '/api/v1/manager/surveyor-assignments',
+                [
+                    'kelurahan_id'
+                        => $kelurahan->id,
+
+                    'surveyor_id'
+                        => $surveyor->id,
+                ]
+            )
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(
+                'period'
+            );
+    }
+
+    public function test_deleted_assignment_makes_surveyor_available_for_another_kelurahan(): void
+    {
+        $manager =
+            $this->user(
+                UserRole::MANAGER
+            );
+
+        [
+            $period,
+            $kelurahans,
+        ] =
+            $this->activePeriodWithKelurahans(
+                $manager,
+                2
+            );
+
+        $surveyor =
+            $this->user(
+                UserRole::SURVEYOR
+            );
+
+        $created =
+            $this
+                ->actingAs(
+                    $manager
+                )
+                ->putJson(
+                    '/api/v1/manager/surveyor-assignments',
+                    [
+                        'kelurahan_id'
+                            => $kelurahans[0]->id,
+
+                        'surveyor_id'
+                            => $surveyor->id,
+                    ]
+                )
+                ->assertOk();
+
+        $assignmentId =
+            (int) $created
+                ->json(
+                    'data.id'
+                );
+
+        $this
+            ->actingAs(
+                $manager
+            )
+            ->deleteJson(
+                "/api/v1/manager/surveyor-assignments/{$assignmentId}"
+            )
+            ->assertOk();
+
+        $this
+            ->actingAs(
+                $manager
+            )
+            ->putJson(
+                '/api/v1/manager/surveyor-assignments',
+                [
+                    'kelurahan_id'
+                        => $kelurahans[1]->id,
+
+                    'surveyor_id'
+                        => $surveyor->id,
+                ]
+            )
+            ->assertOk();
+
+        $this->assertDatabaseHas(
+            'surveyor_assignments',
+            [
+                'period_id'
+                    => $period->id,
+
+                'kelurahan_id'
+                    => $kelurahans[1]->id,
+
+                'surveyor_id'
+                    => $surveyor->id,
+            ]
+        );
+    }
+
+    public function test_admin_cannot_manage_assignment(): void
+    {
+        $admin =
+            $this->user(
+                UserRole::ADMIN_DINSOS
+            );
+
+        $this
+            ->actingAs(
+                $admin
+            )
+            ->getJson(
+                '/api/v1/manager/surveyor-assignments'
+            )
+            ->assertForbidden();
+    }
+
+    private function user(
+        UserRole $role,
+        bool $isActive = true
+    ): User {
+        return User::factory()
+            ->create([
+                'role'
+                    => $role,
+
+                'is_active'
+                    => $isActive,
+            ]);
+    }
+
+    private function activePeriodWithKelurahans(
+        User $uploader,
+        int $kelurahanCount
+    ): array {
+        $period =
+            BpntPeriod::query()
+                ->create([
+                    'code'
+                        => 'TEST-'
+                            . uniqid(),
+
+                    'name'
+                        => 'Periode Aktif Test',
+
+                    'year'
+                        => 2026,
+
+                    'is_active'
+                        => true,
+
+                    'active_slot'
+                        => 1,
+                ]);
+
+        $kecamatan =
+            Kecamatan::query()
+                ->create([
+                    'code'
+                        => 'TEST-KEC-'
+                            . uniqid(),
+
+                    'name'
+                        => 'KECAMATAN TEST',
+                ]);
+
         $now =
             now();
-
-        $kpmId =
-            DB::table(
-                'kpms'
-            )
-                ->insertGetId([
-                    'nik_hash'
-                        => hash(
-                            'sha256',
-                            'nik-test'
-                                . uniqid()
-                        ),
-
-                    'nik_ciphertext'
-                        => 'encrypted',
-
-                    'nkk_hash'
-                        => hash(
-                            'sha256',
-                            'nkk-test'
-                                . uniqid()
-                        ),
-
-                    'nkk_ciphertext'
-                        => 'encrypted',
-
-                    'full_name'
-                        => 'KPM TEST',
-
-                    'address'
-                        => 'Alamat Test',
-
-                    'kelurahan'
-                        => $kelurahan->name,
-
-                    'kecamatan'
-                        => $kecamatan->name,
-
-                    'created_at'
-                        => $now,
-
-                    'updated_at'
-                        => $now,
-                ]);
 
         $importId =
             DB::table(
@@ -364,10 +685,10 @@ class SurveyorAssignmentTest
                         ),
 
                     'total_rows'
-                        => 1,
+                        => $kelurahanCount,
 
                     'valid_rows'
-                        => 1,
+                        => $kelurahanCount,
 
                     'warning_rows'
                         => 0,
@@ -388,37 +709,120 @@ class SurveyorAssignmentTest
                         => $now,
                 ]);
 
-        DB::table(
-            'bpnt_participants'
-        )->insert([
-            'bpnt_period_id'
-                => $period->id,
+        $kelurahans =
+            [];
 
-            'kpm_id'
-                => $kpmId,
+        for (
+            $index = 1;
+            $index <= $kelurahanCount;
+            $index++
+        ) {
+            $kelurahan =
+                Kelurahan::query()
+                    ->create([
+                        'kecamatan_id'
+                            => $kecamatan->id,
 
-            'kelurahan_id'
-                => $kelurahan->id,
+                        'code'
+                            => str_pad(
+                                (string) $index,
+                                4,
+                                '0',
+                                STR_PAD_LEFT
+                            ),
 
-            'bnba_import_id'
-                => $importId,
+                        'name'
+                            => 'KELURAHAN TEST '
+                                . $index,
+                    ]);
 
-            'import_row_number'
-                => 1,
+            $kpmId =
+                DB::table(
+                    'kpms'
+                )
+                    ->insertGetId([
+                        'nik_hash'
+                            => hash(
+                                'sha256',
+                                'nik-test-'
+                                    . $index
+                                    . '-'
+                                    . uniqid()
+                            ),
 
-            'entitlement_amount'
-                => 0,
+                        'nik_ciphertext'
+                            => 'encrypted',
 
-            'created_at'
-                => $now,
+                        'nkk_hash'
+                            => hash(
+                                'sha256',
+                                'nkk-test-'
+                                    . $index
+                                    . '-'
+                                    . uniqid()
+                            ),
 
-            'updated_at'
-                => $now,
-        ]);
+                        'nkk_ciphertext'
+                            => 'encrypted',
+
+                        'full_name'
+                            => 'KPM TEST '
+                                . $index,
+
+                        'address'
+                            => 'Alamat Test '
+                                . $index,
+
+                        'kelurahan'
+                            => $kelurahan
+                                ->name,
+
+                        'kecamatan'
+                            => $kecamatan
+                                ->name,
+
+                        'created_at'
+                            => $now,
+
+                        'updated_at'
+                            => $now,
+                    ]);
+
+            DB::table(
+                'bpnt_participants'
+            )->insert([
+                'bpnt_period_id'
+                    => $period->id,
+
+                'kpm_id'
+                    => $kpmId,
+
+                'kelurahan_id'
+                    => $kelurahan->id,
+
+                'bnba_import_id'
+                    => $importId,
+
+                'import_row_number'
+                    => $index,
+
+                'entitlement_amount'
+                    => 0,
+
+                'created_at'
+                    => $now,
+
+                'updated_at'
+                    => $now,
+            ]);
+
+            $kelurahans[] =
+                $kelurahan;
+        }
 
         return [
-            $period,
-            $kelurahan,
+            $period->fresh(),
+            $kelurahans,
         ];
     }
 }

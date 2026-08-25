@@ -10,6 +10,7 @@ use App\Http\Requests\Bnba\StoreBnbaImportRequest;
 use App\Http\Resources\Bnba\BnbaImportResource;
 use App\Http\Resources\Bnba\BnbaImportRowResource;
 use App\Services\Bnba\BnbaImportService;
+use App\Services\Bnba\BnbaPeriodDeletionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -18,7 +19,9 @@ class BnbaImportController
 {
     public function __construct(
         private readonly BnbaImportService $service,
-    ) {}
+        private readonly BnbaPeriodDeletionService $deletionService,
+    ) {
+    }
 
     public function index(
         Request $request
@@ -77,8 +80,7 @@ class BnbaImportController
                 ->upload(
                     $request->file('file'),
 
-                    (int)
-                    $request
+                    (int) $request
                         ->validated(
                             'period_id'
                         ),
@@ -195,7 +197,7 @@ class BnbaImportController
         string $period
     ): JsonResponse {
         $result =
-            $this->service
+            $this->deletionService
                 ->deleteForPeriod(
                     (int) $period,
                     $request->user(),

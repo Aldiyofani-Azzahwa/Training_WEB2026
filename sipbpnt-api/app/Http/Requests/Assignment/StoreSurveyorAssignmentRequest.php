@@ -18,12 +18,6 @@ class StoreSurveyorAssignmentRequest
     public function rules(): array
     {
         return [
-            'period_id' => [
-                'required',
-                'integer',
-                'exists:bpnt_periods,id',
-            ],
-
             'kelurahan_id' => [
                 'required',
                 'integer',
@@ -48,12 +42,6 @@ class StoreSurveyorAssignmentRequest
     public function messages(): array
     {
         return [
-            'period_id.required'
-                => 'Periode wajib dipilih.',
-
-            'period_id.exists'
-                => 'Periode tidak ditemukan.',
-
             'kelurahan_id.required'
                 => 'Kelurahan wajib dipilih.',
 

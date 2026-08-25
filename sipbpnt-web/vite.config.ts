@@ -15,13 +15,40 @@ export default defineConfig(({ mode }) => {
     '',
   )
 
-  const allowedHosts = (
+  const customAllowedHosts = (
     env.DEV_ALLOWED_HOSTS ?? ''
   )
     .split(',')
     .map((host) => host.trim())
     .filter(Boolean)
 
+  /*
+   * Izinkan domain ngrok.
+   *
+   * Ngrok dapat memberikan domain:
+   *
+   * *.ngrok-free.dev
+   * *.ngrok-free.app
+   *
+   * Kita whitelist keduanya agar
+   * tidak perlu mengubah config setiap
+   * URL ngrok berubah.
+   */
+  const allowedHosts = Array.from(
+    new Set([
+      '.ngrok-free.dev',
+      '.ngrok-free.app',
+      ...customAllowedHosts,
+    ]),
+  )
+
+  /*
+   * Laravel tetap berjalan lokal
+   * pada port 8000.
+   *
+   * Browser tidak mengakses alamat
+   * Laravel ini secara langsung.
+   */
   const proxyTarget =
     env.DEV_PROXY_TARGET ||
     'http://127.0.0.1:8000'
@@ -46,17 +73,27 @@ export default defineConfig(({ mode }) => {
 
     server: {
       host: '0.0.0.0',
+
       port: 5173,
+
       strictPort: true,
 
-      ...(allowedHosts.length > 0
-        ? {
-            allowedHosts,
-          }
-        : {}),
+      allowedHosts,
 
       proxy: {
+        /*
+         * API Laravel.
+         */
         '/api': {
+          target: proxyTarget,
+          changeOrigin: true,
+          secure: false,
+        },
+
+        /*
+         * Laravel Sanctum CSRF.
+         */
+        '/sanctum': {
           target: proxyTarget,
           changeOrigin: true,
           secure: false,

@@ -17,17 +17,22 @@ interface SurveyorAssignmentRepositoryInterface
         int $id
     ): SurveyorAssignment;
 
-    public function findByScope(
-        int $periodId,
-        int $kelurahanId
-    ): ?SurveyorAssignment;
-
-    public function saveForScope(
+    public function create(
         int $periodId,
         int $kelurahanId,
         int $surveyorId,
         int $assignedBy
     ): SurveyorAssignment;
+
+    public function findForSurveyorInPeriod(
+        int $periodId,
+        int $surveyorId
+    ): ?SurveyorAssignment;
+
+    public function countForKelurahan(
+        int $periodId,
+        int $kelurahanId
+    ): int;
 
     public function delete(
         SurveyorAssignment $assignment

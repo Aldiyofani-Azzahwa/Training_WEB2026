@@ -32,14 +32,18 @@ export interface BpntPeriod {
   name: string
   year: number
 
+  is_active: boolean
+
   imports_count: number
   participants_count: number
+  assignments_count: number
 
+  can_activate: boolean
   can_delete: boolean
   can_edit_year: boolean
+  can_delete_bnba: boolean
 
-  bnba:
-    BpntPeriodBnba | null
+  bnba: BpntPeriodBnba | null
 
   created_at: string | null
   updated_at: string | null
@@ -71,40 +75,34 @@ export interface BnbaImportUser {
 export interface BnbaImport {
   id: number
 
-  period?:
-    BnbaImportPeriod
+  period?: BnbaImportPeriod
 
-  status:
-    BnbaImportStatus
+  status: BnbaImportStatus
 
   original_name: string
 
-  summary:
-    BnbaImportSummary
+  summary: BnbaImportSummary
 
-  uploaded_by?:
-    BnbaImportUser | null
+  uploaded_by?: BnbaImportUser | null
 
-  confirmed_at:
-    string | null
+  confirmed_at: string | null
 
-  created_at:
-    string | null
+  created_at: string | null
 }
 
 export interface BnbaMonthlyStatuses {
-  jan: string | null
-  feb: string | null
-  mar: string | null
-  apr: string | null
-  may: string | null
-  jun: string | null
-  jul: string | null
-  aug: string | null
-  sep: string | null
-  oct: string | null
-  nov: string | null
-  dec: string | null
+  jan?: string | null
+  feb?: string | null
+  mar?: string | null
+  apr?: string | null
+  may?: string | null
+  jun?: string | null
+  jul?: string | null
+  aug?: string | null
+  sep?: string | null
+  oct?: string | null
+  nov?: string | null
+  dec?: string | null
 }
 
 export interface BnbaImportRow {
@@ -112,68 +110,49 @@ export interface BnbaImportRow {
 
   row_number: number
 
-  status:
-    BnbaRowStatus
+  status: BnbaRowStatus
 
-  membership_year:
-    string | null
+  membership_year: string | null
 
   nik: string | null
   nkk: string | null
 
-  full_name:
-    string | null
+  full_name: string | null
 
-  birth_place:
-    string | null
+  birth_place: string | null
 
-  birth_date:
-    string | null
+  birth_date: string | null
 
-  mother_name:
-    string | null
+  mother_name: string | null
 
-  address:
-    string | null
+  address: string | null
 
   rt: string | null
   rw: string | null
 
-  kelurahan:
-    string | null
+  kelurahan: string | null
 
-  kecamatan:
-    string | null
+  kecamatan: string | null
 
-  account_number:
-    string | null
+  account_number: string | null
 
-  e_warung_name:
-    string | null
+  e_warung_name: string | null
 
-  source_status:
-    string | null
+  source_status: string | null
 
-  source_description:
-    string | null
+  source_description: string | null
 
-  monthly_statuses:
-    Partial<BnbaMonthlyStatuses>
+  monthly_statuses: BnbaMonthlyStatuses
 
-  sk_status:
-    string | null
+  sk_status: string | null
 
-  sk_description:
-    string | null
+  sk_description: string | null
 
-  apbn_march_status:
-    string | null
+  apbn_march_status: string | null
 
-  welfare_rank:
-    number | null
+  welfare_rank: number | null
 
-  nominal:
-    number | null
+  nominal: number | null
 
   errors: string[]
   warnings: string[]
@@ -193,6 +172,10 @@ export interface BpntPeriodListResponse {
 export interface BpntPeriodResponse {
   message: string
   data: BpntPeriod
+}
+
+export interface ActiveBpntPeriodResponse {
+  data: BpntPeriod | null
 }
 
 export interface ApiMessageResponse {
@@ -283,44 +266,31 @@ export interface BnbaParticipantImport {
 export interface BnbaParticipant {
   id: number
 
-  period:
-    BnbaParticipantPeriod
+  period: BnbaParticipantPeriod
 
-  kpm:
-    BnbaParticipantKpm
+  kpm: BnbaParticipantKpm
 
-  membership_year:
-    string | null
+  membership_year: string | null
 
-  e_warung_name:
-    string | null
+  e_warung_name: string | null
 
-  source_status:
-    string | null
+  source_status: string | null
 
-  source_description:
-    string | null
+  source_description: string | null
 
-  monthly_statuses:
-    Partial<BnbaMonthlyStatuses>
+  monthly_statuses: BnbaMonthlyStatuses
 
-  sk_status:
-    string | null
+  sk_status: string | null
 
-  sk_description:
-    string | null
+  sk_description: string | null
 
-  apbn_march_status:
-    string | null
+  apbn_march_status: string | null
 
-  welfare_rank:
-    number | null
+  welfare_rank: number | null
 
-  entitlement_amount:
-    number
+  entitlement_amount: number
 
-  import:
-    BnbaParticipantImport
+  import: BnbaParticipantImport
 }
 
 export interface BnbaParticipantFilters {

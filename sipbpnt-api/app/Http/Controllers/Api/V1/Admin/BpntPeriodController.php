@@ -30,6 +30,22 @@ class BpntPeriodController
         ]);
     }
 
+    public function active(): JsonResponse
+    {
+        $period =
+            $this->service
+                ->active();
+
+        return response()->json([
+            'data'
+                => $period
+                    ? new BpntPeriodResource(
+                        $period
+                    )
+                    : null,
+        ]);
+    }
+
     public function store(
         StoreBpntPeriodRequest $request
     ): JsonResponse {
@@ -74,6 +90,54 @@ class BpntPeriodController
             'data'
                 => new BpntPeriodResource(
                     $updated
+                ),
+        ]);
+    }
+
+    public function activate(
+        Request $request,
+        string $period
+    ): JsonResponse {
+        $activated =
+            $this->service
+                ->activate(
+                    (int) $period,
+                    $request->user(),
+                    $request->ip(),
+                    $request->userAgent()
+                );
+
+        return response()->json([
+            'message'
+                => 'Periode BPNT berhasil diaktifkan.',
+
+            'data'
+                => new BpntPeriodResource(
+                    $activated
+                ),
+        ]);
+    }
+
+    public function deactivate(
+        Request $request,
+        string $period
+    ): JsonResponse {
+        $deactivated =
+            $this->service
+                ->deactivate(
+                    (int) $period,
+                    $request->user(),
+                    $request->ip(),
+                    $request->userAgent()
+                );
+
+        return response()->json([
+            'message'
+                => 'Periode BPNT berhasil dinonaktifkan.',
+
+            'data'
+                => new BpntPeriodResource(
+                    $deactivated
                 ),
         ]);
     }

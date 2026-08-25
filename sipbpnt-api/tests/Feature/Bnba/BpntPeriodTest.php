@@ -31,6 +31,12 @@ class BpntPeriodTest extends TestCase
 
                 'year'
                     => 2026,
+
+                'is_active'
+                    => false,
+
+                'active_slot'
+                    => null,
             ]);
 
         $response =
@@ -59,12 +65,24 @@ class BpntPeriodTest extends TestCase
                 2026
             )
             ->assertJsonPath(
+                'data.0.is_active',
+                false
+            )
+            ->assertJsonPath(
                 'data.0.imports_count',
                 0
             )
             ->assertJsonPath(
                 'data.0.participants_count',
                 0
+            )
+            ->assertJsonPath(
+                'data.0.assignments_count',
+                0
+            )
+            ->assertJsonPath(
+                'data.0.can_activate',
+                false
             )
             ->assertJsonPath(
                 'data.0.can_delete',
@@ -75,23 +93,13 @@ class BpntPeriodTest extends TestCase
                 true
             )
             ->assertJsonPath(
+                'data.0.can_delete_bnba',
+                true
+            )
+            ->assertJsonPath(
                 'data.0.bnba',
                 null
             );
-
-        $periodData =
-            $response->json(
-                'data.0'
-            );
-
-        $this->assertIsArray(
-            $periodData
-        );
-
-        $this->assertArrayNotHasKey(
-            'is_active',
-            $periodData
-        );
     }
 
     public function test_admin_can_create_bpnt_period(): void
@@ -128,12 +136,24 @@ class BpntPeriodTest extends TestCase
                 2026
             )
             ->assertJsonPath(
+                'data.is_active',
+                false
+            )
+            ->assertJsonPath(
                 'data.imports_count',
                 0
             )
             ->assertJsonPath(
                 'data.participants_count',
                 0
+            )
+            ->assertJsonPath(
+                'data.assignments_count',
+                0
+            )
+            ->assertJsonPath(
+                'data.can_activate',
+                false
             )
             ->assertJsonPath(
                 'data.can_delete',
@@ -144,23 +164,13 @@ class BpntPeriodTest extends TestCase
                 true
             )
             ->assertJsonPath(
+                'data.can_delete_bnba',
+                true
+            )
+            ->assertJsonPath(
                 'data.bnba',
                 null
             );
-
-        $periodData =
-            $response->json(
-                'data'
-            );
-
-        $this->assertIsArray(
-            $periodData
-        );
-
-        $this->assertArrayNotHasKey(
-            'is_active',
-            $periodData
-        );
 
         $code =
             $response->json(
@@ -184,6 +194,12 @@ class BpntPeriodTest extends TestCase
 
                 'year'
                     => 2026,
+
+                'is_active'
+                    => false,
+
+                'active_slot'
+                    => null,
             ]
         );
     }
@@ -223,6 +239,10 @@ class BpntPeriodTest extends TestCase
             ->assertJsonPath(
                 'data.year',
                 2027
+            )
+            ->assertJsonPath(
+                'data.is_active',
+                false
             )
             ->assertJsonPath(
                 'data.can_edit_year',
@@ -270,9 +290,6 @@ class BpntPeriodTest extends TestCase
                         'name'
                             => 'BPNT Agustus Revisi Nama',
 
-                        /*
-                         * Tahun tetap sama.
-                         */
                         'year'
                             => 2026,
                     ]
@@ -287,6 +304,10 @@ class BpntPeriodTest extends TestCase
             ->assertJsonPath(
                 'data.year',
                 2026
+            )
+            ->assertJsonPath(
+                'data.is_active',
+                false
             )
             ->assertJsonPath(
                 'data.can_edit_year',
@@ -427,10 +448,6 @@ class BpntPeriodTest extends TestCase
                     'role'
                         => UserRole::SURVEYOR,
 
-                    /*
-                     * Ini status akun,
-                     * bukan status periode.
-                     */
                     'is_active'
                         => true,
                 ]);
@@ -462,10 +479,6 @@ class BpntPeriodTest extends TestCase
                 'role'
                     => UserRole::ADMIN_DINSOS,
 
-                /*
-                 * Status akun user.
-                 * Harus tetap ada.
-                 */
                 'is_active'
                     => true,
             ]);
@@ -483,6 +496,12 @@ class BpntPeriodTest extends TestCase
 
                 'year'
                     => 2026,
+
+                'is_active'
+                    => false,
+
+                'active_slot'
+                    => null,
             ]);
     }
 

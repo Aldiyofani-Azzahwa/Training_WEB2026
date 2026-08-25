@@ -19,10 +19,26 @@ class BpntPeriodResource extends JsonResource
         $participantsCount =
             (int) ($this->participants_count ?? 0);
 
+        $assignmentsCount =
+            (int) ($this->assignments_count ?? 0);
+
+        $isActive =
+            (bool) $this->is_active
+            &&
+            (int) $this->active_slot === 1;
+
         $latestImport =
             $this->relationLoaded('latestImport')
                 ? $this->latestImport
                 : null;
+
+        $hasConfirmedBnba =
+            $latestImport instanceof BnbaImport
+            &&
+            $latestImport->status
+                === BnbaImportStatus::CONFIRMED
+            &&
+            $participantsCount > 0;
 
         return [
             'id' => (int) $this->id,
@@ -33,35 +49,31 @@ class BpntPeriodResource extends JsonResource
 
             'year' => (int) $this->year,
 
+            'is_active' => $isActive,
+
             'imports_count' => $importsCount,
 
             'participants_count' => $participantsCount,
 
-            /*
-             * Periode hanya boleh dihapus
-             * bila benar-benar kosong.
-             */
-            'can_delete' =>
-                $importsCount === 0
-                && $participantsCount === 0,
+            'assignments_count' => $assignmentsCount,
 
-            /*
-             * Tahun hanya boleh diubah
-             * jika belum mempunyai BNBA.
-             */
+            'can_activate' =>
+                ! $isActive
+                && $hasConfirmedBnba,
+
+            'can_delete' =>
+                ! $isActive
+                && $importsCount === 0
+                && $participantsCount === 0
+                && $assignmentsCount === 0,
+
             'can_edit_year' =>
                 $importsCount === 0,
 
-            /*
-             * Tidak ada:
-             *
-             * status periode
-             * is_active periode
-             * current_bnba
-             * pending_import
-             *
-             * Hanya satu field sederhana: bnba.
-             */
+            'can_delete_bnba' =>
+                ! $isActive
+                && $assignmentsCount === 0,
+
             'bnba' =>
                 $latestImport instanceof BnbaImport
                     ? $this->serializeBnba($latestImport)
@@ -84,14 +96,11 @@ class BpntPeriodResource extends JsonResource
             $import->status;
 
         return [
-            'id' =>
-                (int) $import->id,
+            'id'
+                => (int) $import->id,
 
-            /*
-             * Aman untuk enum maupun string.
-             */
-            'status' =>
-                $status instanceof BnbaImportStatus
+            'status'
+                => $status instanceof BnbaImportStatus
                     ? $status->value
                     : (
                         is_string($status)
@@ -99,32 +108,32 @@ class BpntPeriodResource extends JsonResource
                             : null
                     ),
 
-            'original_name' =>
-                (string) $import->original_name,
+            'original_name'
+                => (string) $import->original_name,
 
             'summary' => [
-                'total' =>
-                    (int) $import->total_rows,
+                'total'
+                    => (int) $import->total_rows,
 
-                'valid' =>
-                    (int) $import->valid_rows,
+                'valid'
+                    => (int) $import->valid_rows,
 
-                'warning' =>
-                    (int) $import->warning_rows,
+                'warning'
+                    => (int) $import->warning_rows,
 
-                'invalid' =>
-                    (int) $import->invalid_rows,
+                'invalid'
+                    => (int) $import->invalid_rows,
 
-                'duplicate' =>
-                    (int) $import->duplicate_rows,
+                'duplicate'
+                    => (int) $import->duplicate_rows,
             ],
 
-            'confirmed_at' =>
-                $import->confirmed_at
+            'confirmed_at'
+                => $import->confirmed_at
                     ?->toIso8601String(),
 
-            'created_at' =>
-                $import->created_at
+            'created_at'
+                => $import->created_at
                     ?->toIso8601String(),
         ];
     }

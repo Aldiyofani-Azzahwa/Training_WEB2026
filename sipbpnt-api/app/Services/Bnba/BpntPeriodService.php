@@ -6,6 +6,7 @@ namespace App\Services\Bnba;
 
 use App\Contracts\Repositories\AuditLogRepositoryInterface;
 use App\Contracts\Repositories\BpntPeriodRepositoryInterface;
+use App\Enums\BnbaImportStatus;
 use App\Models\BpntPeriod;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -23,6 +24,11 @@ final class BpntPeriodService
     public function all(): Collection
     {
         return $this->periods->all();
+    }
+
+    public function active(): ?BpntPeriod
+    {
+        return $this->periods->active();
     }
 
     public function create(
@@ -58,12 +64,11 @@ final class BpntPeriodService
                             'year'
                                 => $year,
 
-                            /*
-                             * Tidak lagi digunakan
-                             * sebagai business rule.
-                             */
                             'is_active'
                                 => false,
+
+                            'active_slot'
+                                => null,
                         ]);
 
                 $this->auditLogs
@@ -124,14 +129,6 @@ final class BpntPeriodService
                 $newYear =
                     (int) $data['year'];
 
-                /*
-                 * Tahun dikunci selama
-                 * periode masih punya BNBA.
-                 *
-                 * Setelah BNBA dihapus,
-                 * imports menjadi 0 dan
-                 * tahun dapat diedit lagi.
-                 */
                 if (
                     $this->periods
                         ->hasImports(
@@ -210,6 +207,203 @@ final class BpntPeriodService
         );
     }
 
+    public function activate(
+        int $periodId,
+        User $actor,
+        ?string $ipAddress,
+        ?string $userAgent
+    ): BpntPeriod {
+        return DB::transaction(
+            function () use (
+                $periodId,
+                $actor,
+                $ipAddress,
+                $userAgent
+            ): BpntPeriod {
+                $period =
+                    $this->periods
+                        ->findOrFail(
+                            $periodId
+                        );
+
+                $latestImport =
+                    $period->latestImport;
+
+                if (
+                    $latestImport === null
+                    ||
+                    $latestImport->status
+                        !== BnbaImportStatus::CONFIRMED
+                    ||
+                    (int) $period->participants_count
+                        <= 0
+                ) {
+                    throw ValidationException
+                        ::withMessages([
+                            'period' => [
+                                'Periode hanya dapat diaktifkan setelah BNBA dikonfirmasi dan data KPM tersedia.',
+                            ],
+                        ]);
+                }
+
+                if (
+                    (bool) $period->is_active
+                    &&
+                    (int) $period->active_slot === 1
+                ) {
+                    return $period;
+                }
+
+                $previousActive =
+                    $this->periods
+                        ->active();
+
+                $activated =
+                    $this->periods
+                        ->activateExclusive(
+                            $period
+                        );
+
+                $this->auditLogs
+                    ->record([
+                        'user_id'
+                            => $actor->id,
+
+                        'action'
+                            => 'bpnt.period.activated',
+
+                        'auditable_type'
+                            => BpntPeriod::class,
+
+                        'auditable_id'
+                            => $activated->id,
+
+                        'metadata' => [
+                            'period_name'
+                                => $activated->name,
+
+                            'period_year'
+                                => $activated->year,
+
+                            'previous_active_period_id'
+                                => $previousActive?->id,
+
+                            'previous_active_period_name'
+                                => $previousActive?->name,
+                        ],
+
+                        'ip_address'
+                            => $ipAddress,
+
+                        'user_agent'
+                            => $userAgent,
+                    ]);
+
+                return $activated;
+            }
+        );
+    }
+
+    public function deactivate(
+        int $periodId,
+        User $actor,
+        ?string $ipAddress,
+        ?string $userAgent
+    ): BpntPeriod {
+        return DB::transaction(
+            function () use (
+                $periodId,
+                $actor,
+                $ipAddress,
+                $userAgent
+            ): BpntPeriod {
+                $period =
+                    $this->periods
+                        ->findOrFail(
+                            $periodId
+                        );
+
+                if (
+                    ! (bool) $period->is_active
+                    ||
+                    (int) $period->active_slot !== 1
+                ) {
+                    return $period;
+                }
+
+                $deactivated =
+                    $this->periods
+                        ->deactivate(
+                            $period
+                        );
+
+                $this->auditLogs
+                    ->record([
+                        'user_id'
+                            => $actor->id,
+
+                        'action'
+                            => 'bpnt.period.deactivated',
+
+                        'auditable_type'
+                            => BpntPeriod::class,
+
+                        'auditable_id'
+                            => $deactivated->id,
+
+                        'metadata' => [
+                            'period_name'
+                                => $deactivated->name,
+
+                            'period_year'
+                                => $deactivated->year,
+                        ],
+
+                        'ip_address'
+                            => $ipAddress,
+
+                        'user_agent'
+                            => $userAgent,
+                    ]);
+
+                return $deactivated;
+            }
+        );
+    }
+
+    public function assertBnbaCanBeDeleted(
+        int $periodId
+    ): void {
+        $period =
+            $this->periods
+                ->findOrFail(
+                    $periodId
+                );
+
+        /*
+         * BNBA periode aktif tidak boleh
+         * dihapus karena sedang menjadi
+         * periode operasional sistem.
+         *
+         * Assignment bukan blocker di sini.
+         * Assignment periode nonaktif akan
+         * dibersihkan otomatis sebelum BNBA
+         * dihapus.
+         */
+        if (
+            (bool) $period->is_active
+            &&
+            (int) $period->active_slot === 1
+        ) {
+            throw ValidationException
+                ::withMessages([
+                    'period' => [
+                        'BNBA pada periode aktif tidak dapat dihapus. Nonaktifkan periode terlebih dahulu.',
+                    ],
+                ]);
+        }
+    }
+
     public function delete(
         int $periodId,
         User $actor,
@@ -248,6 +442,33 @@ final class BpntPeriodService
                         ]);
                 }
 
+                if (
+                    $this->periods
+                        ->hasAssignments(
+                            $period->id
+                        )
+                ) {
+                    throw ValidationException
+                        ::withMessages([
+                            'period' => [
+                                'Periode masih memiliki penugasan Surveyor. Hapus penugasan terlebih dahulu sebelum menghapus periode.',
+                            ],
+                        ]);
+                }
+
+                if (
+                    (bool) $period->is_active
+                    &&
+                    (int) $period->active_slot === 1
+                ) {
+                    throw ValidationException
+                        ::withMessages([
+                            'period' => [
+                                'Periode aktif tidak dapat dihapus. Nonaktifkan periode terlebih dahulu.',
+                            ],
+                        ]);
+                }
+
                 $metadata = [
                     'name'
                         => $period->name,
@@ -257,7 +478,9 @@ final class BpntPeriodService
                 ];
 
                 $this->periods
-                    ->delete($period);
+                    ->delete(
+                        $period
+                    );
 
                 $this->auditLogs
                     ->record([

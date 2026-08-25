@@ -6,6 +6,28 @@ export const adminRoutes:
   RouteRecordRaw[] = [
     {
       path:
+        'admin/periode-aktif',
+
+      name:
+        'admin-active-period',
+
+      component: () =>
+        import(
+          '@/views/admin/ActivePeriodView.vue'
+        ),
+
+      meta: {
+        roles: [
+          'admin_dinsos',
+        ],
+
+        title:
+          'Periode Aktif',
+      },
+    },
+
+    {
+      path:
         'admin/bnba/import',
 
       name:

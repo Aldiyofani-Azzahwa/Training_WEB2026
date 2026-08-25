@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\Management\BnbaParticipantController;
 use App\Http\Controllers\Api\V1\Management\SurveyorOptionController;
 use App\Http\Controllers\Api\V1\Management\WilayahController;
 use App\Http\Controllers\Api\V1\Manager\SurveyorAssignmentController;
+use App\Http\Controllers\Api\V1\Surveyor\SurveyorWorkspaceController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')
@@ -80,6 +81,33 @@ Route::prefix('v1')
                 [
                     AuthController::class,
                     'logout',
+                ]
+            );
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Active BPNT Period
+        |--------------------------------------------------------------------------
+        |
+        | Seluruh role internal boleh membaca
+        | periode yang sedang digunakan.
+        |
+        | Hanya Admin Dinsos yang boleh
+        | mengaktifkan / menonaktifkan.
+        |
+        */
+
+        Route::middleware([
+            'auth:sanctum',
+            'active.user',
+            'role:admin_dinsos,manager,surveyor,kepala_dinas',
+        ])->group(function (): void {
+            Route::get(
+                '/bpnt-periods/active',
+                [
+                    BpntPeriodController::class,
+                    'active',
                 ]
             );
         });
@@ -275,6 +303,26 @@ Route::prefix('v1')
                 'period'
             );
 
+            Route::put(
+                '/bpnt-periods/{period}/activate',
+                [
+                    BpntPeriodController::class,
+                    'activate',
+                ]
+            )->whereNumber(
+                'period'
+            );
+
+            Route::put(
+                '/bpnt-periods/{period}/deactivate',
+                [
+                    BpntPeriodController::class,
+                    'deactivate',
+                ]
+            )->whereNumber(
+                'period'
+            );
+
             Route::delete(
                 '/bpnt-periods/{period}',
                 [
@@ -373,6 +421,76 @@ Route::prefix('v1')
                 ]
             )->whereNumber(
                 'assignment'
+            );
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Surveyor
+        |--------------------------------------------------------------------------
+        |
+        | Surveyor tidak mengirim:
+        |
+        | - period_id
+        | - kecamatan_id
+        | - kelurahan_id
+        |
+        | Semua konteks diambil backend
+        | dari periode aktif + assignment.
+        |
+        */
+
+        Route::middleware([
+            'auth:sanctum',
+            'active.user',
+            'role:surveyor',
+        ])->group(function (): void {
+            /*
+             * Context:
+             *
+             * - Surveyor
+             * - periode aktif
+             * - wilayah assignment
+             * - jumlah KPM wilayah
+             */
+            Route::get(
+                '/surveyor/context',
+                [
+                    SurveyorWorkspaceController::class,
+                    'context',
+                ]
+            );
+
+            /*
+             * Browse KPM.
+             *
+             * HANYA participant kelurahan
+             * assignment Surveyor.
+             */
+            Route::get(
+                '/surveyor/participants',
+                [
+                    SurveyorWorkspaceController::class,
+                    'participants',
+                ]
+            );
+
+            /*
+             * Exact NIK lookup.
+             *
+             * Boleh mencari seluruh participant
+             * pada periode aktif.
+             *
+             * KPM luar wilayah tidak ditolak.
+             */
+            Route::post(
+                '/surveyor/lookup-nik',
+                [
+                    SurveyorWorkspaceController::class,
+                    'lookupNik',
+                ]
+            )->middleware(
+                'throttle:60,1'
             );
         });
 

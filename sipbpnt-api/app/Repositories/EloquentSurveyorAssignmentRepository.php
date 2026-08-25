@@ -29,6 +29,9 @@ final class EloquentSurveyorAssignmentRepository
             ->orderBy(
                 'kelurahan_id'
             )
+            ->orderBy(
+                'id'
+            )
             ->get();
     }
 
@@ -47,9 +50,39 @@ final class EloquentSurveyorAssignmentRepository
             );
     }
 
-    public function findByScope(
+    public function create(
         int $periodId,
-        int $kelurahanId
+        int $kelurahanId,
+        int $surveyorId,
+        int $assignedBy
+    ): SurveyorAssignment {
+        $assignment =
+            SurveyorAssignment::query()
+                ->create([
+                    'period_id'
+                        => $periodId,
+
+                    'kelurahan_id'
+                        => $kelurahanId,
+
+                    'surveyor_id'
+                        => $surveyorId,
+
+                    'assigned_by'
+                        => $assignedBy,
+
+                    'assigned_at'
+                        => now(),
+                ]);
+
+        return $this->findOrFail(
+            $assignment->id
+        );
+    }
+
+    public function findForSurveyorInPeriod(
+        int $periodId,
+        int $surveyorId
     ): ?SurveyorAssignment {
         return SurveyorAssignment::query()
             ->with([
@@ -63,43 +96,26 @@ final class EloquentSurveyorAssignmentRepository
                 $periodId
             )
             ->where(
-                'kelurahan_id',
-                $kelurahanId
+                'surveyor_id',
+                $surveyorId
             )
             ->first();
     }
 
-    public function saveForScope(
+    public function countForKelurahan(
         int $periodId,
-        int $kelurahanId,
-        int $surveyorId,
-        int $assignedBy
-    ): SurveyorAssignment {
-        $assignment =
-            SurveyorAssignment::query()
-                ->updateOrCreate(
-                    [
-                        'period_id'
-                            => $periodId,
-
-                        'kelurahan_id'
-                            => $kelurahanId,
-                    ],
-                    [
-                        'surveyor_id'
-                            => $surveyorId,
-
-                        'assigned_by'
-                            => $assignedBy,
-
-                        'assigned_at'
-                            => now(),
-                    ]
-                );
-
-        return $this->findOrFail(
-            $assignment->id
-        );
+        int $kelurahanId
+    ): int {
+        return SurveyorAssignment::query()
+            ->where(
+                'period_id',
+                $periodId
+            )
+            ->where(
+                'kelurahan_id',
+                $kelurahanId
+            )
+            ->count();
     }
 
     public function delete(

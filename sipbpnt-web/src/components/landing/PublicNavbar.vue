@@ -21,7 +21,6 @@ import BrandLogo from './BrandLogo.vue'
 
 import {
   publicNavigation,
-  publicSite,
   type PublicNavigationItem,
 } from '@/config/publicSite'
 
@@ -48,7 +47,8 @@ function handleEscape(
   event: KeyboardEvent,
 ): void {
   if (
-    event.key === 'Escape' &&
+    event.key === 'Escape'
+    &&
     mobileMenuOpen.value
   ) {
     closeMobileMenu()
@@ -62,10 +62,15 @@ watch(
   },
 )
 
-watch(mobileMenuOpen, (isOpen) => {
-  document.body.style.overflow =
-    isOpen ? 'hidden' : ''
-})
+watch(
+  mobileMenuOpen,
+  (isOpen) => {
+    document.body.style.overflow =
+      isOpen
+        ? 'hidden'
+        : ''
+  },
+)
 
 onMounted(() => {
   window.addEventListener(
@@ -86,9 +91,6 @@ onBeforeUnmount(() => {
 
 <template>
   <header class="fixed inset-x-0 top-0 z-50">
-    <!-- Strip informasi -->
-    
-
     <!-- Navbar utama -->
     <div class="border-b border-slate-200 bg-white shadow-sm">
       <div

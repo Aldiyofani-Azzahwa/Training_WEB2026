@@ -5,6 +5,7 @@ import type {
 import {
   Activity,
   BarChart3,
+  CalendarCheck2,
   ClipboardList,
   CreditCard,
   Database,
@@ -54,6 +55,23 @@ const navigationByRole:
   > = {
     admin_dinsos: [
       dashboard,
+
+      {
+        key:
+          'active-period',
+
+        label:
+          'Periode Aktif',
+
+        icon:
+          CalendarCheck2,
+
+        routeName:
+          'admin-active-period',
+
+        available:
+          true,
+      },
 
       {
         key:
