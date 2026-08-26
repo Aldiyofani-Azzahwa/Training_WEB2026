@@ -2,7 +2,7 @@
 import { RouterLink } from 'vue-router'
 import { ChevronRight } from '@lucide/vue'
 
-import BatikCorner from './BatikCorner.vue'
+
 import SectionWave from './SectionWave.vue'
 
 import {
@@ -26,11 +26,7 @@ withDefaults(
   <section
     class="relative isolate overflow-hidden bg-cream-100 pb-40 pt-40 sm:pb-44 sm:pt-44"
   >
-    <BatikCorner
-      position="top-right"
-      color="#F97316"
-      :opacity="0.04"
-    />
+   
 
     <div
       class="relative mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-8"

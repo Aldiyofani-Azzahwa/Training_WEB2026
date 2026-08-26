@@ -25,10 +25,15 @@ import {
 } from '@/services/surveyorWorkspaceService'
 
 import {
+  useSurveyorEWarungSelection,
+} from '@/services/surveyorEWarungSelection'
+
+import {
   useAuthStore,
 } from '@/stores/auth'
 
 import type {
+  SurveyorEWarung,
   SurveyorWorkspaceContext,
 } from '@/types/surveyorWorkspace'
 
@@ -40,6 +45,11 @@ vi.mock(
         vi.fn<
           () => Promise<SurveyorWorkspaceContext>
         >(),
+
+      getActiveEWarungs:
+        vi.fn<
+          () => Promise<SurveyorEWarung[]>
+        >(),
     },
   }),
 )
@@ -49,6 +59,30 @@ const getContextMock =
     surveyorWorkspaceService
       .getContext,
   )
+
+const getActiveEWarungsMock =
+  vi.mocked(
+    surveyorWorkspaceService
+      .getActiveEWarungs,
+  )
+
+const activeEWarung:
+  SurveyorEWarung = {
+    id:
+      7,
+
+    name:
+      'E-Warung Makmur',
+
+    is_active:
+      true,
+
+    created_at:
+      null,
+
+    updated_at:
+      null,
+  }
 
 const normalContext:
   SurveyorWorkspaceContext = {
@@ -110,6 +144,16 @@ describe(
 
     beforeEach(() => {
       vi.clearAllMocks()
+
+      window.localStorage.clear()
+
+      useSurveyorEWarungSelection()
+        .clearSelectedEWarung()
+
+      getActiveEWarungsMock
+        .mockResolvedValue([
+          activeEWarung,
+        ])
 
       pinia =
         createPinia()
@@ -186,7 +230,7 @@ describe(
     }
 
     it(
-      'shows active period and assignment data',
+      'shows active period, assignment, and active E-Warung data',
       async () => {
         getContextMock
           .mockResolvedValue(
@@ -231,12 +275,46 @@ describe(
         expect(
           wrapper
             .find(
+              '[data-testid="e-warung-card"]',
+            )
+            .exists(),
+        ).toBe(
+          true,
+        )
+
+        expect(
+          wrapper
+            .find(
+              '[data-testid="e-warung-select"]',
+            )
+            .exists(),
+        ).toBe(
+          true,
+        )
+
+        expect(
+          wrapper.text(),
+        ).toContain(
+          'E-Warung Makmur',
+        )
+
+        expect(
+          getActiveEWarungsMock,
+        ).toHaveBeenCalledTimes(
+          1,
+        )
+
+        expect(
+          wrapper
+            .find(
               '[data-testid="scan-ktp-action"]',
             )
             .exists(),
         ).toBe(
           true,
         )
+
+        wrapper.unmount()
       },
     )
 
@@ -287,6 +365,12 @@ describe(
         ).toBe(
           false,
         )
+
+        expect(
+          getActiveEWarungsMock,
+        ).not.toHaveBeenCalled()
+
+        wrapper.unmount()
       },
     )
 
@@ -344,6 +428,12 @@ describe(
         ).toBe(
           false,
         )
+
+        expect(
+          getActiveEWarungsMock,
+        ).not.toHaveBeenCalled()
+
+        wrapper.unmount()
       },
     )
 
@@ -398,6 +488,12 @@ describe(
         )
 
         expect(
+          getActiveEWarungsMock,
+        ).toHaveBeenCalledTimes(
+          1,
+        )
+
+        expect(
           wrapper
             .find(
               '[data-testid="surveyor-assignment"]',
@@ -412,6 +508,136 @@ describe(
         ).toContain(
           'Jagalan',
         )
+
+        wrapper.unmount()
+      },
+    )
+
+    it(
+      'keeps the selected E-Warung after dashboard remount',
+      async () => {
+        getContextMock
+          .mockResolvedValue(
+            normalContext,
+          )
+
+        const firstWrapper =
+          mountDashboard()
+
+        await flushPromises()
+
+        const firstSelect =
+          firstWrapper
+            .get<HTMLSelectElement>(
+              '[data-testid="e-warung-select"]',
+            )
+
+        await firstSelect.setValue(
+          String(
+            activeEWarung.id,
+          ),
+        )
+
+        expect(
+          useSurveyorEWarungSelection()
+            .selectedEWarung
+            .value
+            ?.id,
+        ).toBe(
+          activeEWarung.id,
+        )
+
+        expect(
+          firstSelect
+            .element
+            .value,
+        ).toBe(
+          String(
+            activeEWarung.id,
+          ),
+        )
+
+        firstWrapper.unmount()
+
+        const secondWrapper =
+          mountDashboard()
+
+        await flushPromises()
+
+        const secondSelect =
+          secondWrapper
+            .get<HTMLSelectElement>(
+              '[data-testid="e-warung-select"]',
+            )
+
+        expect(
+          secondSelect
+            .element
+            .value,
+        ).toBe(
+          String(
+            activeEWarung.id,
+          ),
+        )
+
+        expect(
+          secondWrapper.text(),
+        ).toContain(
+          'E-Warung Makmur',
+        )
+
+        secondWrapper.unmount()
+      },
+    )
+
+    it(
+      'does not display inactive E-Warung',
+      async () => {
+        getContextMock
+          .mockResolvedValue(
+            normalContext,
+          )
+
+        getActiveEWarungsMock
+          .mockResolvedValue([
+            activeEWarung,
+
+            {
+              id:
+                8,
+
+              name:
+                'E-Warung Nonaktif',
+
+              is_active:
+                false,
+
+              created_at:
+                null,
+
+              updated_at:
+                null,
+            },
+          ])
+
+        const wrapper =
+          mountDashboard()
+
+        await flushPromises()
+
+        expect(
+          wrapper.text(),
+        ).toContain(
+          'E-Warung Makmur',
+        )
+
+        expect(
+          wrapper.text(),
+        ).not.toContain(
+          'E-Warung Nonaktif',
+        )
+
+        wrapper.unmount()
       },
     )
   },

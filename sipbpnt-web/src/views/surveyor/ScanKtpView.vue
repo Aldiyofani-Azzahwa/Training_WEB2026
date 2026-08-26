@@ -15,12 +15,13 @@ import {
   RefreshCw,
   ScanLine,
   Search,
-  ShieldCheck,
   Store,
   X,
 } from '@lucide/vue'
 
-import { RouterLink } from 'vue-router'
+import {
+  RouterLink,
+} from 'vue-router'
 
 import {
   useSurveyorEWarungSelection,
@@ -491,7 +492,7 @@ async function submitLookup():
 
   if (
     normalizedNik.length
-    !== NIK_LENGTH
+      !== NIK_LENGTH
   ) {
     validationError.value =
       'NIK harus terdiri dari 16 digit angka.'
@@ -521,7 +522,7 @@ async function submitLookup():
         .participant
         .activity
         ?.can_record_transaction
-      === false
+        === false
         ? ''
         : normalizedNik
 
@@ -583,10 +584,6 @@ async function confirmTransaction():
     ''
 
   try {
-    /*
-     * E-Warung divalidasi kembali tepat
-     * sebelum transaksi disimpan.
-     */
     await refreshEWarungs()
 
     if (
@@ -639,35 +636,44 @@ onMounted(
 </script>
 
 <template>
-  <section class="lookup-page">
+  <section
+    class="grid w-full min-w-0 gap-[17px] lg:gap-5"
+  >
     <div
       v-if="workspaceLoading"
-      class="workspace-loading"
+      class="grid gap-3"
       data-testid="lookup-workspace-loading"
     >
-      <div class="skeleton title-skeleton" />
-      <div class="skeleton card-skeleton" />
+      <div
+        class="h-6 w-[55%] animate-pulse rounded-[13px] bg-[#e7efec]"
+      />
+
+      <div
+        class="h-[230px] animate-pulse rounded-[22px] bg-[#e7efec]"
+      />
     </div>
 
     <article
       v-else-if="workspaceError"
-      class="state-card error-state"
+      class="grid justify-items-center gap-2 rounded-[22px] border border-[#efcdca] bg-white px-5 py-7 text-center text-[#c42c28]"
       role="alert"
       data-testid="lookup-workspace-error"
     >
       <CircleAlert :size="29" />
 
-      <strong>
+      <strong class="text-[#244b43]">
         Halaman belum dapat dimuat
       </strong>
 
-      <p>
+      <p
+        class="m-0 text-xs text-[#71837d]"
+      >
         {{ workspaceError }}
       </p>
 
       <button
         type="button"
-        class="retry-button"
+        class="mt-2 flex min-h-[42px] items-center gap-[7px] rounded-xl border-0 bg-[#006855] px-[14px] font-bold text-white transition-colors hover:bg-[#005746]"
         @click="loadWorkspace"
       >
         <RefreshCw :size="18" />
@@ -682,16 +688,18 @@ onMounted(
         &&
         !context.period
       "
-      class="state-card warning-state"
+      class="grid justify-items-center gap-2 rounded-[22px] border border-[#ecd9b8] bg-white px-5 py-7 text-center text-[#b76500]"
       data-testid="lookup-no-period"
     >
       <ScanLine :size="30" />
 
-      <strong>
+      <strong class="text-[#244b43]">
         Belum ada periode aktif
       </strong>
 
-      <p>
+      <p
+        class="m-0 text-xs text-[#71837d]"
+      >
         Pencarian KPM belum dapat digunakan.
       </p>
     </article>
@@ -702,57 +710,81 @@ onMounted(
         &&
         !context.assignment
       "
-      class="state-card warning-state"
+      class="grid justify-items-center gap-2 rounded-[22px] border border-[#ecd9b8] bg-white px-5 py-7 text-center text-[#b76500]"
       data-testid="lookup-no-assignment"
     >
       <MapPin :size="30" />
 
-      <strong>
+      <strong class="text-[#244b43]">
         Anda belum memiliki wilayah tugas
       </strong>
 
-      <p>
-        Hubungi Manager BPNT sebelum menggunakan pencarian KPM.
+      <p
+        class="m-0 text-xs text-[#71837d]"
+      >
+        Hubungi Manager BPNT sebelum
+        menggunakan pencarian KPM.
       </p>
     </article>
 
     <template v-else-if="context">
-      <header class="page-header">
-        <div>
-          <span>
-            Exact NIK Lookup
-          </span>
-
-          <h1>
+      <header
+        class="flex items-start justify-between gap-[13px]"
+      >
+        <div class="min-w-0">
+          <h1
+            class="my-1 text-[28px] leading-tight font-bold text-[#173f37] lg:text-[34px]"
+          >
             Scan KTP
           </h1>
 
-          <p>
-            Masukkan NIK 16 digit untuk mencari KPM pada periode aktif.
+          <p
+            class="m-0 max-w-[330px] text-[13px] leading-[1.55] text-[#72847e]"
+          >
+            Masukkan NIK 16 digit untuk mencari
+            KPM
           </p>
         </div>
 
-        <div class="header-icon">
+        <div
+          class="grid size-[49px] shrink-0 place-items-center rounded-2xl bg-[#e8f5f0] text-[#006855]"
+        >
           <ScanLine :size="27" />
         </div>
       </header>
 
       <article
-        class="active-store"
-        :class="{
-          missing:
-            !selectedEWarung,
-        }"
+        class="flex w-full min-w-0 items-center gap-[11px] overflow-hidden rounded-[17px] border p-[14px]"
+        :class="
+          selectedEWarung
+            ? 'border-[#cfe3dc] bg-[#f5fbf8] text-[#006855]'
+            : 'border-[#ecd5ad] bg-[#fff9ef] text-[#ae6100]'
+        "
         data-testid="active-e-warung"
       >
-        <Store :size="22" />
+        <Store
+          :size="22"
+          class="shrink-0"
+        />
 
-        <div>
-          <span>
+        <div
+          class="flex min-w-0 flex-1 flex-col overflow-hidden"
+        >
+          <span
+            class="text-[10px] text-[#72847e]"
+          >
             Tempat Bertugas Saat Ini
           </span>
 
-          <strong>
+          <strong
+            class="block max-w-full overflow-hidden text-[13px] font-bold text-ellipsis whitespace-nowrap text-[#244b43]"
+            :title="
+              selectedEWarung
+                ?.name
+              ??
+              'Belum memilih E-Warung'
+            "
+          >
             {{
               selectedEWarung
                 ?.name
@@ -767,6 +799,7 @@ onMounted(
             name:
               'surveyor-home',
           }"
+          class="shrink-0 text-xs font-[750] text-current"
         >
           {{
             selectedEWarung
@@ -776,29 +809,32 @@ onMounted(
         </RouterLink>
       </article>
 
-      <article class="manual-lookup-card">
-        <div class="lookup-mode">
-          <ShieldCheck :size="18" />
-
-          Exact NIK Lookup
-        </div>
-
+      <article
+        class="rounded-[22px] border border-[#dce9e4] bg-white p-[18px] shadow-[0_12px_28px_rgb(30_65_55_/_6%)] lg:p-[22px]"
+      >
         <form
           novalidate
           @submit.prevent="submitLookup"
         >
-          <label for="surveyor-nik">
+          <label
+            for="surveyor-nik"
+            class="mb-[7px] block text-[13px] font-bold text-[#35594f]"
+          >
             Masukkan NIK
           </label>
 
           <div
-            class="nik-input-wrapper"
-            :class="{
-              invalid:
-                validationError,
-            }"
+            class="flex min-h-[54px] w-full min-w-0 items-center gap-[9px] rounded-[15px] border px-[13px] text-[#70857e] transition-[border-color,box-shadow] focus-within:border-[#4e9b88] focus-within:shadow-[0_0_0_3px_rgb(0_104_85_/_9%)]"
+            :class="
+              validationError
+                ? 'border-[#dc5d58]'
+                : 'border-[#d6e3de]'
+            "
           >
-            <Search :size="21" />
+            <Search
+              :size="21"
+              class="shrink-0"
+            />
 
             <input
               id="surveyor-nik"
@@ -810,18 +846,19 @@ onMounted(
               autocomplete="off"
               enterkeyhint="search"
               placeholder="16 digit NIK"
+              class="min-w-0 flex-1 border-0 bg-transparent text-base font-[650] text-[#244b43] outline-none placeholder:text-[#9aa8a3]"
               data-testid="nik-input"
               @input="handleNikInput"
             />
 
-            <span>
+            <span class="shrink-0 text-[10px]">
               {{ nikLength }}/16
             </span>
           </div>
 
           <p
             v-if="validationError"
-            class="field-error"
+            class="m-0 mt-2 text-center text-[11px] leading-[1.5] text-[#c42c28]"
             role="alert"
             data-testid="nik-validation-error"
           >
@@ -830,14 +867,14 @@ onMounted(
 
           <button
             type="submit"
-            class="lookup-button"
+            class="mt-[15px] flex min-h-12 w-full items-center justify-center gap-2 rounded-[14px] border-0 bg-[#006855] text-[13px] font-[750] text-white transition-colors hover:bg-[#005746] disabled:cursor-not-allowed disabled:opacity-48"
             :disabled="!canLookup"
             data-testid="lookup-submit"
           >
             <RefreshCw
               v-if="lookupLoading"
               :size="19"
-              class="spinning"
+              class="animate-spin"
             />
 
             <Search
@@ -856,13 +893,18 @@ onMounted(
 
       <article
         v-if="lookupError"
-        class="message error-message"
+        class="flex items-start gap-[9px] rounded-[15px] border border-[#efcdca] bg-[#fff8f7] p-[13px] text-[#c42c28]"
         role="alert"
         data-testid="lookup-error"
       >
-        <CircleAlert :size="22" />
+        <CircleAlert
+          :size="22"
+          class="shrink-0"
+        />
 
-        <p>
+        <p
+          class="m-0 text-[11px] leading-[1.55]"
+        >
           {{ lookupError }}
         </p>
       </article>
@@ -873,18 +915,21 @@ onMounted(
           &&
           participant
         "
-        class="result-card"
+        class="grid min-w-0 gap-[15px] rounded-[22px] border border-[#dce9e4] bg-white p-[18px] shadow-[0_12px_28px_rgb(30_65_55_/_6%)] lg:p-[22px]"
         data-testid="lookup-result"
       >
-        <header>
+        <header
+          class="flex items-center justify-between gap-2"
+        >
           <div
-            class="scope-badge"
-            :class="{
-              outside:
-                result
-                  .scope
-                  .outside_assignment,
-            }"
+            class="inline-flex items-center gap-[6px] rounded-full px-[9px] py-[5px] text-[10px] font-[750]"
+            :class="
+              result
+                .scope
+                .outside_assignment
+                ? 'bg-[#fff1dc] text-[#b86100]'
+                : 'bg-[#e5f6f0] text-[#006855]'
+            "
           >
             <BadgeCheck :size="18" />
 
@@ -894,14 +939,14 @@ onMounted(
                 .label
             }}
           </div>
-
-          <span>
-            KPM ditemukan
-          </span>
         </header>
 
-        <div class="participant-profile">
-          <div class="avatar">
+        <div
+          class="flex min-w-0 items-center gap-[11px]"
+        >
+          <div
+            class="grid size-[49px] shrink-0 place-items-center rounded-2xl bg-[#e8f5f0] text-xs font-extrabold text-[#006855]"
+          >
             {{
               participantInitials(
                 participant,
@@ -909,8 +954,17 @@ onMounted(
             }}
           </div>
 
-          <div>
-            <strong>
+          <div
+            class="flex min-w-0 flex-1 flex-col overflow-hidden"
+          >
+            <strong
+              class="overflow-hidden text-base font-bold text-ellipsis whitespace-nowrap text-[#244b43]"
+              :title="
+                participant
+                  .kpm
+                  .full_name
+              "
+            >
               {{
                 participant
                   .kpm
@@ -918,7 +972,9 @@ onMounted(
               }}
             </strong>
 
-            <span>
+            <span
+              class="text-[11px] text-[#7b8c86]"
+            >
               NIK
               {{
                 participant
@@ -929,24 +985,36 @@ onMounted(
           </div>
         </div>
 
-        <dl>
-          <div>
-            <dt>
+        <dl class="m-0 grid gap-[9px]">
+          <div
+            class="rounded-[13px] bg-[#f8fbfa] p-[11px]"
+          >
+            <dt
+              class="text-[10px] text-[#7a8c86]"
+            >
               Wilayah Asli KPM
             </dt>
 
-            <dd>
+            <dd
+              class="mt-[3px] mb-0 text-xs leading-[1.45] text-[#35594f]"
+            >
               {{ participantKelurahan }},
               {{ participantKecamatan }}
             </dd>
           </div>
 
-          <div>
-            <dt>
+          <div
+            class="rounded-[13px] bg-[#f8fbfa] p-[11px]"
+          >
+            <dt
+              class="text-[10px] text-[#7a8c86]"
+            >
               Alamat
             </dt>
 
-            <dd>
+            <dd
+              class="mt-[3px] mb-0 break-words text-xs leading-[1.45] text-[#35594f]"
+            >
               {{
                 participantAddress(
                   participant,
@@ -956,12 +1024,16 @@ onMounted(
           </div>
         </dl>
 
-        <div class="saldo-card">
-          <span>
+        <div
+          class="flex items-center justify-between gap-3 rounded-[14px] bg-[#173f37] p-[13px] text-white"
+        >
+          <span class="text-[11px]">
             Saldo BPNT
           </span>
 
-          <strong>
+          <strong
+            class="text-[17px]"
+          >
             {{
               formatCurrency(
                 participant
@@ -977,54 +1049,60 @@ onMounted(
               .scope
               .outside_assignment
           "
-          class="scope-notice outside-notice"
+          class="flex items-start gap-[9px] rounded-[15px] bg-[#fff6e8] p-[13px] text-[#9c5600]"
           data-testid="outside-assignment-notice"
         >
-          <MapPin :size="20" />
+          <MapPin
+            :size="20"
+            class="shrink-0"
+          />
 
-          <p>
+          <p
+            class="m-0 text-[11px] leading-[1.55]"
+          >
             KPM berasal dari
+
             <strong>
               {{ participantKelurahan }}
             </strong>,
-            sedangkan wilayah tugas Anda
-            <strong>
-              {{
-                result
-                  .scope
-                  .surveyor_kelurahan
-                  .name
-              }}
-            </strong>.
-            KPM luar wilayah tetap diperbolehkan melakukan transaksi.
           </p>
         </div>
 
         <div
           v-else
-          class="scope-notice inside-notice"
+          class="flex items-start gap-[9px] rounded-[15px] bg-[#edf8f4] p-[13px] text-[#006855]"
           data-testid="inside-assignment-notice"
         >
-          <BadgeCheck :size="20" />
+          <BadgeCheck
+            :size="20"
+            class="shrink-0"
+          />
 
-          <p>
+          <p
+            class="m-0 text-[11px] leading-[1.55]"
+          >
             KPM berada dalam wilayah tugas Anda.
           </p>
         </div>
 
         <article
           v-if="transaction"
-          class="transaction-success"
+          class="flex items-center gap-[11px] rounded-[15px] border border-[#b9dfd2] bg-[#eaf8f3] p-[14px] text-[#006855]"
           data-testid="transaction-success"
         >
-          <CircleCheck :size="28" />
+          <CircleCheck
+            :size="28"
+            class="shrink-0"
+          />
 
-          <div>
+          <div class="flex min-w-0 flex-col">
             <strong>
               Sudah Bertransaksi
             </strong>
 
-            <span>
+            <span
+              class="overflow-hidden text-[11px] text-ellipsis whitespace-nowrap text-[#52736a]"
+            >
               {{
                 transaction
                   .e_warung
@@ -1039,29 +1117,28 @@ onMounted(
             participantActivity
               ?.is_final
           "
-          class="transaction-success"
+          class="flex items-center gap-[11px] rounded-[15px] border border-[#b9dfd2] bg-[#eaf8f3] p-[14px] text-[#006855]"
           data-testid="participant-final-status"
         >
-          <CircleCheck :size="28" />
+          <CircleCheck
+            :size="28"
+            class="shrink-0"
+          />
 
-          <div>
+          <div class="flex min-w-0 flex-col">
             <strong>
               {{
                 participantActivity
                   .label
               }}
             </strong>
-
-            <span>
-              Status KPM sudah final pada periode aktif.
-            </span>
           </div>
         </article>
 
         <template v-else>
           <button
             type="button"
-            class="transaction-button"
+            class="flex min-h-12 w-full items-center justify-center gap-2 rounded-[14px] border-0 bg-[#c12723] text-[13px] font-[750] text-white transition-colors hover:bg-[#a9201d] disabled:cursor-not-allowed disabled:opacity-48"
             :disabled="
               !canOpenConfirmation
             "
@@ -1075,15 +1152,17 @@ onMounted(
             v-if="
               !selectedEWarung
             "
-            class="transaction-note"
+            class="m-0 text-center text-[11px] leading-[1.5] text-[#a85a00]"
           >
-            Pilih E-Warung tempat bertugas melalui Beranda sebelum mencatat transaksi.
+            Pilih E-Warung tempat bertugas
+            melalui Beranda sebelum mencatat
+            transaksi.
           </p>
         </template>
 
         <p
           v-if="transactionError"
-          class="field-error transaction-error"
+          class="m-0 text-center text-[11px] leading-[1.5] text-[#c42c28]"
           role="alert"
           data-testid="transaction-error"
         >
@@ -1092,7 +1171,7 @@ onMounted(
 
         <button
           type="button"
-          class="new-lookup-button"
+          class="min-h-10 rounded-xl border border-[#d6e3de] bg-white font-bold text-[#45655c] transition-colors hover:bg-[#f4f8f6]"
           data-testid="new-lookup"
           @click="resetLookup"
         >
@@ -1108,18 +1187,18 @@ onMounted(
           &&
           selectedEWarung
         "
-        class="modal-backdrop"
+        class="fixed inset-0 z-[80] grid items-end justify-items-center bg-[rgb(16_40_34_/_55%)] p-[18px] min-[560px]:items-center"
         data-testid="transaction-confirmation"
       >
         <article
-          class="confirmation-card"
+          class="relative w-[min(100%,520px)] rounded-3xl bg-white px-[19px] pt-6 pb-[19px] shadow-[0_22px_50px_rgb(12_36_29_/_28%)]"
           role="dialog"
           aria-modal="true"
           aria-labelledby="transaction-confirmation-title"
         >
           <button
             type="button"
-            class="close-button"
+            class="absolute top-[13px] right-[13px] grid size-[38px] place-items-center rounded-xl border-0 bg-[#f1f5f3] text-[#526a62] transition-colors hover:bg-[#e2eae6] disabled:cursor-not-allowed disabled:opacity-50"
             aria-label="Tutup konfirmasi"
             :disabled="transactionLoading"
             @click="
@@ -1130,16 +1209,24 @@ onMounted(
             <X :size="20" />
           </button>
 
-          <div class="confirmation-icon">
+          <div
+            class="grid size-[53px] place-items-center rounded-[17px] bg-[#e8f5f0] text-[#006855]"
+          >
             <Store :size="27" />
           </div>
 
-          <h2 id="transaction-confirmation-title">
+          <h2
+            id="transaction-confirmation-title"
+            class="mt-[15px] mb-[6px] break-words text-xl font-bold text-[#173f37]"
+          >
             Konfirmasi transaksi
           </h2>
 
-          <p>
+          <p
+            class="m-0 text-[13px] leading-[1.6] text-[#5e746d]"
+          >
             Tandai
+
             <strong>
               {{
                 participant
@@ -1147,7 +1234,9 @@ onMounted(
                   .full_name
               }}
             </strong>
+
             sudah bertransaksi di
+
             <strong>
               {{
                 selectedEWarung
@@ -1156,14 +1245,19 @@ onMounted(
             </strong>?
           </p>
 
-          <small>
-            Satu KPM hanya dapat memiliki satu transaksi dalam satu periode.
+          <small
+            class="mt-[9px] block text-[10px] leading-[1.5] text-[#a65a00]"
+          >
+            Satu KPM hanya dapat memiliki satu
+            transaksi dalam satu periode.
           </small>
 
-          <div class="confirmation-actions">
+          <div
+            class="mt-[18px] grid grid-cols-[0.75fr_1.25fr] gap-[9px]"
+          >
             <button
               type="button"
-              class="cancel-button"
+              class="min-h-[47px] rounded-[14px] border border-[#d6e3de] bg-white text-xs font-[750] text-[#526a62] transition-colors hover:bg-[#f4f8f6] disabled:cursor-not-allowed disabled:opacity-48"
               :disabled="transactionLoading"
               @click="
                 confirmationOpen
@@ -1175,7 +1269,7 @@ onMounted(
 
             <button
               type="button"
-              class="confirm-button"
+              class="flex min-h-[47px] items-center justify-center gap-2 rounded-[14px] border-0 bg-[#006855] text-xs font-[750] text-white transition-colors hover:bg-[#005746] disabled:cursor-not-allowed disabled:opacity-48"
               :disabled="transactionLoading"
               data-testid="confirm-transaction"
               @click="confirmTransaction"
@@ -1183,7 +1277,7 @@ onMounted(
               <RefreshCw
                 v-if="transactionLoading"
                 :size="18"
-                class="spinning"
+                class="animate-spin"
               />
 
               {{
@@ -1198,533 +1292,3 @@ onMounted(
     </template>
   </section>
 </template>
-
-<style scoped>
-.lookup-page {
-  display: grid;
-  gap: 17px;
-}
-
-.page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 13px;
-}
-
-.page-header span {
-  color: #c12723;
-  font-size: 11px;
-  font-weight: 750;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.page-header h1 {
-  margin: 4px 0;
-  color: #173f37;
-  font-size: 28px;
-}
-
-.page-header p {
-  max-width: 330px;
-  margin: 0;
-  color: #72847e;
-  font-size: 13px;
-  line-height: 1.55;
-}
-
-.header-icon {
-  display: grid;
-  width: 49px;
-  height: 49px;
-  flex: 0 0 auto;
-  place-items: center;
-  border-radius: 16px;
-  background: #e8f5f0;
-  color: #006855;
-}
-
-.active-store {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  padding: 14px;
-  border: 1px solid #cfe3dc;
-  border-radius: 17px;
-  background: #f5fbf8;
-  color: #006855;
-}
-
-.active-store.missing {
-  border-color: #ecd5ad;
-  background: #fff9ef;
-  color: #ae6100;
-}
-
-.active-store > div {
-  display: flex;
-  min-width: 0;
-  flex: 1;
-  flex-direction: column;
-}
-
-.active-store span {
-  color: #72847e;
-  font-size: 10px;
-}
-
-.active-store strong {
-  overflow: hidden;
-  color: #244b43;
-  font-size: 13px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.active-store a {
-  flex: 0 0 auto;
-  color: currentcolor;
-  font-size: 12px;
-  font-weight: 750;
-}
-
-.manual-lookup-card,
-.result-card {
-  padding: 18px;
-  border: 1px solid #dce9e4;
-  border-radius: 22px;
-  background: #ffffff;
-  box-shadow: 0 12px 28px rgb(30 65 55 / 6%);
-}
-
-.lookup-mode {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 14px;
-  padding: 6px 9px;
-  border-radius: 999px;
-  background: #e8f5f0;
-  color: #006855;
-  font-size: 10px;
-  font-weight: 750;
-}
-
-.manual-lookup-card label {
-  display: block;
-  margin-bottom: 7px;
-  color: #35594f;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.nik-input-wrapper {
-  display: flex;
-  min-height: 54px;
-  align-items: center;
-  gap: 9px;
-  padding: 0 13px;
-  border: 1px solid #d6e3de;
-  border-radius: 15px;
-  color: #70857e;
-}
-
-.nik-input-wrapper:focus-within {
-  border-color: #4e9b88;
-  box-shadow: 0 0 0 3px rgb(0 104 85 / 9%);
-}
-
-.nik-input-wrapper.invalid {
-  border-color: #dc5d58;
-}
-
-.nik-input-wrapper input {
-  min-width: 0;
-  flex: 1;
-  border: 0;
-  outline: 0;
-  color: #244b43;
-  font-size: 16px;
-  font-weight: 650;
-}
-
-.nik-input-wrapper > span {
-  font-size: 10px;
-}
-
-.lookup-button,
-.transaction-button,
-.confirm-button {
-  display: flex;
-  width: 100%;
-  min-height: 48px;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 15px;
-  border: 0;
-  border-radius: 14px;
-  background: #006855;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 750;
-}
-
-.lookup-button:disabled,
-.transaction-button:disabled,
-.confirm-button:disabled {
-  opacity: 0.48;
-}
-
-.message,
-.scope-notice {
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  padding: 13px;
-  border-radius: 15px;
-}
-
-.error-message {
-  border: 1px solid #efcdca;
-  background: #fff8f7;
-  color: #c42c28;
-}
-
-.message p,
-.scope-notice p {
-  margin: 0;
-  font-size: 11px;
-  line-height: 1.55;
-}
-
-.result-card {
-  display: grid;
-  gap: 15px;
-}
-
-.result-card > header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.result-card > header > span {
-  color: #72847e;
-  font-size: 10px;
-}
-
-.scope-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 9px;
-  border-radius: 999px;
-  background: #e5f6f0;
-  color: #006855;
-  font-size: 10px;
-  font-weight: 750;
-}
-
-.scope-badge.outside {
-  background: #fff1dc;
-  color: #b86100;
-}
-
-.participant-profile {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-}
-
-.avatar {
-  display: grid;
-  width: 49px;
-  height: 49px;
-  flex: 0 0 auto;
-  place-items: center;
-  border-radius: 16px;
-  background: #e8f5f0;
-  color: #006855;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.participant-profile > div:last-child {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-}
-
-.participant-profile strong {
-  overflow: hidden;
-  color: #244b43;
-  font-size: 16px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.participant-profile span {
-  color: #7b8c86;
-  font-size: 11px;
-}
-
-.result-card dl {
-  display: grid;
-  gap: 9px;
-  margin: 0;
-}
-
-.result-card dl div {
-  padding: 11px;
-  border-radius: 13px;
-  background: #f8fbfa;
-}
-
-.result-card dt {
-  color: #7a8c86;
-  font-size: 10px;
-}
-
-.result-card dd {
-  margin: 3px 0 0;
-  color: #35594f;
-  font-size: 12px;
-  line-height: 1.45;
-}
-
-.saldo-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 13px;
-  border-radius: 14px;
-  background: #173f37;
-  color: #ffffff;
-}
-
-.saldo-card span {
-  font-size: 11px;
-}
-
-.saldo-card strong {
-  font-size: 17px;
-}
-
-.inside-notice {
-  background: #edf8f4;
-  color: #006855;
-}
-
-.outside-notice {
-  background: #fff6e8;
-  color: #9c5600;
-}
-
-.transaction-button {
-  margin: 0;
-  background: #c12723;
-}
-
-.transaction-note,
-.field-error {
-  margin: 0;
-  color: #a85a00;
-  font-size: 11px;
-  line-height: 1.5;
-  text-align: center;
-}
-
-.field-error,
-.transaction-error {
-  color: #c42c28;
-}
-
-.new-lookup-button {
-  min-height: 40px;
-  border: 1px solid #d6e3de;
-  border-radius: 12px;
-  background: #ffffff;
-  color: #45655c;
-  font-weight: 700;
-}
-
-.transaction-success {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  padding: 14px;
-  border: 1px solid #b9dfd2;
-  border-radius: 15px;
-  background: #eaf8f3;
-  color: #006855;
-}
-
-.transaction-success div {
-  display: flex;
-  flex-direction: column;
-}
-
-.transaction-success span {
-  color: #52736a;
-  font-size: 11px;
-}
-
-.modal-backdrop {
-  position: fixed;
-  z-index: 80;
-  inset: 0;
-  display: grid;
-  place-items: end center;
-  padding: 18px;
-  background: rgb(16 40 34 / 55%);
-}
-
-.confirmation-card {
-  position: relative;
-  width: min(100%, 520px);
-  padding: 24px 19px 19px;
-  border-radius: 24px;
-  background: #ffffff;
-  box-shadow: 0 22px 50px rgb(12 36 29 / 28%);
-}
-
-.close-button {
-  position: absolute;
-  top: 13px;
-  right: 13px;
-  display: grid;
-  width: 38px;
-  height: 38px;
-  place-items: center;
-  border: 0;
-  border-radius: 12px;
-  background: #f1f5f3;
-  color: #526a62;
-}
-
-.confirmation-icon {
-  display: grid;
-  width: 53px;
-  height: 53px;
-  place-items: center;
-  border-radius: 17px;
-  background: #e8f5f0;
-  color: #006855;
-}
-
-.confirmation-card h2 {
-  margin: 15px 0 6px;
-  color: #173f37;
-  font-size: 20px;
-}
-
-.confirmation-card p {
-  margin: 0;
-  color: #5e746d;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.confirmation-card small {
-  display: block;
-  margin-top: 9px;
-  color: #a65a00;
-  font-size: 10px;
-  line-height: 1.5;
-}
-
-.confirmation-actions {
-  display: grid;
-  grid-template-columns: 0.75fr 1.25fr;
-  gap: 9px;
-  margin-top: 18px;
-}
-
-.confirmation-actions button {
-  min-height: 47px;
-  margin: 0;
-  border-radius: 14px;
-  font-size: 12px;
-  font-weight: 750;
-}
-
-.cancel-button {
-  border: 1px solid #d6e3de;
-  background: #ffffff;
-  color: #526a62;
-}
-
-.state-card {
-  display: grid;
-  justify-items: center;
-  gap: 8px;
-  padding: 28px 20px;
-  border: 1px solid #ecd9b8;
-  border-radius: 22px;
-  background: #ffffff;
-  color: #b76500;
-  text-align: center;
-}
-
-.error-state {
-  border-color: #efcdca;
-  color: #c42c28;
-}
-
-.state-card strong {
-  color: #244b43;
-}
-
-.state-card p {
-  margin: 0;
-  color: #71837d;
-  font-size: 12px;
-}
-
-.retry-button {
-  display: flex;
-  min-height: 42px;
-  align-items: center;
-  gap: 7px;
-  margin-top: 8px;
-  padding: 0 14px;
-  border: 0;
-  border-radius: 12px;
-  background: #006855;
-  color: #ffffff;
-  font-weight: 700;
-}
-
-.workspace-loading {
-  display: grid;
-  gap: 12px;
-}
-
-.skeleton {
-  border-radius: 13px;
-  background: #e7efec;
-}
-
-.title-skeleton {
-  width: 55%;
-  height: 24px;
-}
-
-.card-skeleton {
-  height: 230px;
-  border-radius: 22px;
-}
-
-.spinning {
-  animation: spin 800ms linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-</style>

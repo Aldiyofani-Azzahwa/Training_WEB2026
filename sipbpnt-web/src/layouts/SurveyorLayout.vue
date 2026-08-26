@@ -8,7 +8,6 @@ import {
   History,
   House,
   LogOut,
-  ReceiptText,
   ScanLine,
   UsersRound,
 } from '@lucide/vue'
@@ -52,7 +51,6 @@ const navigationItems:
       icon:
         House,
     },
-
     {
       label:
         'KPM',
@@ -63,7 +61,6 @@ const navigationItems:
       icon:
         UsersRound,
     },
-
     {
       label:
         'Scan KTP',
@@ -77,18 +74,6 @@ const navigationItems:
       primary:
         true,
     },
-
-    {
-      label:
-        'Transaksi',
-
-      routeName:
-        'surveyor-transactions',
-
-      icon:
-        ReceiptText,
-    },
-
     {
       label:
         'Riwayat',
@@ -102,11 +87,13 @@ const navigationItems:
   ]
 
 const userName =
-  computed(
-    () =>
+  computed(() => {
+    return (
       authStore.user?.name
-      ?? 'Surveyor',
-  )
+      ??
+      'Surveyor'
+    )
+  })
 
 const initials =
   computed(() => {
@@ -115,10 +102,11 @@ const initials =
       .filter(Boolean)
       .slice(0, 2)
       .map(
-        (word) =>
-          word
+        (word) => {
+          return word
             .charAt(0)
-            .toUpperCase(),
+            .toUpperCase()
+        },
       )
       .join('')
   })
@@ -126,8 +114,11 @@ const initials =
 function isActive(
   routeName: string,
 ): boolean {
-  return route.name
-    === routeName
+  return (
+    route.name
+    ===
+    routeName
+  )
 }
 
 async function handleLogout():
@@ -144,26 +135,45 @@ async function handleLogout():
 </script>
 
 <template>
-  <div class="surveyor-app">
-    <div class="surveyor-shell">
-      <header class="surveyor-header">
-        <div class="header-identity">
+  <div
+    class="min-h-screen min-h-dvh bg-gradient-to-b from-[#f7faf9] to-[#eef5f2] text-[#183b35] lg:px-6 lg:pt-6"
+  >
+    <div
+      class="relative mx-auto min-h-screen min-h-dvh w-full bg-[#f8fbfa] lg:min-h-[calc(100dvh-24px)] lg:max-w-[1360px] lg:rounded-t-[26px] lg:border-x lg:border-[#e0eae6] lg:shadow-[0_0_45px_rgb(32_63_54_/_7%)]"
+    >
+      <header
+        class="sticky top-0 z-20 flex min-h-[72px] items-center justify-between border-b border-[#e2ece8] bg-white/94 px-[18px] pt-[calc(12px+env(safe-area-inset-top,0px))] pb-3 backdrop-blur-[14px] lg:rounded-t-[26px] lg:px-[30px]"
+      >
+        <div
+          class="flex min-w-0 items-center gap-[11px]"
+        >
           <div
-            class="user-avatar"
+            class="grid size-[42px] shrink-0 place-items-center rounded-[14px] bg-[#006855] text-[13px] font-bold tracking-[0.04em] text-white shadow-[0_8px_18px_rgb(0_104_85_/_18%)]"
             aria-hidden="true"
           >
             {{ initials }}
           </div>
 
-          <div class="user-copy">
-            <span>Petugas Lapangan</span>
-            <strong>{{ userName }}</strong>
+          <div
+            class="flex min-w-0 flex-col"
+          >
+            <span
+              class="text-[11px] font-semibold leading-[1.3] tracking-[0.04em] text-[#758680] uppercase"
+            >
+              Petugas Lapangan
+            </span>
+
+            <strong
+              class="overflow-hidden text-[15px] leading-[1.45] font-bold text-ellipsis whitespace-nowrap text-[#173f37]"
+            >
+              {{ userName }}
+            </strong>
           </div>
         </div>
 
         <button
           type="button"
-          class="logout-button"
+          class="grid size-[42px] shrink-0 place-items-center rounded-[14px] border border-[#dce8e4] bg-white p-0 text-[#566c65] transition-colors hover:border-[#f2c3c0] hover:bg-[#fff5f4] hover:text-[#c72c28] disabled:cursor-not-allowed disabled:opacity-55"
           aria-label="Keluar dari aplikasi"
           :disabled="authStore.loading"
           @click="handleLogout"
@@ -175,12 +185,14 @@ async function handleLogout():
         </button>
       </header>
 
-      <main class="surveyor-content">
+      <main
+        class="min-h-[calc(100dvh-72px)] px-[18px] pt-5 pb-[calc(104px+env(safe-area-inset-bottom,0px))] lg:px-[30px] lg:pt-7 lg:pb-[118px]"
+      >
         <RouterView />
       </main>
 
       <nav
-        class="bottom-navigation"
+        class="fixed right-0 bottom-0 left-0 z-30 grid min-h-[74px] grid-cols-4 border-t border-[#dfe9e5] bg-white/97 px-2 pt-2 pb-[calc(7px+env(safe-area-inset-bottom,0px))] shadow-[0_-10px_30px_rgb(27_57_49_/_8%)] backdrop-blur-2xl lg:right-auto lg:left-1/2 lg:w-[calc(100%-48px)] lg:max-w-[1360px] lg:-translate-x-1/2 lg:border-x"
         aria-label="Navigasi Surveyor"
       >
         <RouterLink
@@ -189,26 +201,62 @@ async function handleLogout():
           :to="{
             name: item.routeName,
           }"
-          class="navigation-item"
-          :class="{
-            active: isActive(item.routeName),
-            primary: item.primary,
-          }"
+          class="relative flex min-w-0 flex-col items-center justify-center gap-[3px] rounded-[14px] text-[#7a8c86] no-underline transition"
+          :class="[
+            {
+              '-translate-y-[17px]':
+                item.primary,
+
+              'text-[#006855]':
+                isActive(item.routeName)
+                &&
+                !item.primary,
+            },
+          ]"
           :aria-current="
             isActive(item.routeName)
               ? 'page'
               : undefined
           "
         >
-          <span class="navigation-icon">
+          <span
+            class="grid place-items-center"
+            :class="
+              item.primary
+                ? [
+                    'size-[54px] rounded-[19px] border-[5px] border-[#f8fbfa] text-white',
+                    isActive(item.routeName)
+                      ? 'bg-[#e8312d] shadow-[0_10px_22px_rgb(232_49_45_/_25%)]'
+                      : 'bg-[#006855] shadow-[0_10px_22px_rgb(0_104_85_/_26%)]',
+                  ]
+                : 'h-[29px] w-8'
+            "
+          >
             <component
               :is="item.icon"
-              :size="item.primary ? 25 : 22"
+              :size="
+                item.primary
+                  ? 25
+                  : 22
+              "
               :stroke-width="2"
             />
           </span>
 
-          <span class="navigation-label">
+          <span
+            class="max-w-full overflow-hidden text-[10px] leading-[1.2] font-semibold text-ellipsis whitespace-nowrap lg:text-xs"
+            :class="{
+              'mt-px text-[#50665f]':
+                item.primary
+                &&
+                !isActive(item.routeName),
+
+              'mt-px text-[#b31f1c]':
+                item.primary
+                &&
+                isActive(item.routeName),
+            }"
+          >
             {{ item.label }}
           </span>
         </RouterLink>
@@ -216,268 +264,3 @@ async function handleLogout():
     </div>
   </div>
 </template>
-
-<style scoped>
-.surveyor-app {
-  min-height: 100vh;
-  min-height: 100dvh;
-  background:
-    linear-gradient(
-      180deg,
-      #f7faf9 0%,
-      #eef5f2 100%
-    );
-  color: #183b35;
-}
-
-.surveyor-shell {
-  position: relative;
-  min-height: 100vh;
-  min-height: 100dvh;
-  background: #f8fbfa;
-}
-
-.surveyor-header {
-  position: sticky;
-  z-index: 20;
-  top: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  min-height: 72px;
-  padding:
-    calc(12px + env(safe-area-inset-top, 0px))
-    18px
-    12px;
-
-  border-bottom: 1px solid #e2ece8;
-  background: rgb(255 255 255 / 94%);
-  backdrop-filter: blur(14px);
-}
-
-.header-identity {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  gap: 11px;
-}
-
-.user-avatar {
-  display: grid;
-  flex: 0 0 auto;
-  place-items: center;
-
-  width: 42px;
-  height: 42px;
-
-  border-radius: 14px;
-  background: #006855;
-  color: #ffffff;
-
-  font-size: 13px;
-  font-weight: 750;
-  letter-spacing: 0.04em;
-
-  box-shadow:
-    0 8px 18px
-    rgb(0 104 85 / 18%);
-}
-
-.user-copy {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-}
-
-.user-copy span {
-  color: #758680;
-  font-size: 11px;
-  font-weight: 650;
-  letter-spacing: 0.04em;
-  line-height: 1.3;
-  text-transform: uppercase;
-}
-
-.user-copy strong {
-  overflow: hidden;
-  color: #173f37;
-  font-size: 15px;
-  font-weight: 720;
-  line-height: 1.45;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.logout-button {
-  display: grid;
-  flex: 0 0 auto;
-  place-items: center;
-
-  width: 42px;
-  height: 42px;
-  padding: 0;
-
-  border: 1px solid #dce8e4;
-  border-radius: 14px;
-  background: #ffffff;
-  color: #566c65;
-
-  transition:
-    border-color 160ms ease,
-    color 160ms ease,
-    background-color 160ms ease;
-}
-
-.logout-button:hover {
-  border-color: #f2c3c0;
-  background: #fff5f4;
-  color: #c72c28;
-}
-
-.logout-button:disabled {
-  opacity: 0.55;
-}
-
-.surveyor-content {
-  min-height: calc(100dvh - 72px);
-  padding:
-    20px
-    18px
-    calc(
-      104px
-      + env(safe-area-inset-bottom, 0px)
-    );
-}
-
-.bottom-navigation {
-  position: fixed;
-  z-index: 30;
-  right: 0;
-  bottom: 0;
-  left: 0;
-
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-
-  min-height: 74px;
-  padding:
-    8px
-    8px
-    calc(
-      7px
-      + env(safe-area-inset-bottom, 0px)
-    );
-
-  border-top: 1px solid #dfe9e5;
-  background: rgb(255 255 255 / 97%);
-  box-shadow:
-    0 -10px 30px
-    rgb(27 57 49 / 8%);
-  backdrop-filter: blur(16px);
-}
-
-.navigation-item {
-  position: relative;
-
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  flex-direction: column;
-  justify-content: center;
-  gap: 3px;
-
-  border-radius: 14px;
-  color: #7a8c86;
-
-  text-decoration: none;
-
-  transition:
-    color 160ms ease,
-    transform 160ms ease;
-}
-
-.navigation-item.active {
-  color: #006855;
-}
-
-.navigation-icon {
-  display: grid;
-  place-items: center;
-
-  width: 32px;
-  height: 29px;
-}
-
-.navigation-label {
-  overflow: hidden;
-  max-width: 100%;
-
-  font-size: 10px;
-  font-weight: 650;
-  line-height: 1.2;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.navigation-item.primary {
-  transform: translateY(-17px);
-}
-
-.navigation-item.primary .navigation-icon {
-  width: 54px;
-  height: 54px;
-
-  border: 5px solid #f8fbfa;
-  border-radius: 19px;
-  background: #006855;
-  color: #ffffff;
-
-  box-shadow:
-    0 10px 22px
-    rgb(0 104 85 / 26%);
-}
-
-.navigation-item.primary.active .navigation-icon {
-  background: #e8312d;
-  box-shadow:
-    0 10px 22px
-    rgb(232 49 45 / 25%);
-}
-
-.navigation-item.primary .navigation-label {
-  margin-top: 1px;
-  color: #50665f;
-}
-
-.navigation-item.primary.active .navigation-label {
-  color: #b31f1c;
-}
-
-@media (min-width: 640px) {
-  .surveyor-shell {
-    width: min(100%, 560px);
-    margin-inline: auto;
-
-    border-right: 1px solid #e0eae6;
-    border-left: 1px solid #e0eae6;
-
-    box-shadow:
-      0 0 45px
-      rgb(32 63 54 / 7%);
-  }
-
-  .bottom-navigation {
-    right: auto;
-    left: 50%;
-
-    width: min(100%, 560px);
-
-    transform: translateX(-50%);
-
-    border-right: 1px solid #dfe9e5;
-    border-left: 1px solid #dfe9e5;
-  }
-}
-</style>

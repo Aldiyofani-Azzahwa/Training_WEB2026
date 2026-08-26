@@ -329,30 +329,43 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section class="dashboard-page">
-    <header class="welcome-copy">
-      <span class="eyebrow">
+  <section
+    class="grid w-full min-w-0 gap-[18px] lg:gap-6"
+  >
+    <header>
+      <span
+        class="text-xs font-[750] tracking-[0.08em] text-[#c12723] uppercase"
+      >
         Beranda Surveyor
       </span>
 
-      <h1>
+      <h1
+        class="mt-[5px] mb-0 text-[clamp(28px,8vw,36px)] leading-tight font-bold text-[#173f37] lg:text-[38px]"
+      >
         Halo, {{ firstName }}
       </h1>
 
-      <p>
-        Informasi periode, wilayah tugas,
+      <p
+        class="mt-0 text-[13px] leading-[1.6] text-[#71837d]"
+      >
+        Halaman ini berisi informasi periode, wilayah tugas,
         dan tempat bertugas Anda.
       </p>
     </header>
 
     <div
       v-if="loading"
-      class="loading-state"
+      class="grid gap-3"
       aria-live="polite"
       data-testid="dashboard-loading"
     >
-      <div class="skeleton skeleton-title" />
-      <div class="skeleton skeleton-card" />
+      <div
+        class="h-[23px] w-[58%] animate-pulse overflow-hidden rounded-[13px] bg-[#e7efec]"
+      />
+
+      <div
+        class="h-[190px] animate-pulse overflow-hidden rounded-[22px] bg-[#e7efec]"
+      />
 
       <span class="sr-only">
         Memuat dashboard Surveyor
@@ -361,7 +374,7 @@ onBeforeUnmount(() => {
 
     <article
       v-else-if="errorMessage"
-      class="state-card error-state"
+      class="grid justify-items-center gap-2 rounded-[22px] border border-[#efcdca] bg-white px-5 py-7 text-center text-[#c42c28]"
       role="alert"
       data-testid="dashboard-error"
     >
@@ -370,21 +383,26 @@ onBeforeUnmount(() => {
         :stroke-width="1.9"
       />
 
-      <strong>
+      <strong
+        class="text-base font-bold text-[#244b43]"
+      >
         Dashboard belum dapat dimuat
       </strong>
 
-      <p>
+      <p
+        class="m-0 text-[13px] leading-[1.6] text-[#71837d]"
+      >
         {{ errorMessage }}
       </p>
 
       <button
         type="button"
-        class="retry-button"
+        class="mt-2 inline-flex min-h-[42px] items-center gap-2 rounded-[13px] border-0 bg-[#006855] px-[15px] font-bold text-white transition-colors duration-150 hover:bg-[#005746] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#006855]"
         data-testid="dashboard-retry"
         @click="loadDashboard"
       >
         <RefreshCw :size="18" />
+
         Coba Lagi
       </button>
     </article>
@@ -395,16 +413,20 @@ onBeforeUnmount(() => {
         &&
         !context.period
       "
-      class="state-card warning-state"
+      class="grid justify-items-center gap-2 rounded-[22px] border border-[#ecd9b8] bg-white px-5 py-7 text-center text-[#b76500]"
       data-testid="no-active-period"
     >
       <CalendarDays :size="31" />
 
-      <strong>
+      <strong
+        class="text-base font-bold text-[#244b43]"
+      >
         Belum ada periode aktif
       </strong>
 
-      <p>
+      <p
+        class="m-0 text-[13px] leading-[1.6] text-[#71837d]"
+      >
         Periode BPNT belum diaktifkan
         oleh Admin Dinsos.
       </p>
@@ -418,23 +440,33 @@ onBeforeUnmount(() => {
       "
     >
       <article
-        class="period-card"
+        class="flex min-w-0 items-center gap-[13px] rounded-[22px] border border-[#f0dbb9] bg-[linear-gradient(145deg,#fffaf0,#fff3dc)] p-[18px] shadow-[0_12px_28px_rgb(30_65_55_/_6%)] lg:p-[22px]"
         data-testid="active-period"
       >
-        <div class="card-icon period-icon">
+        <div
+          class="grid size-[45px] shrink-0 place-items-center rounded-[15px] bg-white text-[#bd6800]"
+        >
           <CalendarDays :size="23" />
         </div>
 
-        <div class="card-copy">
-          <span>
+        <div
+          class="flex min-w-0 flex-col"
+        >
+          <span
+            class="text-[11px] font-[650] text-[#758680]"
+          >
             Periode BPNT Aktif
           </span>
 
-          <strong>
+          <strong
+            class="overflow-hidden text-[17px] leading-[1.35] font-bold text-ellipsis whitespace-nowrap text-[#244b43]"
+          >
             {{ context.period.name }}
           </strong>
 
-          <small>
+          <small
+            class="text-[11px] text-[#8a7359]"
+          >
             {{ context.period.code }}
             ·
             {{ context.period.year }}
@@ -444,16 +476,20 @@ onBeforeUnmount(() => {
 
       <article
         v-if="!context.assignment"
-        class="state-card warning-state"
+        class="grid justify-items-center gap-2 rounded-[22px] border border-[#ecd9b8] bg-white px-5 py-7 text-center text-[#b76500]"
         data-testid="no-assignment"
       >
         <MapPin :size="31" />
 
-        <strong>
+        <strong
+          class="text-base font-bold text-[#244b43]"
+        >
           Anda belum memiliki wilayah tugas
         </strong>
 
-        <p>
+        <p
+          class="m-0 text-[13px] leading-[1.6] text-[#71837d]"
+        >
           Hubungi Manager BPNT agar wilayah
           tugas dapat ditetapkan.
         </p>
@@ -461,14 +497,24 @@ onBeforeUnmount(() => {
 
       <template v-else>
         <article
-          class="assignment-card"
+          class="grid min-w-0 gap-4 rounded-[22px] border border-[#dce9e4] bg-white p-[18px] shadow-[0_12px_28px_rgb(30_65_55_/_6%)] lg:p-[22px]"
           data-testid="surveyor-assignment"
         >
-          <header>
-            <div>
-              <span>Wilayah Tugas</span>
+          <header
+            class="flex items-center justify-between gap-3"
+          >
+            <div
+              class="flex min-w-0 flex-col"
+            >
+              <span
+                class="text-[11px] font-[650] text-[#758680]"
+              >
+                Wilayah Tugas
+              </span>
 
-              <strong>
+              <strong
+                class="overflow-hidden text-[17px] leading-[1.35] font-bold text-ellipsis whitespace-nowrap text-[#244b43]"
+              >
                 {{
                   context.assignment
                     .kelurahan
@@ -477,16 +523,28 @@ onBeforeUnmount(() => {
               </strong>
             </div>
 
-            <div class="card-icon assignment-icon">
+            <div
+              class="grid size-[45px] shrink-0 place-items-center rounded-[15px] bg-[#e8f5f0] text-[#006855]"
+            >
               <MapPin :size="23" />
             </div>
           </header>
 
-          <dl>
-            <div>
-              <dt>Kecamatan</dt>
+          <dl
+            class="m-0 grid grid-cols-2 gap-[10px] max-[380px]:grid-cols-1"
+          >
+            <div
+              class="rounded-[14px] bg-[#f7faf9] p-3"
+            >
+              <dt
+                class="text-[10px] text-[#7b8d87]"
+              >
+                Kecamatan
+              </dt>
 
-              <dd>
+              <dd
+                class="mt-[3px] mb-0 text-[13px] font-[720] text-[#284e46]"
+              >
                 {{
                   context.assignment
                     .kecamatan
@@ -495,10 +553,18 @@ onBeforeUnmount(() => {
               </dd>
             </div>
 
-            <div>
-              <dt>Kelurahan</dt>
+            <div
+              class="rounded-[14px] bg-[#f7faf9] p-3"
+            >
+              <dt
+                class="text-[10px] text-[#7b8d87]"
+              >
+                Kelurahan
+              </dt>
 
-              <dd>
+              <dd
+                class="mt-[3px] mb-0 text-[13px] font-[720] text-[#284e46]"
+              >
                 {{
                   context.assignment
                     .kelurahan
@@ -508,30 +574,50 @@ onBeforeUnmount(() => {
             </div>
           </dl>
 
-          <div class="kpm-summary">
+          <div
+            class="flex items-center gap-[9px] border-t border-[#e7eeeb] pt-[14px] text-[#c12723]"
+          >
             <Users :size="22" />
 
-            <span>
+            <span
+              class="text-[15px] font-[750] text-[#244b43]"
+            >
               {{ formattedKpmCount }} KPM
             </span>
           </div>
         </article>
 
         <article
-          class="e-warung-card"
+          class="grid w-full min-w-0 gap-[13px] overflow-hidden rounded-[22px] border border-[#cde4db] bg-white p-[18px] shadow-[0_12px_28px_rgb(30_65_55_/_6%)] lg:p-[22px]"
           data-testid="e-warung-card"
         >
-          <header>
-            <div class="card-icon store-icon">
+          <header
+            class="flex min-w-0 items-center justify-start gap-3"
+          >
+            <div
+              class="grid size-[45px] shrink-0 place-items-center rounded-[15px] bg-[#e8f5f0] text-[#006855]"
+            >
               <Store :size="23" />
             </div>
 
-            <div class="card-copy">
-              <span>
+            <div
+              class="flex min-w-0 flex-1 flex-col overflow-hidden"
+            >
+              <span
+                class="text-[11px] font-[650] text-[#758680]"
+              >
                 Tempat Bertugas Saat Ini
               </span>
 
-              <strong>
+              <strong
+                class="block max-w-full overflow-hidden text-[17px] leading-[1.35] font-bold text-ellipsis whitespace-nowrap text-[#244b43]"
+                :title="
+                  selectedEWarung
+                    ?.name
+                  ??
+                  'Belum memilih E-Warung'
+                "
+              >
                 {{
                   selectedEWarung
                     ?.name
@@ -542,45 +628,53 @@ onBeforeUnmount(() => {
             </div>
           </header>
 
-          <label for="surveyor-e-warung">
+          <label
+            for="surveyor-e-warung"
+            class="text-xs font-bold text-[#35594f]"
+          >
             Pilih E-Warung aktif
           </label>
 
-          <select
-            id="surveyor-e-warung"
-            :value="
-              selectedEWarung
-                ?.id
-              ?? ''
-            "
-            :disabled="
-              eWarungsLoading
-              ||
-              activeEWarungs.length === 0
-            "
-            data-testid="e-warung-select"
-            @change="handleEWarungChange"
+          <div
+            class="w-full min-w-0 max-w-full overflow-hidden"
           >
-            <option value="">
-              {{
+            <select
+              id="surveyor-e-warung"
+              class="block min-h-[50px] w-full min-w-0 max-w-full appearance-none truncate rounded-[14px] border border-[#cfded8] bg-[#fbfdfc] px-[13px] pr-10 text-base font-[650] text-[#244b43] outline-none transition-[border-color,box-shadow] duration-150 focus:border-[#438d7b] focus:shadow-[0_0_0_3px_rgb(0_104_85_/_9%)] disabled:cursor-not-allowed disabled:bg-[#f1f5f3] disabled:text-[#87958f] lg:min-h-[52px] lg:text-sm"
+              :value="
+                selectedEWarung
+                  ?.id
+                ?? ''
+              "
+              :disabled="
                 eWarungsLoading
-                  ? 'Memuat E-Warung...'
-                  : 'Pilih E-Warung'
-              }}
-            </option>
-
-            <option
-              v-for="eWarung in activeEWarungs"
-              :key="eWarung.id"
-              :value="eWarung.id"
+                ||
+                activeEWarungs.length === 0
+              "
+              data-testid="e-warung-select"
+              @change="handleEWarungChange"
             >
-              {{ eWarung.name }}
-            </option>
-          </select>
+              <option value="">
+                {{
+                  eWarungsLoading
+                    ? 'Memuat E-Warung...'
+                    : 'Pilih E-Warung'
+                }}
+              </option>
+
+              <option
+                v-for="eWarung in activeEWarungs"
+                :key="eWarung.id"
+                :value="eWarung.id"
+              >
+                {{ eWarung.name }}
+              </option>
+            </select>
+          </div>
 
           <p
             v-if="eWarungError"
-            class="field-error"
+            class="m-0 text-[11px] leading-[1.5] text-[#c42c28]"
             role="alert"
           >
             {{ eWarungError }}
@@ -592,7 +686,7 @@ onBeforeUnmount(() => {
               &&
               activeEWarungs.length === 0
             "
-            class="field-warning"
+            class="m-0 text-[11px] leading-[1.5] text-[#a75a00]"
           >
             Belum ada E-Warung aktif.
             Hubungi Admin Dinsos.
@@ -600,7 +694,7 @@ onBeforeUnmount(() => {
 
           <p
             v-else
-            class="selection-help"
+            class="m-0 text-[11px] leading-[1.5] text-[#71837d]"
           >
             Pilihan ini otomatis dipakai untuk
             transaksi berikutnya. E-Warung
@@ -612,17 +706,25 @@ onBeforeUnmount(() => {
           :to="{
             name: 'surveyor-scan-ktp',
           }"
-          class="scan-action"
+          class="flex min-w-0 items-center gap-[13px] rounded-[22px] bg-[linear-gradient(135deg,#006855,#00836c)] p-[17px] text-white no-underline shadow-[0_15px_28px_rgb(0_104_85_/_20%)] transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-[0_18px_34px_rgb(0_104_85_/_24%)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#006855] lg:px-[22px] lg:py-5"
           data-testid="scan-ktp-action"
         >
-          <span class="scan-icon">
+          <span
+            class="grid size-[52px] shrink-0 place-items-center rounded-[17px] bg-[rgb(255_255_255_/_14%)]"
+          >
             <ScanLine :size="28" />
           </span>
 
-          <span class="scan-copy">
-            <strong>Scan KTP</strong>
+          <span
+            class="flex min-w-0 flex-1 flex-col"
+          >
+            <strong class="text-base">
+              Scan KTP
+            </strong>
 
-            <small>
+            <small
+              class="overflow-hidden text-[11px] text-ellipsis whitespace-nowrap text-[rgb(255_255_255_/_76%)]"
+            >
               {{
                 selectedEWarung
                   ? `Transaksi di ${selectedEWarung.name}`
@@ -631,369 +733,12 @@ onBeforeUnmount(() => {
             </small>
           </span>
 
-          <ArrowRight :size="21" />
+          <ArrowRight
+            :size="21"
+            class="shrink-0"
+          />
         </RouterLink>
       </template>
     </template>
   </section>
 </template>
-
-<style scoped>
-.dashboard-page {
-  display: grid;
-  gap: 18px;
-}
-
-.eyebrow {
-  color: #c12723;
-  font-size: 12px;
-  font-weight: 750;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.welcome-copy h1 {
-  margin: 5px 0 2px;
-  color: #173f37;
-  font-size: clamp(28px, 8vw, 36px);
-}
-
-.welcome-copy p,
-.state-card p {
-  margin: 0;
-  color: #71837d;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.period-card,
-.assignment-card,
-.e-warung-card {
-  padding: 18px;
-
-  border: 1px solid #dce9e4;
-  border-radius: 22px;
-  background: #ffffff;
-
-  box-shadow:
-    0 12px 28px
-    rgb(30 65 55 / 6%);
-}
-
-.period-card {
-  display: flex;
-  align-items: center;
-  gap: 13px;
-
-  border-color: #f0dbb9;
-
-  background:
-    linear-gradient(
-      145deg,
-      #fffaf0,
-      #fff3dc
-    );
-}
-
-.card-icon {
-  display: grid;
-  width: 45px;
-  height: 45px;
-  flex: 0 0 auto;
-  place-items: center;
-  border-radius: 15px;
-}
-
-.period-icon {
-  background: #ffffff;
-  color: #bd6800;
-}
-
-.assignment-icon,
-.store-icon {
-  background: #e8f5f0;
-  color: #006855;
-}
-
-.card-copy {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-}
-
-.card-copy span,
-.assignment-card header span {
-  color: #758680;
-  font-size: 11px;
-  font-weight: 650;
-}
-
-.card-copy strong,
-.assignment-card header strong {
-  overflow: hidden;
-  color: #244b43;
-  font-size: 17px;
-  line-height: 1.35;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.card-copy small {
-  color: #8a7359;
-  font-size: 11px;
-}
-
-.assignment-card {
-  display: grid;
-  gap: 16px;
-}
-
-.assignment-card header,
-.e-warung-card header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.assignment-card header > div:first-child {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-}
-
-.assignment-card dl {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin: 0;
-}
-
-.assignment-card dl div {
-  padding: 12px;
-  border-radius: 14px;
-  background: #f7faf9;
-}
-
-.assignment-card dt {
-  color: #7b8d87;
-  font-size: 10px;
-}
-
-.assignment-card dd {
-  margin: 3px 0 0;
-  color: #284e46;
-  font-size: 13px;
-  font-weight: 720;
-}
-
-.kpm-summary {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-
-  padding-top: 14px;
-  border-top: 1px solid #e7eeeb;
-
-  color: #c12723;
-}
-
-.kpm-summary span {
-  color: #244b43;
-  font-size: 15px;
-  font-weight: 750;
-}
-
-.e-warung-card {
-  display: grid;
-  gap: 13px;
-  border-color: #cde4db;
-}
-
-.e-warung-card header {
-  justify-content: flex-start;
-}
-
-.e-warung-card label {
-  color: #35594f;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.e-warung-card select {
-  width: 100%;
-  min-height: 50px;
-  padding: 0 13px;
-
-  border: 1px solid #cfded8;
-  border-radius: 14px;
-  outline: none;
-
-  background: #fbfdfc;
-  color: #244b43;
-
-  font-size: 13px;
-  font-weight: 650;
-}
-
-.e-warung-card select:focus {
-  border-color: #438d7b;
-
-  box-shadow:
-    0 0 0 3px
-    rgb(0 104 85 / 9%);
-}
-
-.selection-help,
-.field-error,
-.field-warning {
-  margin: 0;
-  font-size: 11px;
-  line-height: 1.5;
-}
-
-.selection-help {
-  color: #71837d;
-}
-
-.field-error {
-  color: #c42c28;
-}
-
-.field-warning {
-  color: #a75a00;
-}
-
-.scan-action {
-  display: flex;
-  align-items: center;
-  gap: 13px;
-
-  padding: 17px;
-  border-radius: 22px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #006855,
-      #00836c
-    );
-
-  color: #ffffff;
-  text-decoration: none;
-
-  box-shadow:
-    0 15px 28px
-    rgb(0 104 85 / 20%);
-}
-
-.scan-icon {
-  display: grid;
-  width: 52px;
-  height: 52px;
-  flex: 0 0 auto;
-  place-items: center;
-
-  border-radius: 17px;
-  background: rgb(255 255 255 / 14%);
-}
-
-.scan-copy {
-  display: flex;
-  min-width: 0;
-  flex: 1;
-  flex-direction: column;
-}
-
-.scan-copy strong {
-  font-size: 16px;
-}
-
-.scan-copy small {
-  overflow: hidden;
-
-  color: rgb(255 255 255 / 76%);
-
-  font-size: 11px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.state-card {
-  display: grid;
-  justify-items: center;
-  gap: 8px;
-
-  padding: 28px 20px;
-
-  border: 1px solid #ecd9b8;
-  border-radius: 22px;
-  background: #ffffff;
-
-  color: #b76500;
-  text-align: center;
-}
-
-.error-state {
-  border-color: #efcdca;
-  color: #c42c28;
-}
-
-.state-card strong {
-  color: #244b43;
-  font-size: 16px;
-}
-
-.retry-button {
-  display: inline-flex;
-  min-height: 42px;
-  align-items: center;
-  gap: 8px;
-
-  margin-top: 8px;
-  padding: 0 15px;
-
-  border: 0;
-  border-radius: 13px;
-  background: #006855;
-  color: #ffffff;
-
-  font-weight: 700;
-}
-
-.loading-state {
-  display: grid;
-  gap: 12px;
-}
-
-.skeleton {
-  overflow: hidden;
-  border-radius: 13px;
-  background: #e7efec;
-}
-
-.skeleton-title {
-  width: 58%;
-  height: 23px;
-}
-
-.skeleton-card {
-  height: 190px;
-  border-radius: 22px;
-}
-
-.sr-only {
-  position: absolute;
-  overflow: hidden;
-  width: 1px;
-  height: 1px;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-}
-
-@media (max-width: 380px) {
-  .assignment-card dl {
-    grid-template-columns: 1fr;
-  }
-}
-</style>

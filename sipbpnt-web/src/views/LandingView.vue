@@ -29,7 +29,7 @@ import {
   Users,
 } from '@lucide/vue'
 
-import BatikCorner from '@/components/landing/BatikCorner.vue'
+
 import SectionWave from '@/components/landing/SectionWave.vue'
 
 import {
@@ -407,11 +407,7 @@ onBeforeUnmount(stopTimer)
     <section
       class="relative overflow-hidden bg-cream-100 py-24 sm:py-28"
     >
-      <BatikCorner
-        position="top-right"
-        color="#F97316"
-        :opacity="0.04"
-      />
+      
 
       <div
         class="relative mx-auto grid w-full max-w-7xl items-center gap-14 px-5 sm:px-6 lg:grid-cols-2 lg:gap-20 lg:px-8"
@@ -522,11 +518,7 @@ onBeforeUnmount(stopTimer)
     <section
       class="relative overflow-hidden bg-white py-24 sm:py-28"
     >
-      <BatikCorner
-        position="bottom-left"
-        color="#0F766E"
-        :opacity="0.035"
-      />
+      
 
       <div
         class="relative mx-auto grid w-full max-w-7xl items-center gap-14 px-5 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20 lg:px-8"
@@ -758,11 +750,7 @@ onBeforeUnmount(stopTimer)
     <section
       class="relative overflow-hidden bg-white py-24 sm:py-28"
     >
-      <BatikCorner
-        position="top-right"
-        color="#F97316"
-        :opacity="0.045"
-      />
+      
 
       <div
         class="relative mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-8"
@@ -995,11 +983,7 @@ onBeforeUnmount(stopTimer)
     <section
       class="relative overflow-hidden bg-white py-24 sm:py-28"
     >
-      <BatikCorner
-        position="bottom-left"
-        color="#0F766E"
-        :opacity="0.035"
-      />
+      
 
       <div
         class="relative mx-auto grid w-full max-w-7xl gap-12 px-5 sm:px-6 lg:grid-cols-2 lg:gap-20 lg:px-8"

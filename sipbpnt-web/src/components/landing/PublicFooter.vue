@@ -6,7 +6,7 @@ import {
 } from '@lucide/vue'
 
 import BrandLogo from './BrandLogo.vue'
-import BatikCorner from './BatikCorner.vue'
+
 import FooterWave from './FooterWave.vue'
 
 import {
@@ -32,12 +32,7 @@ const currentYear =
     />
 
     <div class="relative overflow-hidden">
-      <BatikCorner
-        position="bottom-right"
-        color="#006855"
-        :opacity="0.035"
-        size-class="h-56 w-56 sm:h-72 sm:w-72"
-      />
+      
 
       <div
         class="relative z-10 mx-auto w-full max-w-7xl px-5 pb-7 pt-16 sm:px-6 sm:pt-20 lg:px-8"
@@ -167,12 +162,11 @@ const currentYear =
         >
           <p>
             © {{ currentYear }}
-            {{ publicSite.agency }}.
+            KP Penjaga Iman
           </p>
 
           <p>
-            Sistem Informasi Pemerintahan Kota
-            Mojokerto
+            Sistem Informasi Pelaporan Bantuan Pangan Non Tunai (SIPBPNT) Kota Mojokerto.
           </p>
         </div>
       </div>

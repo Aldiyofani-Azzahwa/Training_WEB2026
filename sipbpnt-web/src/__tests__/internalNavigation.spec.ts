@@ -124,6 +124,28 @@ describe(
               item.key
               === 'ewarung',
           )
+        const monitoring =
+  navigation.find(
+    (item) =>
+      item.key
+      === 'monitoring',
+  )
+
+expect(
+  monitoring,
+).toBeDefined()
+
+expect(
+  monitoring
+    ?.routeName,
+).toBe(
+  'manager-transaction-monitoring',
+)
+
+expect(
+  monitoring
+    ?.available,
+).toBe(true)
 
         expect(
           dataBnba,
@@ -223,4 +245,5 @@ describe(
       },
     )
   },
+
 )

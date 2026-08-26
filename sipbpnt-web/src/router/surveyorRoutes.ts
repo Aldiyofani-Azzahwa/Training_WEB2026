@@ -40,7 +40,6 @@ export const surveyorRoute:
             'Beranda Surveyor',
         },
       },
-
       {
         path:
           'kpm',
@@ -58,7 +57,6 @@ export const surveyorRoute:
             'KPM',
         },
       },
-
       {
         path:
           'scan-ktp',
@@ -76,7 +74,6 @@ export const surveyorRoute:
             'Scan KTP',
         },
       },
-
       {
         path:
           'transaksi',
@@ -84,17 +81,16 @@ export const surveyorRoute:
         name:
           'surveyor-transactions',
 
-        component: () =>
-          import(
-            '@/views/surveyor/TransactionView.vue'
-          ),
+        redirect: {
+          name:
+            'surveyor-kpm',
+        },
 
         meta: {
           title:
-            'Transaksi',
+            'KPM',
         },
       },
-
       {
         path:
           'riwayat',

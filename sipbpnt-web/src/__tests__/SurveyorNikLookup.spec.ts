@@ -348,69 +348,67 @@ describe(
     )
 
     it(
-      'allows cross-region KPM result without blocking it',
-      async () => {
-        lookupNikMock
-          .mockResolvedValue(
-            outsideLookupResult,
-          )
+  'allows cross-region KPM result without blocking it',
+  async () => {
+    lookupNikMock
+      .mockResolvedValue(
+        outsideLookupResult,
+      )
 
-        const wrapper =
-          mountLookupView()
+    const wrapper =
+      mountLookupView()
 
-        await flushPromises()
+    await flushPromises()
 
-        await wrapper
-          .get<HTMLInputElement>(
-            '[data-testid="nik-input"]',
-          )
-          .setValue(
-            '3576010101010001',
-          )
+    await wrapper
+      .get<HTMLInputElement>(
+        '[data-testid="nik-input"]',
+      )
+      .setValue(
+        '3576010101010001',
+      )
 
-        await wrapper
-          .get('form')
-          .trigger(
-            'submit',
-          )
+    await wrapper
+      .get('form')
+      .trigger(
+        'submit',
+      )
 
-        await flushPromises()
+    await flushPromises()
 
-        expect(
-          wrapper.text(),
-        ).toContain(
-          'KPM Luar Wilayah',
-        )
-
-        expect(
-          wrapper.text(),
-        ).toContain(
-          'Miji',
-        )
-
-        expect(
-          wrapper.text(),
-        ).toContain(
-          'Jagalan',
-        )
-
-        expect(
-          wrapper.text(),
-        ).toContain(
-          'KPM luar wilayah tetap diperbolehkan melakukan transaksi',
-        )
-
-        expect(
-          wrapper
-            .find(
-              '[data-testid="outside-assignment-notice"]',
-            )
-            .exists(),
-        ).toBe(
-          true,
-        )
-      },
+    expect(
+      wrapper.text(),
+    ).toContain(
+      'KPM Luar Wilayah',
     )
+
+    expect(
+      wrapper.text(),
+    ).toContain(
+      'Miji',
+    )
+
+    expect(
+      wrapper
+        .find(
+          '[data-testid="outside-assignment-notice"]',
+        )
+        .exists(),
+    ).toBe(
+      true,
+    )
+
+    expect(
+      wrapper
+        .find(
+          '[data-testid="transaction-button"]',
+        )
+        .exists(),
+    ).toBe(
+      true,
+    )
+  },
+)
 
     it(
       'rejects NIK that is not exactly 16 digits',

@@ -217,8 +217,11 @@ const navigationByRole:
         icon:
           Activity,
 
+        routeName:
+          'manager-transaction-monitoring',
+
         available:
-          false,
+          true,
       },
 
       {

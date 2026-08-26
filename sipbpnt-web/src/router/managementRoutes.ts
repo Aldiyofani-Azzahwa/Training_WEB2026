@@ -48,4 +48,26 @@ export const managementRoutes:
           'Penugasan Surveyor',
       },
     },
+
+    {
+      path:
+        'manager/transaction-monitoring',
+
+      name:
+        'manager-transaction-monitoring',
+
+      component: () =>
+        import(
+          '@/views/manager/TransactionMonitoringView.vue'
+        ),
+
+      meta: {
+        roles: [
+          'manager',
+        ],
+
+        title:
+          'Monitoring Transaksi',
+      },
+    },
   ]
