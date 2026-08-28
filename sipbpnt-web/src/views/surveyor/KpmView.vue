@@ -198,8 +198,8 @@ const pageTitle =
         .name
 
     return kelurahan
-      ? `KPM Wilayah ${kelurahan}`
-      : 'KPM Wilayah'
+      ? `KPM KELURAHAN ${kelurahan}`
+      : 'KPM KELURAHAN'
   })
 
 const searchPlaceholder =

@@ -191,7 +191,7 @@ const transactedResult:
         false,
 
       label:
-        'KPM Wilayah Jagalan',
+        'KPM KELURAHAN Jagalan',
 
       surveyor_kelurahan: {
         id:

@@ -165,8 +165,11 @@ const navigationByRole:
         icon:
           FileText,
 
+        routeName:
+          'bpnt-reports',
+
         available:
-          false,
+          true,
       },
     ],
 
@@ -234,8 +237,11 @@ const navigationByRole:
         icon:
           FileText,
 
+        routeName:
+          'bpnt-reports',
+
         available:
-          false,
+          true,
       },
     ],
 
@@ -340,8 +346,11 @@ const navigationByRole:
         icon:
           FileText,
 
+        routeName:
+          'bpnt-reports',
+
         available:
-          false,
+          true,
       },
     ],
   }

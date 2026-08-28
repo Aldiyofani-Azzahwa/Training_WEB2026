@@ -7,6 +7,7 @@ namespace App\Providers;
 use App\Contracts\Repositories\SurveyorKpmActivityRepositoryInterface;
 use App\Http\Controllers\Api\V1\Manager\ManagerKpmVerificationController;
 use App\Http\Controllers\Api\V1\Surveyor\SurveyorKpmActivityController;
+use App\Http\Middleware\EnsureActivePeriodReportIsOpen;
 use App\Repositories\EloquentSurveyorKpmActivityRepository;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -56,6 +57,8 @@ final class KpmActivityServiceProvider
                                 SurveyorKpmActivityController::class,
                                 'storeTransaction',
                             ]
+                        )->middleware(
+                            EnsureActivePeriodReportIsOpen::class
                         );
 
                         Route::post(
@@ -64,6 +67,8 @@ final class KpmActivityServiceProvider
                                 SurveyorKpmActivityController::class,
                                 'storeVerification',
                             ]
+                        )->middleware(
+                            EnsureActivePeriodReportIsOpen::class
                         );
 
                         Route::get(
@@ -92,7 +97,11 @@ final class KpmActivityServiceProvider
                                 ManagerKpmVerificationController::class,
                                 'cancel',
                             ]
-                        )->whereNumber('verification');
+                        )
+                            ->whereNumber('verification')
+                            ->middleware(
+                                EnsureActivePeriodReportIsOpen::class
+                            );
                     });
             });
     }

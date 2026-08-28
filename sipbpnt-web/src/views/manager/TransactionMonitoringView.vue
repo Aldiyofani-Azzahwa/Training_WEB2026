@@ -986,33 +986,6 @@ onBeforeUnmount(() => {
               </option>
             </select>
           </label>
-
-          <label class="grid gap-1.5">
-            <span
-              class="text-[11px] font-bold text-slate-700"
-            >
-              Cakupan Transaksi
-            </span>
-
-            <select
-              v-model="selectedOutside"
-              class="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-800 outline-none transition focus:border-emerald-600 focus:ring-3 focus:ring-emerald-100"
-              @change="applyFilters"
-            >
-              <option value="">
-                Semua Cakupan
-              </option>
-
-              <option value="inside">
-                Sesuai Wilayah
-              </option>
-
-              <option value="outside">
-                Luar Wilayah
-              </option>
-            </select>
-          </label>
-
           <label
             class="grid gap-1.5 md:col-span-2"
           >
@@ -1795,20 +1768,6 @@ onBeforeUnmount(() => {
                 <Activity :size="19" />
               </span>
 
-              <div class="min-w-0 flex-1">
-                <p
-                  class="text-xs font-bold text-rose-950"
-                >
-                  Transaksi Luar Wilayah
-                </p>
-
-                <p
-                  class="mt-0.5 text-[11px] text-rose-700"
-                >
-                  Tetap sah dan tidak diblokir
-                </p>
-              </div>
-
               <strong
                 class="text-xl font-black text-rose-950"
               >
@@ -1958,22 +1917,7 @@ onBeforeUnmount(() => {
                     </p>
                   </div>
 
-                  <span
-                    class="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold"
-                    :class="
-                      transaction
-                        .outside_assignment
-                        ? 'bg-rose-100 text-rose-700'
-                        : 'bg-emerald-100 text-emerald-700'
-                    "
-                  >
-                    {{
-                      transaction
-                        .outside_assignment
-                        ? 'Luar wilayah'
-                        : 'Berhasil'
-                    }}
-                  </span>
+                  
                 </div>
 
                 <dl

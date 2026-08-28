@@ -70,4 +70,28 @@ export const managementRoutes:
           'Monitoring Transaksi',
       },
     },
+
+    {
+      path:
+        'reports',
+
+      name:
+        'bpnt-reports',
+
+      component: () =>
+        import(
+          '@/views/reports/BpntReportView.vue'
+        ),
+
+      meta: {
+        roles: [
+          'admin_dinsos',
+          'manager',
+          'kepala_dinas',
+        ],
+
+        title:
+          'Laporan BPNT',
+      },
+    },
   ]

@@ -397,10 +397,14 @@ describe(
         await flushPromises()
 
         expect(
-          wrapper.text(),
-        ).toContain(
-          'KPM Wilayah Jagalan',
-        )
+  wrapper
+    .get(
+      '[data-testid="kpm-page-title"]',
+    )
+    .text(),
+).toContain(
+  'Jagalan',
+)
 
         expect(
           wrapper.text(),

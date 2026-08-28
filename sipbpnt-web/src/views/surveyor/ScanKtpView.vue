@@ -509,14 +509,7 @@ async function submitLookup():
         .lookupNik(
           normalizedNik,
         )
-
-    /*
-     * Raw NIK hanya disimpan sementara
-     * apabila transaksi masih diperbolehkan.
-     *
-     * Jika status KPM sudah final, raw NIK
-     * langsung dibersihkan dari memory.
-     */
+        
     lookedUpNik.value =
       result.value
         .participant
@@ -1028,7 +1021,7 @@ onMounted(
           class="flex items-center justify-between gap-3 rounded-[14px] bg-[#173f37] p-[13px] text-white"
         >
           <span class="text-[11px]">
-            Saldo BPNT
+            Saldo
           </span>
 
           <strong
@@ -1065,23 +1058,6 @@ onMounted(
             <strong>
               {{ participantKelurahan }}
             </strong>,
-          </p>
-        </div>
-
-        <div
-          v-else
-          class="flex items-start gap-[9px] rounded-[15px] bg-[#edf8f4] p-[13px] text-[#006855]"
-          data-testid="inside-assignment-notice"
-        >
-          <BadgeCheck
-            :size="20"
-            class="shrink-0"
-          />
-
-          <p
-            class="m-0 text-[11px] leading-[1.55]"
-          >
-            KPM berada dalam wilayah tugas Anda.
           </p>
         </div>
 
@@ -1248,8 +1224,7 @@ onMounted(
           <small
             class="mt-[9px] block text-[10px] leading-[1.5] text-[#a65a00]"
           >
-            Satu KPM hanya dapat memiliki satu
-            transaksi dalam satu periode.
+            Transaksi hanya bisa di catat sekali. Pastikan KPM sudah benar-benar bertransaksi sebelum menekan tombol konfirmasi.
           </small>
 
           <div

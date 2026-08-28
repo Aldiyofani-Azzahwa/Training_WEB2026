@@ -327,14 +327,14 @@ describe(
         )
 
         expect(
-          wrapper
-            .find(
-              '[data-testid="inside-assignment-notice"]',
-            )
-            .exists(),
-        ).toBe(
-          true,
-        )
+  wrapper
+    .get(
+      '[data-testid="lookup-result"]',
+    )
+    .text(),
+).toContain(
+  'Jagalan',
+)
 
         /*
          * Raw NIK dibersihkan setelah lookup sukses.

@@ -917,13 +917,6 @@ onMounted(() => {
                   {{ formatDateTime(transaction.transacted_at) }}
                 </strong>
               </div>
-
-              <span
-                v-if="transaction.outside_assignment"
-                class="rounded-full border border-[#ecd9b8] bg-[#fff8e9] px-2.5 py-1 text-[10px] font-bold text-[#9a620d]"
-              >
-                KPM Luar Wilayah
-              </span>
             </footer>
           </article>
         </div>

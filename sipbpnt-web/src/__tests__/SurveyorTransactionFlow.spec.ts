@@ -181,7 +181,7 @@ const lookupResult:
 
     scope: {
       outside_assignment: false,
-      label: 'KPM Wilayah Jagalan',
+      label: 'KPM KELURAHAN Jagalan',
 
       surveyor_kelurahan: {
         id: 15,

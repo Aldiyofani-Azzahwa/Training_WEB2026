@@ -374,7 +374,7 @@ onBeforeUnmount(() => {
   "
   ref="sidebarElement"
   :class="[
-    'fixed inset-y-0 left-0 z-50 w-[280px] transition-transform duration-300 ease-out',
+    'fixed inset-y-0 left-0 z-50 w-[280px] transition-transform duration-300 ease-out print:hidden',
     sidebarOpen
       ? 'translate-x-0'
       : '-translate-x-full',
@@ -386,7 +386,7 @@ onBeforeUnmount(() => {
     <!-- CONTENT -->
     <div
       :class="[
-        'min-h-screen transition-[padding] duration-300 ease-out',
+        'min-h-screen transition-[padding] duration-300 ease-out print:!pl-0',
         supportsSidebar
         &&
         sidebarOpen
@@ -398,7 +398,7 @@ onBeforeUnmount(() => {
     >
       <!-- HEADER -->
       <header
-        class="sticky top-0 z-30 flex min-h-[84px] items-center justify-between gap-4 border-b border-slate-200 bg-white/95 px-4 py-4 backdrop-blur sm:px-6 lg:px-8"
+        class="sticky top-0 z-30 flex min-h-[84px] items-center justify-between gap-4 border-b border-slate-200 bg-white/95 px-4 py-4 backdrop-blur sm:px-6 lg:px-8 print:hidden"
       >
         <!-- LEFT -->
         <div

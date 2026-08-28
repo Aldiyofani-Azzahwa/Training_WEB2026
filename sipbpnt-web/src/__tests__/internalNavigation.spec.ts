@@ -124,28 +124,6 @@ describe(
               item.key
               === 'ewarung',
           )
-        const monitoring =
-  navigation.find(
-    (item) =>
-      item.key
-      === 'monitoring',
-  )
-
-expect(
-  monitoring,
-).toBeDefined()
-
-expect(
-  monitoring
-    ?.routeName,
-).toBe(
-  'manager-transaction-monitoring',
-)
-
-expect(
-  monitoring
-    ?.available,
-).toBe(true)
 
         expect(
           dataBnba,
@@ -166,6 +144,29 @@ expect(
         expect(
           eWarung,
         ).toBeUndefined()
+
+        const monitoring =
+          navigation.find(
+            (item) =>
+              item.key
+              === 'monitoring',
+          )
+
+        expect(
+          monitoring,
+        ).toBeDefined()
+
+        expect(
+          monitoring
+            ?.routeName,
+        ).toBe(
+          'manager-transaction-monitoring',
+        )
+
+        expect(
+          monitoring
+            ?.available,
+        ).toBe(true)
       },
     )
 
@@ -244,6 +245,40 @@ expect(
         }
       },
     )
-  },
 
+    it(
+      'provides BPNT reports to Manager, Admin, and Kepala Dinas',
+      () => {
+        const roles = [
+          'admin_dinsos',
+          'manager',
+          'kepala_dinas',
+        ] as const
+
+        for (
+          const role
+          of roles
+        ) {
+          const report =
+            getInternalNavigation(
+              role,
+            ).find(
+              (item) =>
+                item.key
+                === 'laporan',
+            )
+
+          expect(
+            report?.routeName,
+          ).toBe(
+            'bpnt-reports',
+          )
+
+          expect(
+            report?.available,
+          ).toBe(true)
+        }
+      },
+    )
+  },
 )
