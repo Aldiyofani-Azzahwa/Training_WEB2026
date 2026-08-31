@@ -340,13 +340,13 @@ onBeforeUnmount(() => {
       </span>
 
       <h1
-        class="mt-[5px] mb-0 text-[clamp(28px,8vw,36px)] leading-tight font-bold text-[#173f37] lg:text-[38px]"
+        class="mt-[5px] mb-0 text-[clamp(28px,8vw,36px)] leading-tight font-bold text-[#3f2817] lg:text-[38px]"
       >
         Halo, {{ firstName }}
       </h1>
 
       <p
-        class="mt-0 text-[13px] leading-[1.6] text-[#71837d]"
+        class="mt-0 text-[13px] leading-[1.6] text-[#837871]"
       >
         Halaman ini berisi informasi periode, wilayah tugas,
         dan tempat bertugas Anda.
@@ -360,11 +360,11 @@ onBeforeUnmount(() => {
       data-testid="dashboard-loading"
     >
       <div
-        class="h-[23px] w-[58%] animate-pulse overflow-hidden rounded-[13px] bg-[#e7efec]"
+        class="h-[23px] w-[58%] animate-pulse overflow-hidden rounded-[13px] bg-[#efeae7]"
       />
 
       <div
-        class="h-[190px] animate-pulse overflow-hidden rounded-[22px] bg-[#e7efec]"
+        class="h-[190px] animate-pulse overflow-hidden rounded-[22px] bg-[#efeae7]"
       />
 
       <span class="sr-only">
@@ -384,20 +384,20 @@ onBeforeUnmount(() => {
       />
 
       <strong
-        class="text-base font-bold text-[#244b43]"
+        class="text-base font-bold text-[#4b3424]"
       >
         Dashboard belum dapat dimuat
       </strong>
 
       <p
-        class="m-0 text-[13px] leading-[1.6] text-[#71837d]"
+        class="m-0 text-[13px] leading-[1.6] text-[#837871]"
       >
         {{ errorMessage }}
       </p>
 
       <button
         type="button"
-        class="mt-2 inline-flex min-h-[42px] items-center gap-2 rounded-[13px] border-0 bg-[#006855] px-[15px] font-bold text-white transition-colors duration-150 hover:bg-[#005746] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#006855]"
+        class="mt-2 inline-flex min-h-[42px] items-center gap-2 rounded-[13px] border-0 bg-[#682b00] px-[15px] font-bold text-white transition-colors duration-150 hover:bg-[#572400] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#682b00]"
         data-testid="dashboard-retry"
         @click="loadDashboard"
       >
@@ -419,13 +419,13 @@ onBeforeUnmount(() => {
       <CalendarDays :size="31" />
 
       <strong
-        class="text-base font-bold text-[#244b43]"
+        class="text-base font-bold text-[#4b3424]"
       >
         Belum ada periode aktif
       </strong>
 
       <p
-        class="m-0 text-[13px] leading-[1.6] text-[#71837d]"
+        class="m-0 text-[13px] leading-[1.6] text-[#837871]"
       >
         Periode BPNT belum diaktifkan
         oleh Admin Dinsos.
@@ -453,13 +453,13 @@ onBeforeUnmount(() => {
           class="flex min-w-0 flex-col"
         >
           <span
-            class="text-[11px] font-[650] text-[#758680]"
+            class="text-[11px] font-[650] text-[#867c75]"
           >
             Periode BPNT Aktif
           </span>
 
           <strong
-            class="overflow-hidden text-[17px] leading-[1.35] font-bold text-ellipsis whitespace-nowrap text-[#244b43]"
+            class="overflow-hidden text-[17px] leading-[1.35] font-bold text-ellipsis whitespace-nowrap text-[#4b3424]"
           >
             {{ context.period.name }}
           </strong>
@@ -482,13 +482,13 @@ onBeforeUnmount(() => {
         <MapPin :size="31" />
 
         <strong
-          class="text-base font-bold text-[#244b43]"
+          class="text-base font-bold text-[#4b3424]"
         >
           Anda belum memiliki wilayah tugas
         </strong>
 
         <p
-          class="m-0 text-[13px] leading-[1.6] text-[#71837d]"
+          class="m-0 text-[13px] leading-[1.6] text-[#837871]"
         >
           Hubungi Manager BPNT agar wilayah
           tugas dapat ditetapkan.
@@ -497,7 +497,7 @@ onBeforeUnmount(() => {
 
       <template v-else>
         <article
-          class="grid min-w-0 gap-4 rounded-[22px] border border-[#dce9e4] bg-white p-[18px] shadow-[0_12px_28px_rgb(30_65_55_/_6%)] lg:p-[22px]"
+          class="grid min-w-0 gap-4 rounded-[22px] border border-[#e9e1dc] bg-white p-[18px] shadow-[0_12px_28px_rgb(30_65_55_/_6%)] lg:p-[22px]"
           data-testid="surveyor-assignment"
         >
           <header
@@ -507,13 +507,13 @@ onBeforeUnmount(() => {
               class="flex min-w-0 flex-col"
             >
               <span
-                class="text-[11px] font-[650] text-[#758680]"
+                class="text-[11px] font-[650] text-[#867c75]"
               >
                 Wilayah Tugas
               </span>
 
               <strong
-                class="overflow-hidden text-[17px] leading-[1.35] font-bold text-ellipsis whitespace-nowrap text-[#244b43]"
+                class="overflow-hidden text-[17px] leading-[1.35] font-bold text-ellipsis whitespace-nowrap text-[#4b3424]"
               >
                 {{
                   context.assignment
@@ -524,7 +524,7 @@ onBeforeUnmount(() => {
             </div>
 
             <div
-              class="grid size-[45px] shrink-0 place-items-center rounded-[15px] bg-[#e8f5f0] text-[#006855]"
+              class="grid size-[45px] shrink-0 place-items-center rounded-[15px] bg-[#f5ede8] text-[#682b00]"
             >
               <MapPin :size="23" />
             </div>
@@ -534,16 +534,16 @@ onBeforeUnmount(() => {
             class="m-0 grid grid-cols-2 gap-[10px] max-[380px]:grid-cols-1"
           >
             <div
-              class="rounded-[14px] bg-[#f7faf9] p-3"
+              class="rounded-[14px] bg-[#faf8f7] p-3"
             >
               <dt
-                class="text-[10px] text-[#7b8d87]"
+                class="text-[10px] text-[#8d837b]"
               >
                 Kecamatan
               </dt>
 
               <dd
-                class="mt-[3px] mb-0 text-[13px] font-[720] text-[#284e46]"
+                class="mt-[3px] mb-0 text-[13px] font-[720] text-[#4e3828]"
               >
                 {{
                   context.assignment
@@ -554,16 +554,16 @@ onBeforeUnmount(() => {
             </div>
 
             <div
-              class="rounded-[14px] bg-[#f7faf9] p-3"
+              class="rounded-[14px] bg-[#faf8f7] p-3"
             >
               <dt
-                class="text-[10px] text-[#7b8d87]"
+                class="text-[10px] text-[#8d837b]"
               >
                 Kelurahan
               </dt>
 
               <dd
-                class="mt-[3px] mb-0 text-[13px] font-[720] text-[#284e46]"
+                class="mt-[3px] mb-0 text-[13px] font-[720] text-[#4e3828]"
               >
                 {{
                   context.assignment
@@ -575,12 +575,12 @@ onBeforeUnmount(() => {
           </dl>
 
           <div
-            class="flex items-center gap-[9px] border-t border-[#e7eeeb] pt-[14px] text-[#c12723]"
+            class="flex items-center gap-[9px] border-t border-[#eeeae7] pt-[14px] text-[#c12723]"
           >
             <Users :size="22" />
 
             <span
-              class="text-[15px] font-[750] text-[#244b43]"
+              class="text-[15px] font-[750] text-[#4b3424]"
             >
               {{ formattedKpmCount }} KPM
             </span>
@@ -588,14 +588,14 @@ onBeforeUnmount(() => {
         </article>
 
         <article
-          class="grid w-full min-w-0 gap-[13px] overflow-hidden rounded-[22px] border border-[#cde4db] bg-white p-[18px] shadow-[0_12px_28px_rgb(30_65_55_/_6%)] lg:p-[22px]"
+          class="grid w-full min-w-0 gap-[13px] overflow-hidden rounded-[22px] border border-[#e4d7cd] bg-white p-[18px] shadow-[0_12px_28px_rgb(30_65_55_/_6%)] lg:p-[22px]"
           data-testid="e-warung-card"
         >
           <header
             class="flex min-w-0 items-center justify-start gap-3"
           >
             <div
-              class="grid size-[45px] shrink-0 place-items-center rounded-[15px] bg-[#e8f5f0] text-[#006855]"
+              class="grid size-[45px] shrink-0 place-items-center rounded-[15px] bg-[#f5ede8] text-[#682b00]"
             >
               <Store :size="23" />
             </div>
@@ -604,13 +604,13 @@ onBeforeUnmount(() => {
               class="flex min-w-0 flex-1 flex-col overflow-hidden"
             >
               <span
-                class="text-[11px] font-[650] text-[#758680]"
+                class="text-[11px] font-[650] text-[#867c75]"
               >
                 Tempat Bertugas Saat Ini
               </span>
 
               <strong
-                class="block max-w-full overflow-hidden text-[17px] leading-[1.35] font-bold text-ellipsis whitespace-nowrap text-[#244b43]"
+                class="block max-w-full overflow-hidden text-[17px] leading-[1.35] font-bold text-ellipsis whitespace-nowrap text-[#4b3424]"
                 :title="
                   selectedEWarung
                     ?.name
@@ -630,7 +630,7 @@ onBeforeUnmount(() => {
 
           <label
             for="surveyor-e-warung"
-            class="text-xs font-bold text-[#35594f]"
+            class="text-xs font-bold text-[#594435]"
           >
             Pilih E-Warung aktif
           </label>
@@ -640,7 +640,7 @@ onBeforeUnmount(() => {
           >
             <select
               id="surveyor-e-warung"
-              class="block min-h-[50px] w-full min-w-0 max-w-full appearance-none truncate rounded-[14px] border border-[#cfded8] bg-[#fbfdfc] px-[13px] pr-10 text-base font-[650] text-[#244b43] outline-none transition-[border-color,box-shadow] duration-150 focus:border-[#438d7b] focus:shadow-[0_0_0_3px_rgb(0_104_85_/_9%)] disabled:cursor-not-allowed disabled:bg-[#f1f5f3] disabled:text-[#87958f] lg:min-h-[52px] lg:text-sm"
+              class="block min-h-[50px] w-full min-w-0 max-w-full appearance-none truncate rounded-[14px] border border-[#ded5cf] bg-[#fdfcfb] px-[13px] pr-10 text-base font-[650] text-[#4b3424] outline-none transition-[border-color,box-shadow] duration-150 focus:border-[#8d6243] focus:shadow-[0_0_0_3px_rgb(0_104_85_/_9%)] disabled:cursor-not-allowed disabled:bg-[#f5f3f1] disabled:text-[#958d87] lg:min-h-[52px] lg:text-sm"
               :value="
                 selectedEWarung
                   ?.id
@@ -694,7 +694,7 @@ onBeforeUnmount(() => {
 
           <p
             v-else
-            class="m-0 text-[11px] leading-[1.5] text-[#71837d]"
+            class="m-0 text-[11px] leading-[1.5] text-[#837871]"
           >
             Pilihan ini otomatis dipakai untuk
             transaksi berikutnya. E-Warung
@@ -706,7 +706,7 @@ onBeforeUnmount(() => {
           :to="{
             name: 'surveyor-scan-ktp',
           }"
-          class="flex min-w-0 items-center gap-[13px] rounded-[22px] bg-[linear-gradient(135deg,#006855,#00836c)] p-[17px] text-white no-underline shadow-[0_15px_28px_rgb(0_104_85_/_20%)] transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-[0_18px_34px_rgb(0_104_85_/_24%)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#006855] lg:px-[22px] lg:py-5"
+          class="flex min-w-0 items-center gap-[13px] rounded-[22px] bg-[linear-gradient(135deg,#682b00,#833700)] p-[17px] text-white no-underline shadow-[0_15px_28px_rgb(0_104_85_/_20%)] transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-[0_18px_34px_rgb(0_104_85_/_24%)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#682b00] lg:px-[22px] lg:py-5"
           data-testid="scan-ktp-action"
         >
           <span

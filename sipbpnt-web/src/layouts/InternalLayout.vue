@@ -9,7 +9,7 @@ import {
 
 import {
   Menu,
-  PanelLeftClose,
+  X,
 } from '@lucide/vue'
 
 import {
@@ -20,6 +20,9 @@ import {
 
 import InternalSidebar
   from '@/components/internal/InternalSidebar.vue'
+
+import InternalBottomNav
+  from '@/components/internal/InternalBottomNav.vue'
 
 import {
   useAuthStore,
@@ -147,6 +150,8 @@ function handleDocumentClick(
     !supportsSidebar.value
     ||
     !sidebarOpen.value
+    ||
+    isDesktop.value
   ) {
     return
   }
@@ -350,27 +355,18 @@ onBeforeUnmount(() => {
   <div
     class="min-h-screen bg-slate-50"
   >
-    <!-- MOBILE OVERLAY -->
-    <button
-      v-if="
-        supportsSidebar
-        &&
-        sidebarOpen
-        &&
-        !isDesktop
-      "
-      type="button"
-      aria-label="Tutup sidebar"
-      class="fixed inset-0 z-40 bg-slate-950/45 lg:hidden"
-      @click="
-        closeSidebar
-      "
-    />
+    <!--
+    SIDEBAR
 
-    <!-- SIDEBAR -->
+    Hanya tampil di desktop. Di mobile/tablet,
+    navigasi dipindah ke InternalBottomNav supaya
+    tidak perlu overlay/hamburger drawer lagi.
+    -->
    <aside
   v-if="
     supportsSidebar
+    &&
+    isDesktop
   "
   ref="sidebarElement"
   :class="[
@@ -404,10 +400,12 @@ onBeforeUnmount(() => {
         <div
           class="flex min-w-0 items-center gap-3"
         >
-          <!-- HAMBURGER -->
+          <!-- HAMBURGER (desktop collapse toggle only) -->
           <button
   v-if="
     supportsSidebar
+    &&
+    isDesktop
   "
   ref="sidebarToggleElement"
   type="button"
@@ -424,7 +422,7 @@ onBeforeUnmount(() => {
     toggleSidebar
   "
 >
-            <PanelLeftClose
+            <X
               v-if="
                 sidebarOpen
               "
@@ -500,10 +498,13 @@ onBeforeUnmount(() => {
 
       <!-- PAGE -->
       <main
-        class="min-w-0"
+        class="min-w-0 pb-24 lg:pb-0"
       >
         <RouterView />
       </main>
     </div>
+
+    <!-- BOTTOM NAVIGATION (mobile & tablet) -->
+    <InternalBottomNav />
   </div>
 </template>

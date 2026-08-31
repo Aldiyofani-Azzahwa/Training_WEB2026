@@ -699,11 +699,11 @@ onMounted(
       data-testid="lookup-workspace-loading"
     >
       <div
-        class="h-6 w-[55%] animate-pulse rounded-[13px] bg-[#e7efec]"
+        class="h-6 w-[55%] animate-pulse rounded-[13px] bg-[#efeae7]"
       />
 
       <div
-        class="h-[230px] animate-pulse rounded-[22px] bg-[#e7efec]"
+        class="h-[230px] animate-pulse rounded-[22px] bg-[#efeae7]"
       />
     </div>
 
@@ -715,17 +715,17 @@ onMounted(
     >
       <CircleAlert :size="29" />
 
-      <strong class="text-[#244b43]">
+      <strong class="text-[#4b3424]">
         Halaman belum dapat dimuat
       </strong>
 
-      <p class="m-0 text-xs text-[#71837d]">
+      <p class="m-0 text-xs text-[#837871]">
         {{ workspaceError }}
       </p>
 
       <button
         type="button"
-        class="mt-2 flex min-h-[42px] items-center gap-[7px] rounded-xl border-0 bg-[#006855] px-[14px] font-bold text-white transition-colors hover:bg-[#005746]"
+        class="mt-2 flex min-h-[42px] items-center gap-[7px] rounded-xl border-0 bg-[#682b00] px-[14px] font-bold text-white transition-colors hover:bg-[#572400]"
         @click="loadWorkspace"
       >
         <RefreshCw :size="18" />
@@ -740,11 +740,11 @@ onMounted(
     >
       <ScanLine :size="30" />
 
-      <strong class="text-[#244b43]">
+      <strong class="text-[#4b3424]">
         Belum ada periode aktif
       </strong>
 
-      <p class="m-0 text-xs text-[#71837d]">
+      <p class="m-0 text-xs text-[#837871]">
         Pencarian KPM belum dapat digunakan.
       </p>
     </article>
@@ -756,11 +756,11 @@ onMounted(
     >
       <MapPin :size="30" />
 
-      <strong class="text-[#244b43]">
+      <strong class="text-[#4b3424]">
         Anda belum memiliki wilayah tugas
       </strong>
 
-      <p class="m-0 text-xs text-[#71837d]">
+      <p class="m-0 text-xs text-[#837871]">
         Hubungi Manager BPNT sebelum menggunakan pencarian KPM.
       </p>
     </article>
@@ -771,20 +771,20 @@ onMounted(
       >
         <div class="min-w-0">
           <h1
-            class="my-1 text-[28px] leading-tight font-bold text-[#173f37] lg:text-[34px]"
+            class="my-1 text-[28px] leading-tight font-bold text-[#3f2817] lg:text-[34px]"
           >
             Scan KTP
           </h1>
 
           <p
-            class="m-0 max-w-[330px] text-[13px] leading-[1.55] text-[#72847e]"
+            class="m-0 max-w-[330px] text-[13px] leading-[1.55] text-[#847a72]"
           >
             Scan KTP atau masukkan NIK 16 digit untuk mencari KPM
           </p>
         </div>
 
         <div
-          class="grid size-[49px] shrink-0 place-items-center rounded-2xl bg-[#e8f5f0] text-[#006855]"
+          class="grid size-[49px] shrink-0 place-items-center rounded-2xl bg-[#f5ede8] text-[#682b00]"
         >
           <ScanLine :size="27" />
         </div>
@@ -794,7 +794,7 @@ onMounted(
         class="flex w-full min-w-0 items-center gap-[11px] overflow-hidden rounded-[17px] border p-[14px]"
         :class="
           selectedEWarung
-            ? 'border-[#cfe3dc] bg-[#f5fbf8] text-[#006855]'
+            ? 'border-[#e3d7cf] bg-[#fbf8f5] text-[#682b00]'
             : 'border-[#ecd5ad] bg-[#fff9ef] text-[#ae6100]'
         "
         data-testid="active-e-warung"
@@ -808,13 +808,13 @@ onMounted(
           class="flex min-w-0 flex-1 flex-col overflow-hidden"
         >
           <span
-            class="text-[10px] text-[#72847e]"
+            class="text-[10px] text-[#847a72]"
           >
             Tempat Bertugas Saat Ini
           </span>
 
           <strong
-            class="block max-w-full overflow-hidden text-[13px] font-bold text-ellipsis whitespace-nowrap text-[#244b43]"
+            class="block max-w-full overflow-hidden text-[13px] font-bold text-ellipsis whitespace-nowrap text-[#4b3424]"
             :title="
               selectedEWarung
                 ?.name
@@ -853,7 +853,7 @@ onMounted(
 
       <div
         v-if="ocrMessage"
-        class="flex items-start gap-[9px] rounded-[15px] border border-[#b9dfd2] bg-[#eaf8f3] p-[13px] text-[#006855]"
+        class="flex items-start gap-[9px] rounded-[15px] border border-[#dfc9b9] bg-[#f8f0ea] p-[13px] text-[#682b00]"
         data-testid="ocr-nik-ready"
       >
         <BadgeCheck
@@ -869,7 +869,7 @@ onMounted(
       </div>
 
       <article
-        class="rounded-[22px] border border-[#dce9e4] bg-white p-[18px] shadow-[0_12px_28px_rgb(30_65_55_/_6%)] lg:p-[22px]"
+        class="rounded-[22px] border border-[#e9e1dc] bg-white p-[18px] shadow-[0_12px_28px_rgb(30_65_55_/_6%)] lg:p-[22px]"
       >
         <form
           novalidate
@@ -877,17 +877,17 @@ onMounted(
         >
           <label
             for="surveyor-nik"
-            class="mb-[7px] block text-[13px] font-bold text-[#35594f]"
+            class="mb-[7px] block text-[13px] font-bold text-[#594435]"
           >
             Periksa atau masukkan NIK
           </label>
 
           <div
-            class="flex min-h-[54px] w-full min-w-0 items-center gap-[9px] rounded-[15px] border px-[13px] text-[#70857e] transition-[border-color,box-shadow] focus-within:border-[#4e9b88] focus-within:shadow-[0_0_0_3px_rgb(0_104_85_/_9%)]"
+            class="flex min-h-[54px] w-full min-w-0 items-center gap-[9px] rounded-[15px] border px-[13px] text-[#857970] transition-[border-color,box-shadow] focus-within:border-[#9b6e4e] focus-within:shadow-[0_0_0_3px_rgb(0_104_85_/_9%)]"
             :class="
               validationError
                 ? 'border-[#dc5d58]'
-                : 'border-[#d6e3de]'
+                : 'border-[#e3dbd6]'
             "
           >
             <Search
@@ -905,7 +905,7 @@ onMounted(
               autocomplete="off"
               enterkeyhint="search"
               placeholder="16 digit NIK"
-              class="min-w-0 flex-1 border-0 bg-transparent text-base font-[650] text-[#244b43] outline-none placeholder:text-[#9aa8a3]"
+              class="min-w-0 flex-1 border-0 bg-transparent text-base font-[650] text-[#4b3424] outline-none placeholder:text-[#a8a09a]"
               data-testid="nik-input"
               @input="handleNikInput"
             />
@@ -928,7 +928,7 @@ onMounted(
 
           <button
             type="submit"
-            class="mt-[15px] flex min-h-12 w-full items-center justify-center gap-2 rounded-[14px] border-0 bg-[#006855] text-[13px] font-[750] text-white transition-colors hover:bg-[#005746] disabled:cursor-not-allowed disabled:opacity-48"
+            class="mt-[15px] flex min-h-12 w-full items-center justify-center gap-2 rounded-[14px] border-0 bg-[#682b00] text-[13px] font-[750] text-white transition-colors hover:bg-[#572400] disabled:cursor-not-allowed disabled:opacity-48"
             :disabled="!canLookup"
             data-testid="lookup-submit"
           >
@@ -972,7 +972,7 @@ onMounted(
 
       <article
         v-if="result && participant"
-        class="grid min-w-0 gap-[15px] rounded-[22px] border border-[#dce9e4] bg-white p-[18px] shadow-[0_12px_28px_rgb(30_65_55_/_6%)] lg:p-[22px]"
+        class="grid min-w-0 gap-[15px] rounded-[22px] border border-[#e9e1dc] bg-white p-[18px] shadow-[0_12px_28px_rgb(30_65_55_/_6%)] lg:p-[22px]"
         data-testid="lookup-result"
       >
         <header
@@ -983,7 +983,7 @@ onMounted(
             :class="
               result.scope.outside_assignment
                 ? 'bg-[#fff1dc] text-[#b86100]'
-                : 'bg-[#e5f6f0] text-[#006855]'
+                : 'bg-[#f6ece5] text-[#682b00]'
             "
           >
             <BadgeCheck :size="18" />
@@ -995,7 +995,7 @@ onMounted(
           class="flex min-w-0 items-center gap-[11px]"
         >
           <div
-            class="grid size-[49px] shrink-0 place-items-center rounded-2xl bg-[#e8f5f0] text-xs font-extrabold text-[#006855]"
+            class="grid size-[49px] shrink-0 place-items-center rounded-2xl bg-[#f5ede8] text-xs font-extrabold text-[#682b00]"
           >
             {{
               participantInitials(
@@ -1008,7 +1008,7 @@ onMounted(
             class="flex min-w-0 flex-1 flex-col overflow-hidden"
           >
             <strong
-              class="overflow-hidden text-base font-bold text-ellipsis whitespace-nowrap text-[#244b43]"
+              class="overflow-hidden text-base font-bold text-ellipsis whitespace-nowrap text-[#4b3424]"
               :title="
                 participant
                   .kpm
@@ -1023,7 +1023,7 @@ onMounted(
             </strong>
 
             <span
-              class="text-[11px] text-[#7b8c86]"
+              class="text-[11px] text-[#8c827b]"
             >
               NIK
               {{
@@ -1037,16 +1037,16 @@ onMounted(
 
         <dl class="m-0 grid gap-[9px]">
           <div
-            class="rounded-[13px] bg-[#f8fbfa] p-[11px]"
+            class="rounded-[13px] bg-[#fbf9f8] p-[11px]"
           >
             <dt
-              class="text-[10px] text-[#7a8c86]"
+              class="text-[10px] text-[#8c827a]"
             >
               Wilayah Asli KPM
             </dt>
 
             <dd
-              class="mt-[3px] mb-0 text-xs leading-[1.45] text-[#35594f]"
+              class="mt-[3px] mb-0 text-xs leading-[1.45] text-[#594435]"
             >
               {{ participantKelurahan }},
               {{ participantKecamatan }}
@@ -1054,16 +1054,16 @@ onMounted(
           </div>
 
           <div
-            class="rounded-[13px] bg-[#f8fbfa] p-[11px]"
+            class="rounded-[13px] bg-[#fbf9f8] p-[11px]"
           >
             <dt
-              class="text-[10px] text-[#7a8c86]"
+              class="text-[10px] text-[#8c827a]"
             >
               Alamat
             </dt>
 
             <dd
-              class="mt-[3px] mb-0 break-words text-xs leading-[1.45] text-[#35594f]"
+              class="mt-[3px] mb-0 break-words text-xs leading-[1.45] text-[#594435]"
             >
               {{
                 participantAddress(
@@ -1075,7 +1075,7 @@ onMounted(
         </dl>
 
         <div
-          class="flex items-center justify-between gap-3 rounded-[14px] bg-[#173f37] p-[13px] text-white"
+          class="flex items-center justify-between gap-3 rounded-[14px] bg-[#3f2817] p-[13px] text-white"
         >
           <span class="text-[11px]">
             Saldo
@@ -1117,7 +1117,7 @@ onMounted(
 
         <article
           v-if="transaction"
-          class="flex items-center gap-[11px] rounded-[15px] border border-[#b9dfd2] bg-[#eaf8f3] p-[14px] text-[#006855]"
+          class="flex items-center gap-[11px] rounded-[15px] border border-[#dfc9b9] bg-[#f8f0ea] p-[14px] text-[#682b00]"
           data-testid="transaction-success"
         >
           <CircleCheck
@@ -1133,7 +1133,7 @@ onMounted(
             </strong>
 
             <span
-              class="overflow-hidden text-[11px] text-ellipsis whitespace-nowrap text-[#52736a]"
+              class="overflow-hidden text-[11px] text-ellipsis whitespace-nowrap text-[#736052]"
             >
               {{
                 transaction
@@ -1149,7 +1149,7 @@ onMounted(
             participantActivity
               ?.is_final
           "
-          class="flex items-center gap-[11px] rounded-[15px] border border-[#b9dfd2] bg-[#eaf8f3] p-[14px] text-[#006855]"
+          class="flex items-center gap-[11px] rounded-[15px] border border-[#dfc9b9] bg-[#f8f0ea] p-[14px] text-[#682b00]"
           data-testid="participant-final-status"
         >
           <CircleCheck
@@ -1201,7 +1201,7 @@ onMounted(
 
         <button
           type="button"
-          class="min-h-10 rounded-xl border border-[#d6e3de] bg-white font-bold text-[#45655c] transition-colors hover:bg-[#f4f8f6]"
+          class="min-h-10 rounded-xl border border-[#e3dbd6] bg-white font-bold text-[#655245] transition-colors hover:bg-[#f8f6f4]"
           data-testid="new-lookup"
           @click="resetLookup"
         >
@@ -1228,7 +1228,7 @@ onMounted(
         >
           <button
             type="button"
-            class="absolute top-[13px] right-[13px] grid size-[38px] place-items-center rounded-xl border-0 bg-[#f1f5f3] text-[#526a62] transition-colors hover:bg-[#e2eae6] disabled:cursor-not-allowed disabled:opacity-50"
+            class="absolute top-[13px] right-[13px] grid size-[38px] place-items-center rounded-xl border-0 bg-[#f5f3f1] text-[#6a5c52] transition-colors hover:bg-[#eae5e2] disabled:cursor-not-allowed disabled:opacity-50"
             aria-label="Tutup konfirmasi"
             :disabled="transactionLoading"
             @click="
@@ -1240,20 +1240,20 @@ onMounted(
           </button>
 
           <div
-            class="grid size-[53px] place-items-center rounded-[17px] bg-[#e8f5f0] text-[#006855]"
+            class="grid size-[53px] place-items-center rounded-[17px] bg-[#f5ede8] text-[#682b00]"
           >
             <Store :size="27" />
           </div>
 
           <h2
             id="transaction-confirmation-title"
-            class="mt-[15px] mb-[6px] break-words text-xl font-bold text-[#173f37]"
+            class="mt-[15px] mb-[6px] break-words text-xl font-bold text-[#3f2817]"
           >
             Konfirmasi transaksi
           </h2>
 
           <p
-            class="m-0 text-[13px] leading-[1.6] text-[#5e746d]"
+            class="m-0 text-[13px] leading-[1.6] text-[#74675e]"
           >
             Tandai
 
@@ -1286,7 +1286,7 @@ onMounted(
           >
             <button
               type="button"
-              class="min-h-[47px] rounded-[14px] border border-[#d6e3de] bg-white text-xs font-[750] text-[#526a62] transition-colors hover:bg-[#f4f8f6] disabled:cursor-not-allowed disabled:opacity-48"
+              class="min-h-[47px] rounded-[14px] border border-[#e3dbd6] bg-white text-xs font-[750] text-[#6a5c52] transition-colors hover:bg-[#f8f6f4] disabled:cursor-not-allowed disabled:opacity-48"
               :disabled="
                 transactionLoading
               "
@@ -1300,7 +1300,7 @@ onMounted(
 
             <button
               type="button"
-              class="flex min-h-[47px] items-center justify-center gap-2 rounded-[14px] border-0 bg-[#006855] text-xs font-[750] text-white transition-colors hover:bg-[#005746] disabled:cursor-not-allowed disabled:opacity-48"
+              class="flex min-h-[47px] items-center justify-center gap-2 rounded-[14px] border-0 bg-[#682b00] text-xs font-[750] text-white transition-colors hover:bg-[#572400] disabled:cursor-not-allowed disabled:opacity-48"
               :disabled="
                 transactionLoading
               "

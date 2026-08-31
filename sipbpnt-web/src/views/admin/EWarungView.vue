@@ -31,13 +31,17 @@ import type {
   EWarungUpdatePayload,
 } from '@/types/eWarung'
 
-type StatusFilter =
-  | 'all'
-  | 'active'
-  | 'inactive'
+import type {
+  FormErrors,
+  StatusFilter,
+} from '@/types/adminCrud'
 
-type FormErrors =
-  Record<string, string[]>
+import {
+  firstFieldError as sharedFirstFieldError,
+  matchesStatusFilter,
+} from '@/utils/adminCrud'
+
+import { formatDateTimeMedium } from '@/utils/formatDateTime'
 
 interface EWarungFormState {
   name: string
@@ -117,19 +121,10 @@ const filteredEWarungs =
           eWarung,
         ) => {
           if (
-            statusFilter.value
-            === 'active'
-            &&
-            !eWarung.is_active
-          ) {
-            return false
-          }
-
-          if (
-            statusFilter.value
-            === 'inactive'
-            &&
-            eWarung.is_active
+            !matchesStatusFilter(
+              eWarung.is_active,
+              statusFilter.value,
+            )
           ) {
             return false
           }
@@ -210,39 +205,18 @@ function closeForm():
 function firstFieldError(
   field: string,
 ): string | null {
-  return formErrors
-    .value[
-      field
-    ]?.[0]
-    ?? null
+  return sharedFirstFieldError(
+    formErrors.value,
+    field,
+  )
 }
 
 function formatDate(
   value: string | null,
 ): string {
-  if (!value) {
-    return '-'
-  }
-
-  return new Intl
-    .DateTimeFormat(
-      'id-ID',
-      {
-        dateStyle:
-          'medium',
-
-        timeStyle:
-          'short',
-
-        timeZone:
-          'Asia/Jakarta',
-      },
-    )
-    .format(
-      new Date(
-        value,
-      ),
-    )
+  return formatDateTimeMedium(
+    value,
+  )
 }
 
 async function loadEWarungs():
@@ -548,7 +522,7 @@ onMounted(() => {
       >
         <div>
           <span
-            class="text-xs font-extrabold uppercase tracking-[0.16em] text-brand-600"
+            class="text-xs font-extrabold uppercase tracking-[0.16em] text-orange-600"
           >
             Master Operasional
           </span>
@@ -572,7 +546,7 @@ onMounted(() => {
 
         <button
           type="button"
-          class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 text-sm font-extrabold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+          class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-orange-600 px-4 text-sm font-extrabold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-60"
           :disabled="
             loading
             ||
@@ -701,13 +675,13 @@ onMounted(() => {
             v-model="searchQuery"
             type="search"
             placeholder="Cari nama E-Warung"
-            class="min-h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm text-slate-800 outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-50"
+            class="min-h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm text-slate-800 outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-50"
           />
         </label>
 
         <select
           v-model="statusFilter"
-          class="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-50"
+          class="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-50"
         >
           <option value="all">
             Semua Status
@@ -847,7 +821,7 @@ onMounted(() => {
                   class="flex items-center gap-3"
                 >
                   <span
-                    class="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700"
+                    class="grid size-10 shrink-0 place-items-center rounded-xl bg-orange-50 text-orange-700"
                   >
                     <Store
                       :size="18"
@@ -995,7 +969,7 @@ onMounted(() => {
         >
           <div>
             <span
-              class="text-xs font-extrabold uppercase tracking-[0.16em] text-brand-600"
+              class="text-xs font-extrabold uppercase tracking-[0.16em] text-orange-600"
             >
               {{
                 isEditing
@@ -1057,7 +1031,7 @@ onMounted(() => {
               :class="
                 firstFieldError('name')
                   ? 'border-red-300 focus:border-red-400 focus:ring-red-50'
-                  : 'border-slate-200 focus:border-brand-400 focus:ring-brand-50'
+                  : 'border-slate-200 focus:border-orange-400 focus:ring-orange-50'
               "
             />
 
@@ -1091,7 +1065,7 @@ onMounted(() => {
 
             <button
               type="submit"
-              class="inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-600 px-5 text-sm font-extrabold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+              class="inline-flex min-h-11 items-center justify-center rounded-xl bg-orange-600 px-5 text-sm font-extrabold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-60"
               :disabled="saving"
             >
               {{

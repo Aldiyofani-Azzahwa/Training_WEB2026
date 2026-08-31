@@ -351,14 +351,14 @@ onMounted(() => {
     class="mx-auto w-full max-w-[1080px] space-y-5"
   >
     <header
-      class="rounded-[24px] border border-[#dce8e4] bg-white p-5 shadow-[0_14px_35px_rgb(24_59_53_/_7%)] sm:p-6"
+      class="rounded-[24px] border border-[#e8e1dc] bg-white p-5 shadow-[0_14px_35px_rgb(24_59_53_/_7%)] sm:p-6"
     >
       <div
         class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
       >
         <div>
           <div
-            class="mb-3 grid size-11 place-items-center rounded-[15px] bg-[#e4f3ee] text-[#006855]"
+            class="mb-3 grid size-11 place-items-center rounded-[15px] bg-[#f3eae4] text-[#682b00]"
           >
             <FileText
               :size="23"
@@ -367,19 +367,19 @@ onMounted(() => {
           </div>
 
           <p
-            class="text-xs font-bold tracking-[0.08em] text-[#6c817a] uppercase"
+            class="text-xs font-bold tracking-[0.08em] text-[#81756c] uppercase"
           >
             Laporan Kelurahan
           </p>
 
           <h1
-            class="mt-1 text-[23px] leading-tight font-bold text-[#173f37] sm:text-[27px]"
+            class="mt-1 text-[23px] leading-tight font-bold text-[#3f2817] sm:text-[27px]"
           >
             Monitoring dan Evaluasi BPNT
           </h1>
 
           <p
-            class="mt-2 max-w-2xl text-sm leading-6 text-[#61756e]"
+            class="mt-2 max-w-2xl text-sm leading-6 text-[#756961]"
           >
             Data KPM, nominal, status, E-Warung, dan evaluasi dihitung otomatis dari periode aktif.
           </p>
@@ -387,7 +387,7 @@ onMounted(() => {
 
         <button
           type="button"
-          class="inline-flex min-h-11 items-center justify-center gap-2 rounded-[14px] border border-[#d9e6e1] bg-white px-4 text-sm font-bold text-[#365c53] transition hover:bg-[#f2f8f6] disabled:cursor-not-allowed disabled:opacity-55"
+          class="inline-flex min-h-11 items-center justify-center gap-2 rounded-[14px] border border-[#e6ded9] bg-white px-4 text-sm font-bold text-[#5c4636] transition hover:bg-[#f8f4f2] disabled:cursor-not-allowed disabled:opacity-55"
           :disabled="loading || downloading"
           @click="loadReport"
         >
@@ -405,13 +405,13 @@ onMounted(() => {
 
     <div
       v-if="loading"
-      class="grid min-h-56 place-items-center rounded-[22px] border border-[#dce8e4] bg-white"
+      class="grid min-h-56 place-items-center rounded-[22px] border border-[#e8e1dc] bg-white"
     >
       <div
-        class="flex flex-col items-center gap-3 text-[#61756e]"
+        class="flex flex-col items-center gap-3 text-[#756961]"
       >
         <LoaderCircle
-          class="animate-spin text-[#006855]"
+          class="animate-spin text-[#682b00]"
           :size="30"
         />
 
@@ -448,84 +448,84 @@ onMounted(() => {
         class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
       >
         <article
-          class="rounded-[20px] border border-[#dce8e4] bg-white p-4"
+          class="rounded-[20px] border border-[#e8e1dc] bg-white p-4"
         >
           <MapPin
             :size="20"
-            class="text-[#006855]"
+            class="text-[#682b00]"
           />
 
           <p
-            class="mt-3 text-xs font-semibold text-[#7a8c86]"
+            class="mt-3 text-xs font-semibold text-[#8c827a]"
           >
             Kelurahan tugas
           </p>
 
           <strong
-            class="mt-1 block text-base text-[#173f37]"
+            class="mt-1 block text-base text-[#3f2817]"
           >
             {{ report.assignment.kelurahan.name }}
           </strong>
         </article>
 
         <article
-          class="rounded-[20px] border border-[#dce8e4] bg-white p-4"
+          class="rounded-[20px] border border-[#e8e1dc] bg-white p-4"
         >
           <ClipboardList
             :size="20"
-            class="text-[#006855]"
+            class="text-[#682b00]"
           />
 
           <p
-            class="mt-3 text-xs font-semibold text-[#7a8c86]"
+            class="mt-3 text-xs font-semibold text-[#8c827a]"
           >
             Periode aktif
           </p>
 
           <strong
-            class="mt-1 block text-base text-[#173f37]"
+            class="mt-1 block text-base text-[#3f2817]"
           >
             {{ report.period.allocation_label }}
           </strong>
         </article>
 
         <article
-          class="rounded-[20px] border border-[#dce8e4] bg-white p-4"
+          class="rounded-[20px] border border-[#e8e1dc] bg-white p-4"
         >
           <Users
             :size="20"
-            class="text-[#006855]"
+            class="text-[#682b00]"
           />
 
           <p
-            class="mt-3 text-xs font-semibold text-[#7a8c86]"
+            class="mt-3 text-xs font-semibold text-[#8c827a]"
           >
             Jumlah KPM
           </p>
 
           <strong
-            class="mt-1 block text-base text-[#173f37]"
+            class="mt-1 block text-base text-[#3f2817]"
           >
             {{ formatNumber(report.summary.total_kpm) }} KPM
           </strong>
         </article>
 
         <article
-          class="rounded-[20px] border border-[#dce8e4] bg-white p-4"
+          class="rounded-[20px] border border-[#e8e1dc] bg-white p-4"
         >
           <WalletCards
             :size="20"
-            class="text-[#006855]"
+            class="text-[#682b00]"
           />
 
           <p
-            class="mt-3 text-xs font-semibold text-[#7a8c86]"
+            class="mt-3 text-xs font-semibold text-[#8c827a]"
           >
             Total saldo BNBA
           </p>
 
           <strong
-            class="mt-1 block text-base text-[#173f37]"
+            class="mt-1 block text-base text-[#3f2817]"
           >
             {{ formatCurrency(report.summary.total_balance) }}
           </strong>
@@ -546,7 +546,7 @@ onMounted(() => {
 
       <div
         v-if="successMessage"
-        class="flex items-start gap-3 rounded-[18px] border border-[#bfe2d5] bg-[#f2fbf7] p-4 text-sm text-[#176448]"
+        class="flex items-start gap-3 rounded-[18px] border border-[#e2cebf] bg-[#fbf6f2] p-4 text-sm text-[#643717]"
       >
         <CheckCircle2
           class="mt-0.5 shrink-0"
@@ -557,20 +557,20 @@ onMounted(() => {
       </div>
 
       <section
-        class="rounded-[22px] border border-[#dce8e4] bg-white p-5 shadow-[0_12px_30px_rgb(24_59_53_/_5%)] sm:p-6"
+        class="rounded-[22px] border border-[#e8e1dc] bg-white p-5 shadow-[0_12px_30px_rgb(24_59_53_/_5%)] sm:p-6"
       >
         <div
           class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
             <h2
-              class="text-lg font-bold text-[#173f37]"
+              class="text-lg font-bold text-[#3f2817]"
             >
               Komoditas
             </h2>
 
             <p
-              class="mt-1 text-sm text-[#71847e]"
+              class="mt-1 text-sm text-[#847971]"
             >
               Isi maksimal lima jenis komoditas yang disalurkan.
             </p>
@@ -578,7 +578,7 @@ onMounted(() => {
 
           <button
             type="button"
-            class="inline-flex min-h-10 items-center justify-center gap-2 rounded-[13px] border border-[#cfe0da] bg-[#f5faf8] px-4 text-sm font-bold text-[#006855] disabled:cursor-not-allowed disabled:opacity-45"
+            class="inline-flex min-h-10 items-center justify-center gap-2 rounded-[13px] border border-[#e0d6cf] bg-[#faf7f5] px-4 text-sm font-bold text-[#682b00] disabled:cursor-not-allowed disabled:opacity-45"
             :disabled="!canAddCommodity"
             @click="addCommodity"
           >
@@ -589,7 +589,7 @@ onMounted(() => {
 
         <div
           v-if="commodities.length === 0"
-          class="mt-5 rounded-[16px] border border-dashed border-[#cbdcd6] bg-[#f8fbfa] p-5 text-center text-sm text-[#71847e]"
+          class="mt-5 rounded-[16px] border border-dashed border-[#dcd2cb] bg-[#fbf9f8] p-5 text-center text-sm text-[#847971]"
         >
           Belum ada komoditas. Tekan “Tambah Komoditas” untuk mulai mengisi.
         </div>
@@ -604,7 +604,7 @@ onMounted(() => {
             class="flex items-center gap-3"
           >
             <span
-              class="grid size-9 shrink-0 place-items-center rounded-[12px] bg-[#edf5f2] text-sm font-bold text-[#006855]"
+              class="grid size-9 shrink-0 place-items-center rounded-[12px] bg-[#f5f0ed] text-sm font-bold text-[#682b00]"
             >
               {{ index + 1 }}
             </span>
@@ -614,7 +614,7 @@ onMounted(() => {
               data-test="commodity-input"
               type="text"
               maxlength="100"
-              class="min-h-11 min-w-0 flex-1 rounded-[13px] border border-[#cfddd8] bg-white px-4 text-sm text-[#254a42] outline-none transition focus:border-[#00846d] focus:ring-3 focus:ring-[#00846d]/10"
+              class="min-h-11 min-w-0 flex-1 rounded-[13px] border border-[#ddd5cf] bg-white px-4 text-sm text-[#4a3425] outline-none transition focus:border-[#843700] focus:ring-3 focus:ring-[#843700]/10"
               :placeholder="`Nama komoditas ${index + 1}`"
             >
 
@@ -631,16 +631,16 @@ onMounted(() => {
       </section>
 
       <section
-        class="rounded-[22px] border border-[#dce8e4] bg-white p-5 shadow-[0_12px_30px_rgb(24_59_53_/_5%)] sm:p-6"
+        class="rounded-[22px] border border-[#e8e1dc] bg-white p-5 shadow-[0_12px_30px_rgb(24_59_53_/_5%)] sm:p-6"
       >
         <h2
-          class="text-lg font-bold text-[#173f37]"
+          class="text-lg font-bold text-[#3f2817]"
         >
           Nama Pelapor
         </h2>
 
         <p
-          class="mt-1 text-sm leading-6 text-[#71847e]"
+          class="mt-1 text-sm leading-6 text-[#847971]"
         >
           Nama dapat dikoreksi setiap saat. Kolom tanda tangan tetap kosong pada PDF.
         </p>
@@ -650,7 +650,7 @@ onMounted(() => {
         >
           <label class="block">
             <span
-              class="text-sm font-bold text-[#365c53]"
+              class="text-sm font-bold text-[#5c4636]"
             >
               Kasi Sosial & Pemberdayaan Masyarakat
             </span>
@@ -660,14 +660,14 @@ onMounted(() => {
               data-test="social-officer-name"
               type="text"
               maxlength="150"
-              class="mt-2 min-h-11 w-full rounded-[13px] border border-[#cfddd8] bg-white px-4 text-sm text-[#254a42] outline-none transition focus:border-[#00846d] focus:ring-3 focus:ring-[#00846d]/10"
+              class="mt-2 min-h-11 w-full rounded-[13px] border border-[#ddd5cf] bg-white px-4 text-sm text-[#4a3425] outline-none transition focus:border-[#843700] focus:ring-3 focus:ring-[#843700]/10"
               placeholder="Isi nama pelapor"
             >
           </label>
 
           <label class="block">
             <span
-              class="text-sm font-bold text-[#365c53]"
+              class="text-sm font-bold text-[#5c4636]"
             >
               Pendamping Penyaluran BPNT
             </span>
@@ -677,7 +677,7 @@ onMounted(() => {
               data-test="distribution-assistant-name"
               type="text"
               maxlength="150"
-              class="mt-2 min-h-11 w-full rounded-[13px] border border-[#cfddd8] bg-white px-4 text-sm text-[#254a42] outline-none transition focus:border-[#00846d] focus:ring-3 focus:ring-[#00846d]/10"
+              class="mt-2 min-h-11 w-full rounded-[13px] border border-[#ddd5cf] bg-white px-4 text-sm text-[#4a3425] outline-none transition focus:border-[#843700] focus:ring-3 focus:ring-[#843700]/10"
               placeholder="Nama Surveyor"
             >
           </label>
@@ -685,16 +685,16 @@ onMounted(() => {
       </section>
 
       <section
-        class="rounded-[22px] border border-[#dce8e4] bg-white p-5 sm:p-6"
+        class="rounded-[22px] border border-[#e8e1dc] bg-white p-5 sm:p-6"
       >
         <div class="flex items-center gap-3">
           <Store
             :size="21"
-            class="text-[#006855]"
+            class="text-[#682b00]"
           />
 
           <h2
-            class="text-lg font-bold text-[#173f37]"
+            class="text-lg font-bold text-[#3f2817]"
           >
             Ringkasan Otomatis
           </h2>
@@ -704,16 +704,16 @@ onMounted(() => {
           class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
         >
           <div
-            class="rounded-[15px] bg-[#f3f8f6] p-4"
+            class="rounded-[15px] bg-[#f8f5f3] p-4"
           >
             <dt
-              class="text-xs font-semibold text-[#71847e]"
+              class="text-xs font-semibold text-[#847971]"
             >
               Mengambil
             </dt>
 
             <dd
-              class="mt-1 text-lg font-bold text-[#176448]"
+              class="mt-1 text-lg font-bold text-[#643717]"
             >
               {{ formatNumber(report.summary.taking) }}
             </dd>
@@ -775,16 +775,16 @@ onMounted(() => {
         </dl>
 
         <div
-          class="mt-4 rounded-[16px] bg-[#f8fbfa] p-4"
+          class="mt-4 rounded-[16px] bg-[#fbf9f8] p-4"
         >
           <p
-            class="text-xs font-bold tracking-[0.04em] text-[#71847e] uppercase"
+            class="text-xs font-bold tracking-[0.04em] text-[#847971] uppercase"
           >
             E-Warung
           </p>
 
           <p
-            class="mt-2 text-sm leading-6 text-[#365c53]"
+            class="mt-2 text-sm leading-6 text-[#5c4636]"
           >
             {{
               report.summary.e_warungs.join(', ')
@@ -795,16 +795,16 @@ onMounted(() => {
         </div>
 
         <div
-          class="mt-3 rounded-[16px] bg-[#f8fbfa] p-4"
+          class="mt-3 rounded-[16px] bg-[#fbf9f8] p-4"
         >
           <p
-            class="text-xs font-bold tracking-[0.04em] text-[#71847e] uppercase"
+            class="text-xs font-bold tracking-[0.04em] text-[#847971] uppercase"
           >
             Evaluasi otomatis
           </p>
 
           <p
-            class="mt-2 text-sm leading-6 text-[#365c53]"
+            class="mt-2 text-sm leading-6 text-[#5c4636]"
           >
             {{ report.summary.evaluation }}
           </p>
@@ -815,7 +815,7 @@ onMounted(() => {
   <button
     type="button"
     data-test="download-report"
-    class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[14px] bg-[#006855] px-5 text-sm font-bold text-white shadow-[0_10px_22px_rgb(0_104_85_/_22%)] transition hover:bg-[#005746] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+    class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[14px] bg-[#682b00] px-5 text-sm font-bold text-white shadow-[0_10px_22px_rgb(0_104_85_/_22%)] transition hover:bg-[#572400] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
     :disabled="downloading || !formIsValid"
     @click="handleDownload"
   >

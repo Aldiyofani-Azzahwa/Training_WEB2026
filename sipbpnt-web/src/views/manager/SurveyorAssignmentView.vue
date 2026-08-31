@@ -766,7 +766,7 @@ onMounted(
       >
         <div>
           <span
-            class="text-xs font-extrabold uppercase tracking-[0.16em] text-brand-600"
+            class="text-xs font-extrabold uppercase tracking-[0.16em] text-orange-600"
           >
             Manager
           </span>
@@ -1039,7 +1039,7 @@ onMounted(
         class="flex items-center gap-3"
       >
         <span
-          class="grid size-10 place-items-center rounded-xl bg-brand-50 text-brand-700"
+          class="grid size-10 place-items-center rounded-xl bg-orange-50 text-orange-700"
         >
           <Users
             :size="18"
@@ -1078,7 +1078,7 @@ onMounted(
             v-model="
               selectedKecamatanId
             "
-            class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-50"
+            class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-50"
             :disabled="
               saving
               ||
@@ -1121,7 +1121,7 @@ onMounted(
             v-model="
               selectedKelurahanId
             "
-            class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-50 disabled:bg-slate-100"
+            class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-50 disabled:bg-slate-100"
             :disabled="
               selectedKecamatanId === null
               ||
@@ -1193,7 +1193,7 @@ onMounted(
             v-model="
               selectedSurveyorId
             "
-            class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-50 disabled:bg-slate-100"
+            class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-50 disabled:bg-slate-100"
             :disabled="
               saving
               ||
@@ -1297,7 +1297,7 @@ onMounted(
       >
         <button
           type="button"
-          class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand-600 px-5 text-sm font-extrabold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+          class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-orange-600 px-5 text-sm font-extrabold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-60"
           :disabled="
             !canSave
           "

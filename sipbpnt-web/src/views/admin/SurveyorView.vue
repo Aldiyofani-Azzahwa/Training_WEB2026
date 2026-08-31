@@ -32,13 +32,17 @@ import type {
   SurveyorUpdatePayload,
 } from '@/types/surveyor'
 
-type StatusFilter =
-  | 'all'
-  | 'active'
-  | 'inactive'
+import type {
+  FormErrors,
+  StatusFilter,
+} from '@/types/adminCrud'
 
-type FormErrors =
-  Record<string, string[]>
+import {
+  firstFieldError as sharedFirstFieldError,
+  matchesStatusFilter,
+} from '@/utils/adminCrud'
+
+import { formatDateTimeMedium } from '@/utils/formatDateTime'
 
 interface SurveyorFormState {
   name: string
@@ -131,19 +135,10 @@ const filteredSurveyors =
           surveyor,
         ) => {
           if (
-            statusFilter.value
-            === 'active'
-            &&
-            !surveyor.is_active
-          ) {
-            return false
-          }
-
-          if (
-            statusFilter.value
-            === 'inactive'
-            &&
-            surveyor.is_active
+            !matchesStatusFilter(
+              surveyor.is_active,
+              statusFilter.value,
+            )
           ) {
             return false
           }
@@ -263,39 +258,19 @@ function nullableValue(
 function firstFieldError(
   field: string,
 ): string | null {
-  return formErrors
-    .value[
-      field
-    ]?.[0]
-    ?? null
+  return sharedFirstFieldError(
+    formErrors.value,
+    field,
+  )
 }
 
 function formatLastLogin(
   value: string | null,
 ): string {
-  if (!value) {
-    return 'Belum pernah'
-  }
-
-  return new Intl
-    .DateTimeFormat(
-      'id-ID',
-      {
-        dateStyle:
-          'medium',
-
-        timeStyle:
-          'short',
-
-        timeZone:
-          'Asia/Jakarta',
-      },
-    )
-    .format(
-      new Date(
-        value,
-      ),
-    )
+  return formatDateTimeMedium(
+    value,
+    'Belum pernah',
+  )
 }
 
 async function loadSurveyors():
@@ -577,7 +552,7 @@ onMounted(() => {
       >
         <div>
           <span
-            class="text-xs font-extrabold uppercase tracking-[0.16em] text-brand-600"
+            class="text-xs font-extrabold uppercase tracking-[0.16em] text-orange-600"
           >
             Pengguna Lapangan
           </span>
@@ -600,7 +575,7 @@ onMounted(() => {
 
         <button
           type="button"
-          class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 text-sm font-extrabold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+          class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-orange-600 px-4 text-sm font-extrabold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-60"
           :disabled="
             loading
             ||
@@ -729,13 +704,13 @@ onMounted(() => {
             v-model="searchQuery"
             type="search"
             placeholder="Cari nama, username, email, atau nomor HP"
-            class="min-h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm text-slate-800 outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-50"
+            class="min-h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm text-slate-800 outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-50"
           />
         </label>
 
         <select
           v-model="statusFilter"
-          class="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-50"
+          class="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-50"
         >
           <option
             value="all"
@@ -1046,7 +1021,7 @@ onMounted(() => {
         >
           <div>
             <span
-              class="text-xs font-extrabold uppercase tracking-[0.14em] text-brand-600"
+              class="text-xs font-extrabold uppercase tracking-[0.14em] text-orange-600"
             >
               {{
                 isEditing
@@ -1110,7 +1085,7 @@ onMounted(() => {
                 type="text"
                 maxlength="150"
                 autocomplete="name"
-                class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-50"
+                class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-50"
               />
 
               <span
@@ -1145,7 +1120,7 @@ onMounted(() => {
                 type="text"
                 maxlength="60"
                 autocomplete="username"
-                class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-50"
+                class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-50"
               />
 
               <span
@@ -1181,7 +1156,7 @@ onMounted(() => {
                 maxlength="20"
                 autocomplete="tel"
                 placeholder="Contoh: 081234567890"
-                class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-50"
+                class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-50"
               />
 
               <span
@@ -1222,7 +1197,7 @@ onMounted(() => {
                 type="email"
                 maxlength="150"
                 autocomplete="email"
-                class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-50"
+                class="mt-2 min-h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-50"
               />
 
               <span
@@ -1274,7 +1249,7 @@ onMounted(() => {
                       : 'password'
                   "
                   autocomplete="new-password"
-                  class="min-h-11 w-full rounded-xl border border-slate-200 pl-3 pr-11 text-sm outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-50"
+                  class="min-h-11 w-full rounded-xl border border-slate-200 pl-3 pr-11 text-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-50"
                 />
 
                 <button
@@ -1344,7 +1319,7 @@ onMounted(() => {
                       : 'password'
                   "
                   autocomplete="new-password"
-                  class="min-h-11 w-full rounded-xl border border-slate-200 pl-3 pr-11 text-sm outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-50"
+                  class="min-h-11 w-full rounded-xl border border-slate-200 pl-3 pr-11 text-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-50"
                 />
 
                 <button
@@ -1385,7 +1360,7 @@ onMounted(() => {
 
             <button
               type="submit"
-              class="min-h-11 rounded-xl bg-brand-600 px-5 text-sm font-extrabold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+              class="min-h-11 rounded-xl bg-orange-600 px-5 text-sm font-extrabold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-60"
               :disabled="saving"
             >
               {{

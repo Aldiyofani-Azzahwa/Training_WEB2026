@@ -250,7 +250,7 @@ function verificationBadgeClass(
   if (
     verification.is_cancelled
   ) {
-    return 'border-[#e2e7e5] bg-[#f2f5f4] text-[#66746f]'
+    return 'border-[#e7e4e2] bg-[#f5f3f2] text-[#746c66]'
   }
 
   switch (
@@ -266,7 +266,7 @@ function verificationBadgeClass(
       return 'border-[#ecd9b8] bg-[#fff8e9] text-[#9a620d]'
 
     default:
-      return 'border-[#d9e6e1] bg-[#f4f8f6] text-[#566c65]'
+      return 'border-[#e6ded9] bg-[#f8f6f4] text-[#6c5f56]'
   }
 }
 
@@ -516,13 +516,13 @@ onMounted(() => {
         </span>
 
         <h1
-          class="my-1 text-[27px] leading-tight font-bold text-[#173f37] lg:text-[34px]"
+          class="my-1 text-[27px] leading-tight font-bold text-[#3f2817] lg:text-[34px]"
         >
           Riwayat
         </h1>
 
         <p
-          class="m-0 text-sm leading-[1.6] text-[#72847e]"
+          class="m-0 text-sm leading-[1.6] text-[#847a72]"
         >
           Riwayat transaksi dan verifikasi status KPM.
         </p>
@@ -548,22 +548,22 @@ onMounted(() => {
         class="grid grid-cols-2 gap-3"
       >
         <div
-          class="h-[86px] animate-pulse rounded-[18px] bg-[#e7efec]"
+          class="h-[86px] animate-pulse rounded-[18px] bg-[#efeae7]"
         />
 
         <div
-          class="h-[86px] animate-pulse rounded-[18px] bg-[#e7efec]"
+          class="h-[86px] animate-pulse rounded-[18px] bg-[#efeae7]"
         />
       </div>
 
       <div
-        class="h-[52px] animate-pulse rounded-[16px] bg-[#e7efec]"
+        class="h-[52px] animate-pulse rounded-[16px] bg-[#efeae7]"
       />
 
       <div
         v-for="number in 3"
         :key="number"
-        class="h-[190px] animate-pulse rounded-[20px] bg-[#e7efec]"
+        class="h-[190px] animate-pulse rounded-[20px] bg-[#efeae7]"
       />
 
       <span class="sr-only">
@@ -587,20 +587,20 @@ onMounted(() => {
       </div>
 
       <strong
-        class="text-base font-bold text-[#244b43]"
+        class="text-base font-bold text-[#4b3424]"
       >
         Riwayat belum dapat dimuat
       </strong>
 
       <p
-        class="mt-2 max-w-sm text-sm leading-[1.6] text-[#778984]"
+        class="mt-2 max-w-sm text-sm leading-[1.6] text-[#897e77]"
       >
         {{ historyError }}
       </p>
 
       <button
         type="button"
-        class="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#006855] px-5 text-sm font-bold text-white transition hover:bg-[#005746]"
+        class="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#682b00] px-5 text-sm font-bold text-white transition hover:bg-[#572400]"
         data-testid="history-retry"
         @click="loadHistory"
       >
@@ -618,10 +618,10 @@ onMounted(() => {
         class="grid grid-cols-2 gap-3"
       >
         <article
-          class="rounded-[18px] border border-[#cfe4dc] bg-[#f2faf7] p-4"
+          class="rounded-[18px] border border-[#e4d8cf] bg-[#faf5f2] p-4"
         >
           <div
-            class="mb-3 grid size-10 place-items-center rounded-xl bg-[#006855] text-white"
+            class="mb-3 grid size-10 place-items-center rounded-xl bg-[#682b00] text-white"
           >
             <ReceiptText
               :size="20"
@@ -630,13 +630,13 @@ onMounted(() => {
           </div>
 
           <span
-            class="block text-[11px] font-semibold text-[#71837d]"
+            class="block text-[11px] font-semibold text-[#837871]"
           >
             Transaksi
           </span>
 
           <strong
-            class="mt-0.5 block text-2xl font-extrabold text-[#173f37]"
+            class="mt-0.5 block text-2xl font-extrabold text-[#3f2817]"
           >
             {{ transactionTotal.toLocaleString('id-ID') }}
           </strong>
@@ -661,7 +661,7 @@ onMounted(() => {
           </span>
 
           <strong
-            class="mt-0.5 block text-2xl font-extrabold text-[#173f37]"
+            class="mt-0.5 block text-2xl font-extrabold text-[#3f2817]"
           >
             {{ verificationTotal.toLocaleString('id-ID') }}
           </strong>
@@ -669,7 +669,7 @@ onMounted(() => {
       </div>
 
       <div
-        class="grid grid-cols-2 gap-1 rounded-[16px] border border-[#dfe9e5] bg-[#edf3f0] p-1"
+        class="grid grid-cols-2 gap-1 rounded-[16px] border border-[#e9e3df] bg-[#f3f0ed] p-1"
         role="tablist"
         aria-label="Jenis riwayat"
       >
@@ -679,8 +679,8 @@ onMounted(() => {
           class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-xs font-bold transition"
           :class="
             activeTab === 'transactions'
-              ? 'bg-white text-[#006855] shadow-sm'
-              : 'text-[#748780] hover:text-[#45665d]'
+              ? 'bg-white text-[#682b00] shadow-sm'
+              : 'text-[#877c74] hover:text-[#665345]'
           "
           :aria-selected="
             activeTab
@@ -709,7 +709,7 @@ onMounted(() => {
           :class="
             activeTab === 'verifications'
               ? 'bg-white text-[#9a620d] shadow-sm'
-              : 'text-[#748780] hover:text-[#45665d]'
+              : 'text-[#877c74] hover:text-[#665345]'
           "
           :aria-selected="
             activeTab
@@ -745,11 +745,11 @@ onMounted(() => {
             ===
             0
           "
-          class="grid justify-items-center rounded-[22px] border border-dashed border-[#cdded8] bg-white px-6 py-10 text-center"
+          class="grid justify-items-center rounded-[22px] border border-dashed border-[#ded4cd] bg-white px-6 py-10 text-center"
           data-testid="transactions-empty"
         >
           <div
-            class="mb-4 grid size-[60px] place-items-center rounded-[20px] bg-[#e8f5f0] text-[#006855]"
+            class="mb-4 grid size-[60px] place-items-center rounded-[20px] bg-[#f5ede8] text-[#682b00]"
           >
             <ReceiptText
               :size="30"
@@ -758,13 +758,13 @@ onMounted(() => {
           </div>
 
           <strong
-            class="text-base font-bold text-[#244b43]"
+            class="text-base font-bold text-[#4b3424]"
           >
             Belum ada transaksi
           </strong>
 
           <p
-            class="mt-2 max-w-sm text-sm leading-[1.6] text-[#778984]"
+            class="mt-2 max-w-sm text-sm leading-[1.6] text-[#897e77]"
           >
             Transaksi yang dicatat melalui KPM atau
             Scan KTP akan tampil di halaman ini.
@@ -779,13 +779,13 @@ onMounted(() => {
           <article
             v-for="transaction in transactions"
             :key="transaction.id"
-            class="min-w-0 overflow-hidden rounded-[20px] border border-[#dfe9e5] bg-white shadow-[0_9px_25px_rgb(30_65_55_/_5%)]"
+            class="min-w-0 overflow-hidden rounded-[20px] border border-[#e9e3df] bg-white shadow-[0_9px_25px_rgb(30_65_55_/_5%)]"
           >
             <header
               class="flex items-start gap-3 p-4"
             >
               <div
-                class="grid size-11 shrink-0 place-items-center rounded-[14px] bg-[#e8f5f0] text-xs font-extrabold text-[#006855]"
+                class="grid size-11 shrink-0 place-items-center rounded-[14px] bg-[#f5ede8] text-xs font-extrabold text-[#682b00]"
               >
                 {{
                   participantInitials(
@@ -799,7 +799,7 @@ onMounted(() => {
 
               <div class="min-w-0 flex-1">
                 <strong
-                  class="block overflow-hidden text-[15px] font-bold text-ellipsis whitespace-nowrap text-[#244b43]"
+                  class="block overflow-hidden text-[15px] font-bold text-ellipsis whitespace-nowrap text-[#4b3424]"
                   :title="
                     transaction
                       .participant
@@ -816,7 +816,7 @@ onMounted(() => {
                 </strong>
 
                 <span
-                  class="mt-0.5 block text-[11px] text-[#7b8c86]"
+                  class="mt-0.5 block text-[11px] text-[#8c827b]"
                 >
                   NIK
                   {{
@@ -829,14 +829,14 @@ onMounted(() => {
               </div>
 
               <span
-                class="shrink-0 rounded-full bg-[#e5f5ee] px-2.5 py-1.5 text-[10px] font-bold text-[#08745e]"
+                class="shrink-0 rounded-full bg-[#f5ece5] px-2.5 py-1.5 text-[10px] font-bold text-[#743508]"
               >
                 Sudah Bertransaksi
               </span>
             </header>
 
             <div
-              class="mx-4 grid gap-3 rounded-[15px] bg-[#f8faf9] p-3"
+              class="mx-4 grid gap-3 rounded-[15px] bg-[#faf9f8] p-3"
             >
               <div
                 class="flex items-start gap-2.5"
@@ -844,18 +844,18 @@ onMounted(() => {
                 <Store
                   :size="18"
                   :stroke-width="1.9"
-                  class="mt-0.5 shrink-0 text-[#006855]"
+                  class="mt-0.5 shrink-0 text-[#682b00]"
                 />
 
                 <div class="min-w-0">
                   <span
-                    class="block text-[10px] text-[#7a8c86]"
+                    class="block text-[10px] text-[#8c827a]"
                   >
                     E-Warung
                   </span>
 
                   <strong
-                    class="block overflow-hidden text-xs font-bold text-ellipsis whitespace-nowrap text-[#35594f]"
+                    class="block overflow-hidden text-xs font-bold text-ellipsis whitespace-nowrap text-[#594435]"
                   >
                     {{ transaction.e_warung.name }}
                   </strong>
@@ -868,18 +868,18 @@ onMounted(() => {
                 <MapPin
                   :size="18"
                   :stroke-width="1.9"
-                  class="mt-0.5 shrink-0 text-[#638079]"
+                  class="mt-0.5 shrink-0 text-[#806f63]"
                 />
 
                 <div class="min-w-0">
                   <span
-                    class="block text-[10px] text-[#7a8c86]"
+                    class="block text-[10px] text-[#8c827a]"
                   >
                     Wilayah KPM
                   </span>
 
                   <strong
-                    class="block text-xs font-bold text-[#45665d]"
+                    class="block text-xs font-bold text-[#665345]"
                   >
                     {{
                       transaction
@@ -893,7 +893,7 @@ onMounted(() => {
                   </strong>
 
                   <p
-                    class="mt-0.5 line-clamp-2 text-[11px] leading-[1.5] text-[#7b8d87]"
+                    class="mt-0.5 line-clamp-2 text-[11px] leading-[1.5] text-[#8d837b]"
                   >
                     {{ participantAddress(transaction) }}
                   </p>
@@ -902,17 +902,17 @@ onMounted(() => {
             </div>
 
             <footer
-              class="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[#edf1ef] bg-[#fcfdfc] px-4 py-3"
+              class="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[#f1efed] bg-[#fcfdfc] px-4 py-3"
             >
               <div>
                 <span
-                  class="block text-[10px] text-[#7b8c86]"
+                  class="block text-[10px] text-[#8c827b]"
                 >
                   {{ transaction.period.name }}
                 </span>
 
                 <strong
-                  class="text-[11px] font-bold text-[#50665f]"
+                  class="text-[11px] font-bold text-[#665950]"
                 >
                   {{ formatDateTime(transaction.transacted_at) }}
                 </strong>
@@ -929,7 +929,7 @@ onMounted(() => {
             ===
             0
           "
-          class="grid justify-items-center rounded-[22px] border border-dashed border-[#cdded8] bg-white px-6 py-10 text-center"
+          class="grid justify-items-center rounded-[22px] border border-dashed border-[#ded4cd] bg-white px-6 py-10 text-center"
           data-testid="verifications-empty"
         >
           <div
@@ -942,13 +942,13 @@ onMounted(() => {
           </div>
 
           <strong
-            class="text-base font-bold text-[#244b43]"
+            class="text-base font-bold text-[#4b3424]"
           >
             Belum ada verifikasi KPM
           </strong>
 
           <p
-            class="mt-2 max-w-sm text-sm leading-[1.6] text-[#778984]"
+            class="mt-2 max-w-sm text-sm leading-[1.6] text-[#897e77]"
           >
             Status Meninggal, Pindah Domisili, atau
             Tidak Mengambil akan tampil di sini.
@@ -963,7 +963,7 @@ onMounted(() => {
           <article
             v-for="verification in verifications"
             :key="verification.id"
-            class="min-w-0 overflow-hidden rounded-[20px] border border-[#dfe9e5] bg-white shadow-[0_9px_25px_rgb(30_65_55_/_5%)]"
+            class="min-w-0 overflow-hidden rounded-[20px] border border-[#e9e3df] bg-white shadow-[0_9px_25px_rgb(30_65_55_/_5%)]"
           >
             <header
               class="flex items-start gap-3 p-4"
@@ -983,7 +983,7 @@ onMounted(() => {
 
               <div class="min-w-0 flex-1">
                 <strong
-                  class="block overflow-hidden text-[15px] font-bold text-ellipsis whitespace-nowrap text-[#244b43]"
+                  class="block overflow-hidden text-[15px] font-bold text-ellipsis whitespace-nowrap text-[#4b3424]"
                   :title="
                     verification
                       .participant
@@ -1000,7 +1000,7 @@ onMounted(() => {
                 </strong>
 
                 <span
-                  class="mt-0.5 block text-[11px] text-[#7b8c86]"
+                  class="mt-0.5 block text-[11px] text-[#8c827b]"
                 >
                   NIK
                   {{
@@ -1029,7 +1029,7 @@ onMounted(() => {
             </header>
 
             <div
-              class="mx-4 grid gap-3 rounded-[15px] bg-[#f8faf9] p-3"
+              class="mx-4 grid gap-3 rounded-[15px] bg-[#faf9f8] p-3"
             >
               <div
                 class="flex items-start gap-2.5"
@@ -1037,18 +1037,18 @@ onMounted(() => {
                 <MapPin
                   :size="18"
                   :stroke-width="1.9"
-                  class="mt-0.5 shrink-0 text-[#638079]"
+                  class="mt-0.5 shrink-0 text-[#806f63]"
                 />
 
                 <div class="min-w-0">
                   <span
-                    class="block text-[10px] text-[#7a8c86]"
+                    class="block text-[10px] text-[#8c827a]"
                   >
                     Wilayah KPM
                   </span>
 
                   <strong
-                    class="block text-xs font-bold text-[#45665d]"
+                    class="block text-xs font-bold text-[#665345]"
                   >
                     {{
                       verification
@@ -1062,7 +1062,7 @@ onMounted(() => {
                   </strong>
 
                   <p
-                    class="mt-0.5 line-clamp-2 text-[11px] leading-[1.5] text-[#7b8d87]"
+                    class="mt-0.5 line-clamp-2 text-[11px] leading-[1.5] text-[#8d837b]"
                   >
                     {{ participantAddress(verification) }}
                   </p>
@@ -1088,7 +1088,7 @@ onMounted(() => {
 
               <div
                 v-if="verification.is_cancelled"
-                class="rounded-xl border border-[#e0e5e3] bg-white p-3"
+                class="rounded-xl border border-[#e5e2e0] bg-white p-3"
               >
                 <div
                   class="flex items-start gap-2"
@@ -1096,18 +1096,18 @@ onMounted(() => {
                   <CircleAlert
                     :size="18"
                     :stroke-width="2"
-                    class="mt-0.5 shrink-0 text-[#66746f]"
+                    class="mt-0.5 shrink-0 text-[#746c66]"
                   />
 
                   <div>
                     <strong
-                      class="block text-xs text-[#4e5e58]"
+                      class="block text-xs text-[#5e554e]"
                     >
                       Dibatalkan Manager
                     </strong>
 
                     <p
-                      class="mt-1 text-[11px] leading-[1.5] text-[#778680]"
+                      class="mt-1 text-[11px] leading-[1.5] text-[#867d77]"
                     >
                       {{
                         verification.cancelled_by
@@ -1130,17 +1130,17 @@ onMounted(() => {
             </div>
 
             <footer
-              class="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[#edf1ef] bg-[#fcfdfc] px-4 py-3"
+              class="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[#f1efed] bg-[#fcfdfc] px-4 py-3"
             >
               <div>
                 <span
-                  class="block text-[10px] text-[#7b8c86]"
+                  class="block text-[10px] text-[#8c827b]"
                 >
                   {{ verification.period.name }}
                 </span>
 
                 <strong
-                  class="text-[11px] font-bold text-[#50665f]"
+                  class="text-[11px] font-bold text-[#665950]"
                 >
                   {{ formatDateTime(verification.verified_at) }}
                 </strong>
@@ -1148,7 +1148,7 @@ onMounted(() => {
 
               <span
                 v-if="!verification.is_cancelled"
-                class="inline-flex items-center gap-1 rounded-full bg-[#e8f5f0] px-2.5 py-1 text-[10px] font-bold text-[#08745e]"
+                class="inline-flex items-center gap-1 rounded-full bg-[#f5ede8] px-2.5 py-1 text-[10px] font-bold text-[#743508]"
               >
                 <CheckCircle2
                   :size="13"
@@ -1181,7 +1181,7 @@ onMounted(() => {
       <button
         v-if="activeHasMore"
         type="button"
-        class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#006855] px-5 text-sm font-bold text-white transition hover:bg-[#005746] disabled:cursor-not-allowed disabled:opacity-60"
+        class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#682b00] px-5 text-sm font-bold text-white transition hover:bg-[#572400] disabled:cursor-not-allowed disabled:opacity-60"
         :disabled="activeLoadingMore"
         data-testid="history-load-more"
         @click="loadMoreHistory"
@@ -1211,7 +1211,7 @@ onMounted(() => {
           &&
           transactions.length > 0
         "
-        class="text-center text-[11px] text-[#80918b]"
+        class="text-center text-[11px] text-[#918780]"
       >
         Menampilkan
         {{ transactions.length.toLocaleString('id-ID') }}
@@ -1226,7 +1226,7 @@ onMounted(() => {
           &&
           verifications.length > 0
         "
-        class="text-center text-[11px] text-[#80918b]"
+        class="text-center text-[11px] text-[#918780]"
       >
         Menampilkan
         {{ verifications.length.toLocaleString('id-ID') }}

@@ -6,6 +6,7 @@ import axios from 'axios'
 
 import { useAuthStore } from '@/stores/auth'
 import { publicSite } from '@/config/publicSite'
+import berasTelurImg from '@/assets/images/beras-telur.png'
 
 import type {
   LoginPayload,
@@ -120,35 +121,11 @@ function handleForgotPassword(): void {
           <div class="illustration-circle circle-two" />
           <div class="illustration-circle circle-three" />
 
-          <div class="clipboard">
-            <div class="clipboard-top" />
-
-            <div class="clipboard-paper">
-              <div class="paper-line short" />
-              <div class="paper-line" />
-
-              <div class="chart">
-                <span class="bar bar-one" />
-                <span class="bar bar-two" />
-                <span class="bar bar-three" />
-                <span class="bar bar-four" />
-              </div>
-
-              <div class="paper-line" />
-              <div class="paper-line short" />
-
-              <div class="check">✓</div>
-            </div>
-          </div>
-
-          <div class="food-box">
-            <div class="food rice">🍚</div>
-            <div class="food oil">🫗</div>
-            <div class="food vegetable">🥬</div>
-            <div class="food tomato">🍅</div>
-
-            <div class="box-symbol">✦</div>
-          </div>
+          <img
+            :src="berasTelurImg"
+            alt="Ilustrasi beras dan telur"
+            class="illustration-image"
+          />
         </div>
       </div>
 
@@ -418,14 +395,19 @@ function handleForgotPassword(): void {
   position: relative;
 
   width: 480px;
-  height: 400px;
-
   max-width: 90%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 40px 0;
 }
 
 .illustration-circle {
   position: absolute;
   border-radius: 50%;
+  z-index: 1;
 }
 
 .circle-one {
@@ -452,211 +434,18 @@ function handleForgotPassword(): void {
   background: rgba(119, 167, 116, 0.08);
 }
 
-/* =========================================
-   CLIPBOARD
-========================================= */
+.illustration-image {
+  position: relative;
+  z-index: 3;
 
-.clipboard {
-  position: absolute;
+  width: 100%;
+  max-width: 440px;
 
-  width: 185px;
-  height: 285px;
+  border-radius: 28px;
 
-  left: 85px;
-  top: 60px;
+  box-shadow: 0 25px 45px rgba(40, 70, 66, 0.16);
 
-  transform: rotate(-3deg);
-
-  border-radius: 15px;
-
-  background: #3f6870;
-
-  box-shadow: 0 20px 35px rgba(40, 70, 66, 0.15);
-}
-
-.clipboard-top {
-  position: absolute;
-
-  width: 60px;
-  height: 40px;
-
-  left: 62px;
-  top: -20px;
-
-  border-radius: 12px 12px 5px 5px;
-
-  background: #315b63;
-}
-
-.clipboard-top::after {
-  content: '';
-
-  position: absolute;
-
-  width: 17px;
-  height: 17px;
-
-  left: 22px;
-  top: 7px;
-
-  border-radius: 50%;
-
-  background: #e8f0ed;
-}
-
-.clipboard-paper {
-  position: absolute;
-
-  left: 17px;
-  top: 35px;
-
-  width: 151px;
-  height: 230px;
-
-  padding: 25px 15px;
-
-  background: #fff;
-
-  border-radius: 4px;
-}
-
-.paper-line {
-  width: 85%;
-  height: 7px;
-
-  border-radius: 5px;
-
-  background: #aebbb9;
-
-  margin-bottom: 11px;
-}
-
-.paper-line.short {
-  width: 45%;
-}
-
-/* =========================================
-   CHART
-========================================= */
-
-.chart {
-  height: 80px;
-
-  display: flex;
-  align-items: flex-end;
-
-  gap: 9px;
-
-  padding: 0 10px;
-
-  margin: 15px 0;
-}
-
-.bar {
-  display: block;
-  width: 22px;
-  border-radius: 4px 4px 0 0;
-}
-
-.bar-one {
-  height: 28px;
-  background: #f27922;
-}
-
-.bar-two {
-  height: 48px;
-  background: #ffad17;
-}
-
-.bar-three {
-  height: 62px;
-  background: #ef9a18;
-}
-
-.bar-four {
-  height: 74px;
-  background: #087d69;
-}
-
-.check {
-  width: 43px;
-  height: 43px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  margin-top: 15px;
-
-  border-radius: 50%;
-
-  color: #fff;
-
-  font-size: 24px;
-  font-weight: 700;
-
-  background: #46a681;
-}
-
-/* =========================================
-   FOOD BOX
-========================================= */
-
-.food-box {
-  position: absolute;
-
-  width: 235px;
-  height: 155px;
-
-  right: 65px;
-  bottom: 45px;
-
-  border-radius: 3px 3px 12px 12px;
-
-  background: linear-gradient(135deg, #ffad18, #ff8d00);
-
-  box-shadow: 0 20px 35px rgba(180, 119, 25, 0.17);
-
-  z-index: 4;
-}
-
-.food {
-  position: absolute;
-}
-
-.rice {
-  left: -18px;
-  top: -75px;
-  font-size: 75px;
-  transform: rotate(-5deg);
-}
-
-.oil {
-  right: 55px;
-  top: -75px;
-  font-size: 65px;
-  transform: rotate(7deg);
-}
-
-.vegetable {
-  right: -10px;
-  top: -62px;
-  font-size: 72px;
-  transform: rotate(8deg);
-}
-
-.tomato {
-  right: 15px;
-  top: -18px;
-  font-size: 42px;
-}
-
-.box-symbol {
-  position: absolute;
-  right: 77px;
-  bottom: 30px;
-  color: #fff;
-  font-size: 55px;
+  object-fit: cover;
 }
 
 /* =========================================
@@ -1121,15 +910,7 @@ function handleForgotPassword(): void {
   }
 
   .illustration {
-    transform: scale(0.8);
-  }
-
-  .food-box {
-    right: 30px;
-  }
-
-  .clipboard {
-    left: 45px;
+    transform: scale(0.85);
   }
 }
 

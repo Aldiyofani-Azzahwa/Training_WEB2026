@@ -45,6 +45,8 @@ import type {
   BpntPeriod,
 } from '@/types/bnba'
 
+import { formatDateTimeLong } from '@/utils/formatDateTime'
+
 const PARTICIPANTS_PER_PAGE =
   50
 
@@ -343,32 +345,9 @@ function printPdf(): void {
 function formatDateTime(
   value: string | null,
 ): string {
-  if (value === null) {
-    return '-'
-  }
-
-  const date =
-    new Date(value)
-
-  if (
-    Number.isNaN(
-      date.getTime(),
-    )
-  ) {
-    return '-'
-  }
-
-  return new Intl.DateTimeFormat(
-    'id-ID',
-    {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZone: 'Asia/Jakarta',
-    },
-  ).format(date)
+  return formatDateTimeLong(
+    value,
+  )
 }
 
 function statusClass(
@@ -462,7 +441,7 @@ onMounted(() => {
   "
   type="button"
   data-testid="report-finalize-button"
-  class="inline-flex h-10 items-center gap-2 rounded-xl bg-blue-700 px-4 text-sm font-bold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
+  class="inline-flex h-10 items-center gap-2 rounded-xl bg-orange-700 px-4 text-sm font-bold text-white transition hover:bg-orange-800 disabled:cursor-not-allowed disabled:opacity-50"
   :disabled="
     !report.can_finalize
     || finalizing

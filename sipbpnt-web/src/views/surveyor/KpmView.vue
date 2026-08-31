@@ -1040,23 +1040,23 @@ onBeforeUnmount(() => {
       aria-live="polite"
     >
       <div
-        class="h-[27px] w-[62%] animate-pulse rounded-xl bg-[#e7efec]"
+        class="h-[27px] w-[62%] animate-pulse rounded-xl bg-[#efeae7]"
       />
 
       <div
-        class="h-[14px] w-[43%] animate-pulse rounded-xl bg-[#e7efec]"
+        class="h-[14px] w-[43%] animate-pulse rounded-xl bg-[#efeae7]"
       />
 
       <div
-        class="mt-[5px] h-[52px] w-full animate-pulse rounded-[17px] bg-[#e7efec]"
+        class="mt-[5px] h-[52px] w-full animate-pulse rounded-[17px] bg-[#efeae7]"
       />
 
       <div
-        class="h-[196px] w-full animate-pulse rounded-[20px] bg-[#e7efec]"
+        class="h-[196px] w-full animate-pulse rounded-[20px] bg-[#efeae7]"
       />
 
       <div
-        class="h-[196px] w-full animate-pulse rounded-[20px] bg-[#e7efec]"
+        class="h-[196px] w-full animate-pulse rounded-[20px] bg-[#efeae7]"
       />
 
       <span class="sr-only">
@@ -1079,19 +1079,19 @@ onBeforeUnmount(() => {
         />
       </div>
 
-      <strong class="text-base font-bold text-[#244b43]">
+      <strong class="text-base font-bold text-[#4b3424]">
         Data KPM belum dapat dimuat
       </strong>
 
       <p
-        class="mt-[7px] mb-0 max-w-80 text-[13px] leading-[1.6] text-[#778984]"
+        class="mt-[7px] mb-0 max-w-80 text-[13px] leading-[1.6] text-[#897e77]"
       >
         {{ workspaceError }}
       </p>
 
       <button
         type="button"
-        class="mt-[17px] inline-flex min-h-[45px] items-center justify-center gap-2 rounded-[14px] border-0 bg-[#006855] px-[17px] text-[13px] font-bold text-white transition-colors hover:bg-[#005746]"
+        class="mt-[17px] inline-flex min-h-[45px] items-center justify-center gap-2 rounded-[14px] border-0 bg-[#682b00] px-[17px] text-[13px] font-bold text-white transition-colors hover:bg-[#572400]"
         @click="loadWorkspace"
       >
         <RefreshCw
@@ -1121,12 +1121,12 @@ onBeforeUnmount(() => {
         />
       </div>
 
-      <strong class="text-base font-bold text-[#244b43]">
+      <strong class="text-base font-bold text-[#4b3424]">
         Belum ada periode aktif
       </strong>
 
       <p
-        class="mt-[7px] mb-0 max-w-80 text-[13px] leading-[1.6] text-[#778984]"
+        class="mt-[7px] mb-0 max-w-80 text-[13px] leading-[1.6] text-[#897e77]"
       >
         Daftar KPM belum tersedia karena periode
         BPNT belum diaktifkan oleh Admin Dinsos.
@@ -1151,12 +1151,12 @@ onBeforeUnmount(() => {
         />
       </div>
 
-      <strong class="text-base font-bold text-[#244b43]">
+      <strong class="text-base font-bold text-[#4b3424]">
         Anda belum memiliki wilayah tugas
       </strong>
 
       <p
-        class="mt-[7px] mb-0 max-w-80 text-[13px] leading-[1.6] text-[#778984]"
+        class="mt-[7px] mb-0 max-w-80 text-[13px] leading-[1.6] text-[#897e77]"
       >
         Hubungi Manager BPNT agar Kelurahan
         assignment dapat ditetapkan.
@@ -1175,20 +1175,20 @@ onBeforeUnmount(() => {
           </span>
 
           <h1
-            class="my-1 break-words text-[27px] leading-[1.22] font-bold text-[#173f37] lg:text-[34px]"
+            class="my-1 break-words text-[27px] leading-[1.22] font-bold text-[#3f2817] lg:text-[34px]"
             data-testid="kpm-page-title"
           >
             {{ pageTitle }}
           </h1>
 
-          <p class="m-0 text-[13px] text-[#72847e]">
+          <p class="m-0 text-[13px] text-[#847a72]">
             {{ totalParticipants.toLocaleString('id-ID') }}
             KPM pada wilayah tugas Anda.
           </p>
         </div>
 
         <div
-          class="grid size-12 shrink-0 place-items-center rounded-2xl bg-[#e8f5f0] text-[#006855]"
+          class="grid size-12 shrink-0 place-items-center rounded-2xl bg-[#f5ede8] text-[#682b00]"
         >
           <UsersRound
             :size="25"
@@ -1201,7 +1201,7 @@ onBeforeUnmount(() => {
         class="flex w-full min-w-0 items-center gap-[11px] overflow-hidden rounded-2xl border px-[14px] py-[13px]"
         :class="
           selectedEWarungValue
-            ? 'border-[#cfe4dc] bg-[#f2faf7] text-[#006855]'
+            ? 'border-[#e4d8cf] bg-[#faf5f2] text-[#682b00]'
             : 'border-[#ecd9b8] bg-[#fff9ed] text-[#bc6800]'
         "
         data-testid="kpm-selected-e-warung"
@@ -1215,12 +1215,12 @@ onBeforeUnmount(() => {
         <div
           class="flex min-w-0 flex-1 flex-col overflow-hidden"
         >
-          <span class="text-[10px] text-[#6f817b]">
+          <span class="text-[10px] text-[#81766f]">
             E-Warung transaksi
           </span>
 
           <strong
-            class="block max-w-full overflow-hidden text-[13px] font-bold text-ellipsis whitespace-nowrap text-[#244b43]"
+            class="block max-w-full overflow-hidden text-[13px] font-bold text-ellipsis whitespace-nowrap text-[#4b3424]"
             :title="
               selectedEWarungValue
                 ?.name
@@ -1239,21 +1239,21 @@ onBeforeUnmount(() => {
       </article>
 
       <form
-        class="flex min-h-[52px] w-full min-w-0 items-center gap-[10px] rounded-[17px] border border-[#d9e6e1] bg-white px-[13px] shadow-[0_8px_22px_rgb(30_65_55_/_5%)] transition-[border-color,box-shadow] focus-within:border-[#58a28f] focus-within:shadow-[0_0_0_3px_rgb(0_104_85_/_9%)]"
+        class="flex min-h-[52px] w-full min-w-0 items-center gap-[10px] rounded-[17px] border border-[#e6ded9] bg-white px-[13px] shadow-[0_8px_22px_rgb(30_65_55_/_5%)] transition-[border-color,box-shadow] focus-within:border-[#a27758] focus-within:shadow-[0_0_0_3px_rgb(0_104_85_/_9%)]"
         role="search"
         @submit.prevent="submitSearch"
       >
         <Search
           :size="20"
           :stroke-width="1.9"
-          class="shrink-0 text-[#758a83]"
+          class="shrink-0 text-[#8a7e75]"
         />
 
         <input
           v-model="searchTerm"
           type="search"
           name="search"
-          class="min-w-0 flex-1 border-0 bg-transparent text-base text-[#244b43] outline-none placeholder:text-[#96a49f] lg:text-sm"
+          class="min-w-0 flex-1 border-0 bg-transparent text-base text-[#4b3424] outline-none placeholder:text-[#a49c96] lg:text-sm"
           :placeholder="searchPlaceholder"
           aria-label="Cari nama atau NIK KPM dalam wilayah tugas"
           autocomplete="off"
@@ -1264,7 +1264,7 @@ onBeforeUnmount(() => {
         <button
           v-if="hasSearch"
           type="button"
-          class="grid size-[34px] shrink-0 place-items-center rounded-[11px] border-0 bg-[#f1f5f3] p-0 text-[#6c7f79] transition-colors hover:bg-[#e4ece8] hover:text-[#35594f]"
+          class="grid size-[34px] shrink-0 place-items-center rounded-[11px] border-0 bg-[#f5f3f1] p-0 text-[#7f746c] transition-colors hover:bg-[#ece7e4] hover:text-[#594435]"
           aria-label="Hapus pencarian"
           @click="clearSearch"
         >
@@ -1276,19 +1276,19 @@ onBeforeUnmount(() => {
       </form>
 
       <p
-        class="-mt-[7px] mx-0 mb-0 text-[11px] leading-[1.5] text-[#788a84]"
+        class="-mt-[7px] mx-0 mb-0 text-[11px] leading-[1.5] text-[#8a8078]"
       >
         Pencarian pada halaman ini hanya mencakup
         KPM di Kelurahan
 
-        <strong class="text-[#45665d]">
+        <strong class="text-[#665345]">
           {{ context.assignment?.kelurahan.name }}
         </strong>.
       </p>
 
       <article
         v-if="transactionSuccess"
-        class="flex items-start gap-[10px] rounded-[15px] border border-[#bfe1d4] bg-[#effaf6] px-[14px] py-[13px] text-[#08745e]"
+        class="flex items-start gap-[10px] rounded-[15px] border border-[#e1cdbf] bg-[#faf4ef] px-[14px] py-[13px] text-[#743508]"
         role="status"
         data-testid="kpm-transaction-success"
       >
@@ -1328,7 +1328,7 @@ onBeforeUnmount(() => {
         <div
           v-for="number in 3"
           :key="number"
-          class="h-[196px] w-full animate-pulse rounded-[20px] bg-[#e7efec]"
+          class="h-[196px] w-full animate-pulse rounded-[20px] bg-[#efeae7]"
         />
       </div>
 
@@ -1368,11 +1368,11 @@ onBeforeUnmount(() => {
         v-else-if="
           participants.length === 0
         "
-        class="grid justify-items-center rounded-[22px] border border-dashed border-[#ccddd7] bg-white px-[21px] py-[31px] text-center"
+        class="grid justify-items-center rounded-[22px] border border-dashed border-[#ddd3cc] bg-white px-[21px] py-[31px] text-center"
         data-testid="participants-empty"
       >
         <div
-          class="mb-[13px] grid size-[58px] place-items-center rounded-[19px] bg-[#eaf5f1] text-[#006855]"
+          class="mb-[13px] grid size-[58px] place-items-center rounded-[19px] bg-[#f5efea] text-[#682b00]"
         >
           <UserRound
             :size="29"
@@ -1380,7 +1380,7 @@ onBeforeUnmount(() => {
           />
         </div>
 
-        <strong class="text-base font-bold text-[#244b43]">
+        <strong class="text-base font-bold text-[#4b3424]">
           {{
             hasSearch
               ? 'KPM tidak ditemukan'
@@ -1389,7 +1389,7 @@ onBeforeUnmount(() => {
         </strong>
 
         <p
-          class="mt-[7px] mb-0 max-w-80 text-[13px] leading-[1.6] text-[#778984]"
+          class="mt-[7px] mb-0 max-w-80 text-[13px] leading-[1.6] text-[#897e77]"
         >
           {{
             hasSearch
@@ -1407,27 +1407,27 @@ onBeforeUnmount(() => {
         <article
           v-for="participant in participants"
           :key="participant.id"
-          class="w-full min-w-0 overflow-hidden rounded-[20px] border border-[#dfe9e5] bg-white shadow-[0_9px_25px_rgb(30_65_55_/_5%)]"
+          class="w-full min-w-0 overflow-hidden rounded-[20px] border border-[#e9e3df] bg-white shadow-[0_9px_25px_rgb(30_65_55_/_5%)]"
           data-testid="participant-card"
         >
           <header
             class="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 p-4"
           >
             <div
-              class="row-span-2 grid size-[45px] place-items-center rounded-[15px] bg-[#e8f5f0] text-xs font-extrabold text-[#006855]"
+              class="row-span-2 grid size-[45px] place-items-center rounded-[15px] bg-[#f5ede8] text-xs font-extrabold text-[#682b00]"
             >
               {{ participantInitials(participant) }}
             </div>
 
             <div class="flex min-w-0 flex-col">
               <strong
-                class="overflow-hidden text-[15px] leading-[1.4] font-bold text-ellipsis whitespace-nowrap text-[#244b43]"
+                class="overflow-hidden text-[15px] leading-[1.4] font-bold text-ellipsis whitespace-nowrap text-[#4b3424]"
                 :title="participant.kpm.full_name"
               >
                 {{ participant.kpm.full_name }}
               </strong>
 
-              <span class="mt-0.5 text-[11px] text-[#7b8c86]">
+              <span class="mt-0.5 text-[11px] text-[#8c827b]">
                 NIK {{ participant.kpm.nik }}
               </span>
             </div>
@@ -1437,7 +1437,7 @@ onBeforeUnmount(() => {
               :class="
                 activityOf(participant).code
                   === 'transacted'
-                  ? 'bg-[#e5f5ee] text-[#08745e]'
+                  ? 'bg-[#f5ece5] text-[#743508]'
                   : isVerifiedActivity(participant)
                     ? 'bg-[#edf1f7] text-[#53637a]'
                     : 'bg-[#fff3de] text-[#a85c00]'
@@ -1449,7 +1449,7 @@ onBeforeUnmount(() => {
           </header>
 
           <div
-            class="mx-4 flex min-w-0 items-start gap-[10px] rounded-[14px] bg-[#f8faf9] p-3 text-[#638079]"
+            class="mx-4 flex min-w-0 items-start gap-[10px] rounded-[14px] bg-[#faf9f8] p-3 text-[#806f63]"
           >
             <MapPin
               :size="18"
@@ -1458,7 +1458,7 @@ onBeforeUnmount(() => {
             />
 
             <div class="min-w-0">
-              <strong class="text-xs text-[#45665d]">
+              <strong class="text-xs text-[#665345]">
                 {{
                   participant
                     .wilayah
@@ -1470,7 +1470,7 @@ onBeforeUnmount(() => {
               </strong>
 
               <p
-                class="mt-0.5 mb-0 overflow-hidden text-[11px] leading-[1.5] text-[#7b8d87] line-clamp-2"
+                class="mt-0.5 mb-0 overflow-hidden text-[11px] leading-[1.5] text-[#8d837b] line-clamp-2"
               >
                 {{ participantAddress(participant) }}
               </p>
@@ -1478,14 +1478,14 @@ onBeforeUnmount(() => {
           </div>
 
           <footer
-            class="mt-[14px] flex items-center justify-between gap-3 border-t border-[#edf1ef] bg-[#fcfdfc] px-4 py-[13px] max-[430px]:flex-col max-[430px]:items-stretch"
+            class="mt-[14px] flex items-center justify-between gap-3 border-t border-[#f1efed] bg-[#fcfdfc] px-4 py-[13px] max-[430px]:flex-col max-[430px]:items-stretch"
           >
             <div class="flex flex-col">
-              <span class="text-[11px] font-[650] text-[#748780]">
+              <span class="text-[11px] font-[650] text-[#877c74]">
                 Saldo BPNT
               </span>
 
-              <strong class="text-[15px] text-[#006855]">
+              <strong class="text-[15px] text-[#682b00]">
                 {{ formatCurrency(participant.saldo_bpnt) }}
               </strong>
             </div>
@@ -1499,7 +1499,7 @@ onBeforeUnmount(() => {
             >
               <button
                 type="button"
-                class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#006855] px-4 py-2.5 text-xs font-bold text-white transition hover:bg-[#005646] disabled:cursor-not-allowed disabled:opacity-50"
+                class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#682b00] px-4 py-2.5 text-xs font-bold text-white transition hover:bg-[#562400] disabled:cursor-not-allowed disabled:opacity-50"
                 :disabled="
                   !selectedEWarungValue
                   ||
@@ -1548,7 +1548,7 @@ onBeforeUnmount(() => {
 
             <div
               v-else
-              class="inline-flex items-center gap-[6px] text-[11px] font-[750] text-[#08745e]"
+              class="inline-flex items-center gap-[6px] text-[11px] font-[750] text-[#743508]"
               data-testid="kpm-final-indicator"
             >
               <CheckCircle2
@@ -1582,7 +1582,7 @@ onBeforeUnmount(() => {
           hasMorePages
         "
         type="button"
-        class="inline-flex min-h-[45px] items-center justify-center gap-2 rounded-[14px] border-0 bg-[#006855] px-[17px] text-[13px] font-bold text-white transition-colors hover:bg-[#005746] disabled:cursor-not-allowed disabled:opacity-65"
+        class="inline-flex min-h-[45px] items-center justify-center gap-2 rounded-[14px] border-0 bg-[#682b00] px-[17px] text-[13px] font-bold text-white transition-colors hover:bg-[#572400] disabled:cursor-not-allowed disabled:opacity-65"
         :disabled="loadingMore"
         data-testid="load-more"
         @click="loadMore"
@@ -1607,7 +1607,7 @@ onBeforeUnmount(() => {
         v-if="
           participants.length > 0
         "
-        class="-mt-[5px] mb-0 text-center text-[11px] text-[#80918b]"
+        class="-mt-[5px] mb-0 text-center text-[11px] text-[#918780]"
       >
         Menampilkan
         {{ participants.length.toLocaleString('id-ID') }}
@@ -1630,7 +1630,7 @@ onBeforeUnmount(() => {
         aria-labelledby="transaction-confirmation-title"
       >
         <div
-          class="mx-auto mb-[13px] grid size-[58px] place-items-center rounded-[19px] bg-[#e8f5f0] text-[#006855]"
+          class="mx-auto mb-[13px] grid size-[58px] place-items-center rounded-[19px] bg-[#f5ede8] text-[#682b00]"
         >
           <ClipboardCheck
             :size="29"
@@ -1646,15 +1646,15 @@ onBeforeUnmount(() => {
 
         <h2
           id="transaction-confirmation-title"
-          class="my-[5px] break-words text-xl font-bold text-[#244b43]"
+          class="my-[5px] break-words text-xl font-bold text-[#4b3424]"
         >
           {{ confirmationParticipant.kpm.full_name }}
         </h2>
 
-        <p class="m-0 text-[13px] leading-[1.6] text-[#71837d]">
+        <p class="m-0 text-[13px] leading-[1.6] text-[#837871]">
           Tandai KPM ini sudah bertransaksi di
 
-          <strong class="text-[#244b43]">
+          <strong class="text-[#4b3424]">
             {{ selectedEWarungValue?.name }}
           </strong>?
         </p>
@@ -1664,7 +1664,7 @@ onBeforeUnmount(() => {
         >
           <button
             type="button"
-            class="min-h-[44px] rounded-[13px] border border-[#d8e3df] bg-white font-bold text-[#566c65] transition-colors hover:bg-[#f5f8f7] disabled:cursor-not-allowed disabled:opacity-[0.55]"
+            class="min-h-[44px] rounded-[13px] border border-[#e3ddd8] bg-white font-bold text-[#6c5f56] transition-colors hover:bg-[#f8f6f5] disabled:cursor-not-allowed disabled:opacity-[0.55]"
             :disabled="
               transactionLoadingId !== null
             "
@@ -1675,7 +1675,7 @@ onBeforeUnmount(() => {
 
           <button
             type="button"
-            class="inline-flex min-h-[44px] items-center justify-center gap-[7px] rounded-[13px] border-0 bg-[#006855] px-[13px] text-[11px] font-[750] text-white transition-colors hover:bg-[#005746] disabled:cursor-not-allowed disabled:opacity-[0.55]"
+            class="inline-flex min-h-[44px] items-center justify-center gap-[7px] rounded-[13px] border-0 bg-[#682b00] px-[13px] text-[11px] font-[750] text-white transition-colors hover:bg-[#572400] disabled:cursor-not-allowed disabled:opacity-[0.55]"
             :disabled="
               transactionLoadingId !== null
             "
@@ -1722,19 +1722,19 @@ onBeforeUnmount(() => {
 
             <h2
               id="verification-confirmation-title"
-              class="mt-1 text-xl font-bold text-[#173f37]"
+              class="mt-1 text-xl font-bold text-[#3f2817]"
             >
               {{ verificationParticipant.kpm.full_name }}
             </h2>
 
-            <p class="mt-1 text-sm text-[#72847e]">
+            <p class="mt-1 text-sm text-[#847a72]">
               Data yang sudah di input tidak dapat diubah kembali. Pastikan status KPM sudah benar sebelum menyimpan.
             </p>
           </div>
 
           <button
             type="button"
-            class="grid size-10 shrink-0 place-items-center rounded-xl border border-[#dce8e4] text-[#667b74] transition hover:bg-[#f2f7f5] disabled:opacity-50"
+            class="grid size-10 shrink-0 place-items-center rounded-xl border border-[#e8e1dc] text-[#7b6f66] transition hover:bg-[#f7f4f2] disabled:opacity-50"
             :disabled="verificationLoading"
             aria-label="Tutup"
             @click="closeVerificationConfirmation"
@@ -1747,7 +1747,7 @@ onBeforeUnmount(() => {
         </header>
 
         <fieldset class="grid gap-2.5">
-          <legend class="mb-2 text-sm font-bold text-[#244b43]">
+          <legend class="mb-2 text-sm font-bold text-[#4b3424]">
             Pilih status KPM
           </legend>
 
@@ -1757,14 +1757,14 @@ onBeforeUnmount(() => {
             class="flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition"
             :class="
               verificationStatus === option.value
-                ? 'border-[#006855] bg-[#edf8f4] text-[#006855]'
-                : 'border-[#dce8e4] bg-white text-[#4f655e] hover:bg-[#f7faf9]'
+                ? 'border-[#682b00] bg-[#f8f2ed] text-[#682b00]'
+                : 'border-[#e8e1dc] bg-white text-[#65584f] hover:bg-[#faf8f7]'
             "
           >
             <input
               type="radio"
               name="verification-status"
-              class="size-4 accent-[#006855]"
+              class="size-4 accent-[#682b00]"
               :value="option.value"
               :checked="
                 verificationStatus
@@ -1790,7 +1790,7 @@ onBeforeUnmount(() => {
         >
           <label
             for="verification-reason"
-            class="mb-2 block text-sm font-bold text-[#244b43]"
+            class="mb-2 block text-sm font-bold text-[#4b3424]"
           >
             Alasan tidak mengambil
           </label>
@@ -1800,12 +1800,12 @@ onBeforeUnmount(() => {
             v-model="verificationReason"
             rows="4"
             maxlength="500"
-            class="w-full resize-none rounded-xl border border-[#d9e6e1] bg-white px-3.5 py-3 text-sm text-[#244b43] outline-none transition placeholder:text-[#98a7a2] focus:border-[#58a28f] focus:ring-4 focus:ring-[#006855]/10"
+            class="w-full resize-none rounded-xl border border-[#e6ded9] bg-white px-3.5 py-3 text-sm text-[#4b3424] outline-none transition placeholder:text-[#a79e98] focus:border-[#a27758] focus:ring-4 focus:ring-[#682b00]/10"
             placeholder="Tuliskan alasan KPM tidak mengambil bantuan"
             data-testid="kpm-verification-reason"
           />
 
-          <p class="mt-1 text-right text-xs text-[#83938e]">
+          <p class="mt-1 text-right text-xs text-[#938a83]">
             {{ verificationReason.length }}/500
           </p>
         </div>
@@ -1830,7 +1830,7 @@ onBeforeUnmount(() => {
         <div class="mt-6 grid grid-cols-2 gap-3">
           <button
             type="button"
-            class="min-h-11 rounded-xl border border-[#dce8e4] bg-white px-4 text-sm font-bold text-[#576d66] transition hover:bg-[#f5f8f7] disabled:opacity-50"
+            class="min-h-11 rounded-xl border border-[#e8e1dc] bg-white px-4 text-sm font-bold text-[#6d6057] transition hover:bg-[#f8f6f5] disabled:opacity-50"
             :disabled="verificationLoading"
             @click="closeVerificationConfirmation"
           >
@@ -1839,7 +1839,7 @@ onBeforeUnmount(() => {
 
           <button
             type="button"
-            class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#006855] px-4 text-sm font-bold text-white transition hover:bg-[#005646] disabled:cursor-not-allowed disabled:opacity-50"
+            class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#682b00] px-4 text-sm font-bold text-white transition hover:bg-[#562400] disabled:cursor-not-allowed disabled:opacity-50"
             :disabled="!canSubmitVerification"
             data-testid="kpm-confirm-verification"
             @click="confirmVerification"
