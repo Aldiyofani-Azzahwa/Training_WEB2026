@@ -3,6 +3,7 @@ import axios from 'axios'
 
 import {
   computed,
+  nextTick,
   onMounted,
   ref,
 } from 'vue'
@@ -22,6 +23,9 @@ import {
 import {
   RouterLink,
 } from 'vue-router'
+
+import KtpOcrScanner
+  from '@/components/surveyor/KtpOcrScanner.vue'
 
 import {
   useSurveyorEWarungSelection,
@@ -94,6 +98,9 @@ const validationError =
   ref('')
 
 const transactionError =
+  ref('')
+
+const ocrMessage =
   ref('')
 
 const nikLength =
@@ -244,12 +251,9 @@ function participantAddress(
         typeof part
           === 'string'
         &&
-        part.trim()
-          !== '',
+        part.trim() !== '',
     )
-    .join(
-      ', ',
-    )
+    .join(', ')
 }
 
 function resolveErrorMessage(
@@ -271,18 +275,15 @@ function resolveErrorMessage(
     }
 
     if (
-      response.status
-        === 401
+      response.status === 401
       ||
-      response.status
-        === 419
+      response.status === 419
     ) {
       return 'Sesi Anda sudah berakhir. Silakan masuk kembali.'
     }
 
     if (
-      response.status
-        === 403
+      response.status === 403
     ) {
       return 'Akun Anda tidak memiliki akses ke fitur Surveyor.'
     }
@@ -312,11 +313,8 @@ function resolveErrorMessage(
     }
 
     return (
-      response
-        .data
-        .message
-      ||
-      fallback
+      response.data.message
+      || fallback
     )
   }
 
@@ -357,8 +355,7 @@ function handleNikInput(
   }
 
   const normalized =
-    target
-      .value
+    target.value
       .replace(
         /\D+/g,
         '',
@@ -380,7 +377,65 @@ function handleNikInput(
   lookupError.value =
     ''
 
+  ocrMessage.value =
+    ''
+
   clearResult()
+}
+
+function handleOcrDetected(
+  detectedNik: string,
+): void {
+  const normalized =
+    detectedNik
+      .replace(
+        /\D+/g,
+        '',
+      )
+      .slice(
+        0,
+        NIK_LENGTH,
+      )
+
+  clearResult()
+
+  nik.value =
+    normalized
+
+  validationError.value =
+    normalized.length
+      === NIK_LENGTH
+      ? ''
+      : 'Hasil OCR belum terdiri dari 16 digit. Perbaiki NIK secara manual.'
+
+  lookupError.value =
+    ''
+
+  ocrMessage.value =
+    'NIK berhasil dibaca. Periksa kembali angkanya sebelum mencari KPM.'
+
+  void nextTick(
+    () => {
+      document
+        .getElementById(
+          'surveyor-nik',
+        )
+        ?.focus()
+    },
+  )
+}
+
+function focusManualNikInput():
+  void {
+  void nextTick(
+    () => {
+      document
+        .getElementById(
+          'surveyor-nik',
+        )
+        ?.focus()
+    },
+  )
 }
 
 function resetLookup():
@@ -392,6 +447,9 @@ function resetLookup():
     ''
 
   validationError.value =
+    ''
+
+  ocrMessage.value =
     ''
 
   clearResult()
@@ -474,6 +532,9 @@ async function submitLookup():
   validationError.value =
     ''
 
+  ocrMessage.value =
+    ''
+
   clearResult()
 
   const normalizedNik =
@@ -509,7 +570,7 @@ async function submitLookup():
         .lookupNik(
           normalizedNik,
         )
-        
+
     lookedUpNik.value =
       result.value
         .participant
@@ -658,9 +719,7 @@ onMounted(
         Halaman belum dapat dimuat
       </strong>
 
-      <p
-        class="m-0 text-xs text-[#71837d]"
-      >
+      <p class="m-0 text-xs text-[#71837d]">
         {{ workspaceError }}
       </p>
 
@@ -670,17 +729,12 @@ onMounted(
         @click="loadWorkspace"
       >
         <RefreshCw :size="18" />
-
         Coba Lagi
       </button>
     </article>
 
     <article
-      v-else-if="
-        context
-        &&
-        !context.period
-      "
+      v-else-if="context && !context.period"
       class="grid justify-items-center gap-2 rounded-[22px] border border-[#ecd9b8] bg-white px-5 py-7 text-center text-[#b76500]"
       data-testid="lookup-no-period"
     >
@@ -690,19 +744,13 @@ onMounted(
         Belum ada periode aktif
       </strong>
 
-      <p
-        class="m-0 text-xs text-[#71837d]"
-      >
+      <p class="m-0 text-xs text-[#71837d]">
         Pencarian KPM belum dapat digunakan.
       </p>
     </article>
 
     <article
-      v-else-if="
-        context
-        &&
-        !context.assignment
-      "
+      v-else-if="context && !context.assignment"
       class="grid justify-items-center gap-2 rounded-[22px] border border-[#ecd9b8] bg-white px-5 py-7 text-center text-[#b76500]"
       data-testid="lookup-no-assignment"
     >
@@ -712,11 +760,8 @@ onMounted(
         Anda belum memiliki wilayah tugas
       </strong>
 
-      <p
-        class="m-0 text-xs text-[#71837d]"
-      >
-        Hubungi Manager BPNT sebelum
-        menggunakan pencarian KPM.
+      <p class="m-0 text-xs text-[#71837d]">
+        Hubungi Manager BPNT sebelum menggunakan pencarian KPM.
       </p>
     </article>
 
@@ -734,8 +779,7 @@ onMounted(
           <p
             class="m-0 max-w-[330px] text-[13px] leading-[1.55] text-[#72847e]"
           >
-            Masukkan NIK 16 digit untuk mencari
-            KPM
+            Scan KTP atau masukkan NIK 16 digit untuk mencari KPM
           </p>
         </div>
 
@@ -802,6 +846,28 @@ onMounted(
         </RouterLink>
       </article>
 
+      <KtpOcrScanner
+        @detected="handleOcrDetected"
+        @manual="focusManualNikInput"
+      />
+
+      <div
+        v-if="ocrMessage"
+        class="flex items-start gap-[9px] rounded-[15px] border border-[#b9dfd2] bg-[#eaf8f3] p-[13px] text-[#006855]"
+        data-testid="ocr-nik-ready"
+      >
+        <BadgeCheck
+          :size="21"
+          class="shrink-0"
+        />
+
+        <p
+          class="m-0 text-[11px] leading-[1.55]"
+        >
+          {{ ocrMessage }}
+        </p>
+      </div>
+
       <article
         class="rounded-[22px] border border-[#dce9e4] bg-white p-[18px] shadow-[0_12px_28px_rgb(30_65_55_/_6%)] lg:p-[22px]"
       >
@@ -813,7 +879,7 @@ onMounted(
             for="surveyor-nik"
             class="mb-[7px] block text-[13px] font-bold text-[#35594f]"
           >
-            Masukkan NIK
+            Periksa atau masukkan NIK
           </label>
 
           <div
@@ -844,7 +910,9 @@ onMounted(
               @input="handleNikInput"
             />
 
-            <span class="shrink-0 text-[10px]">
+            <span
+              class="shrink-0 text-[10px]"
+            >
               {{ nikLength }}/16
             </span>
           </div>
@@ -903,11 +971,7 @@ onMounted(
       </article>
 
       <article
-        v-if="
-          result
-          &&
-          participant
-        "
+        v-if="result && participant"
         class="grid min-w-0 gap-[15px] rounded-[22px] border border-[#dce9e4] bg-white p-[18px] shadow-[0_12px_28px_rgb(30_65_55_/_6%)] lg:p-[22px]"
         data-testid="lookup-result"
       >
@@ -917,20 +981,13 @@ onMounted(
           <div
             class="inline-flex items-center gap-[6px] rounded-full px-[9px] py-[5px] text-[10px] font-[750]"
             :class="
-              result
-                .scope
-                .outside_assignment
+              result.scope.outside_assignment
                 ? 'bg-[#fff1dc] text-[#b86100]'
                 : 'bg-[#e5f6f0] text-[#006855]'
             "
           >
             <BadgeCheck :size="18" />
-
-            {{
-              result
-                .scope
-                .label
-            }}
+            {{ result.scope.label }}
           </div>
         </header>
 
@@ -1024,9 +1081,7 @@ onMounted(
             Saldo
           </span>
 
-          <strong
-            class="text-[17px]"
-          >
+          <strong class="text-[17px]">
             {{
               formatCurrency(
                 participant
@@ -1054,7 +1109,6 @@ onMounted(
             class="m-0 text-[11px] leading-[1.55]"
           >
             KPM berasal dari
-
             <strong>
               {{ participantKelurahan }}
             </strong>,
@@ -1071,7 +1125,9 @@ onMounted(
             class="shrink-0"
           />
 
-          <div class="flex min-w-0 flex-col">
+          <div
+            class="flex min-w-0 flex-col"
+          >
             <strong>
               Sudah Bertransaksi
             </strong>
@@ -1101,7 +1157,9 @@ onMounted(
             class="shrink-0"
           />
 
-          <div class="flex min-w-0 flex-col">
+          <div
+            class="flex min-w-0 flex-col"
+          >
             <strong>
               {{
                 participantActivity
@@ -1125,14 +1183,10 @@ onMounted(
           </button>
 
           <p
-            v-if="
-              !selectedEWarung
-            "
+            v-if="!selectedEWarung"
             class="m-0 text-center text-[11px] leading-[1.5] text-[#a85a00]"
           >
-            Pilih E-Warung tempat bertugas
-            melalui Beranda sebelum mencatat
-            transaksi.
+            Pilih E-Warung tempat bertugas melalui Beranda sebelum mencatat transaksi.
           </p>
         </template>
 
@@ -1224,7 +1278,7 @@ onMounted(
           <small
             class="mt-[9px] block text-[10px] leading-[1.5] text-[#a65a00]"
           >
-            Transaksi hanya bisa di catat sekali. Pastikan KPM sudah benar-benar bertransaksi sebelum menekan tombol konfirmasi.
+            Transaksi hanya bisa dicatat sekali. Pastikan KPM sudah benar-benar bertransaksi sebelum menekan tombol konfirmasi.
           </small>
 
           <div
@@ -1233,7 +1287,9 @@ onMounted(
             <button
               type="button"
               class="min-h-[47px] rounded-[14px] border border-[#d6e3de] bg-white text-xs font-[750] text-[#526a62] transition-colors hover:bg-[#f4f8f6] disabled:cursor-not-allowed disabled:opacity-48"
-              :disabled="transactionLoading"
+              :disabled="
+                transactionLoading
+              "
               @click="
                 confirmationOpen
                   = false
@@ -1245,12 +1301,16 @@ onMounted(
             <button
               type="button"
               class="flex min-h-[47px] items-center justify-center gap-2 rounded-[14px] border-0 bg-[#006855] text-xs font-[750] text-white transition-colors hover:bg-[#005746] disabled:cursor-not-allowed disabled:opacity-48"
-              :disabled="transactionLoading"
+              :disabled="
+                transactionLoading
+              "
               data-testid="confirm-transaction"
               @click="confirmTransaction"
             >
               <RefreshCw
-                v-if="transactionLoading"
+                v-if="
+                  transactionLoading
+                "
                 :size="18"
                 class="animate-spin"
               />

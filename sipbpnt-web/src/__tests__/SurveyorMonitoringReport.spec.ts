@@ -4,6 +4,7 @@ import {
 } from '@vue/test-utils'
 
 import {
+  afterEach,
   beforeEach,
   describe,
   expect,
@@ -11,8 +12,7 @@ import {
   vi,
 } from 'vitest'
 
-import MonitoringReportView
-  from '@/views/surveyor/MonitoringReportView.vue'
+import MonitoringReportView from '@/views/surveyor/MonitoringReportView.vue'
 
 import {
   surveyorMonitoringReportService,
@@ -30,9 +30,8 @@ vi.mock(
     surveyorMonitoringReportService: {
       getReport:
         vi.fn<
-          () => Promise<
-            SurveyorMonitoringReport
-          >
+          () =>
+            Promise<SurveyorMonitoringReport>
         >(),
 
       updateReport:
@@ -40,16 +39,14 @@ vi.mock(
           (
             payload:
               UpdateSurveyorMonitoringReportPayload,
-          ) => Promise<
-            SurveyorMonitoringReport
-          >
+          ) =>
+            Promise<SurveyorMonitoringReport>
         >(),
 
       downloadPdf:
         vi.fn<
-          () => Promise<
-            SurveyorMonitoringReportPdf
-          >
+          () =>
+            Promise<SurveyorMonitoringReportPdf>
         >(),
     },
   }),
@@ -57,113 +54,111 @@ vi.mock(
 
 const report:
   SurveyorMonitoringReport = {
-    id:
-      1,
+  id: 1,
 
-    period: {
-      id:
-        11,
+  period: {
+    id: 11,
 
-      code:
-        'BPNT-2026-03',
+    code: 'BPNT-2026-03',
+
+    name: 'Maret 2026',
+
+    year: 2026,
+
+    allocation_label:
+      'Maret 2026',
+  },
+
+  surveyor: {
+    id: 9,
+
+    name: 'SURVEYOR TEST',
+  },
+
+  assignment: {
+    id: 4,
+
+    kecamatan: {
+      id: 1,
 
       name:
-        'Maret 2026',
-
-      year:
-        2026,
-
-      allocation_label:
-        'Maret 2026',
+        'PRAJURIT KULON',
     },
 
-    surveyor: {
-      id:
-        9,
+    kelurahan: {
+      id: 2,
 
       name:
-        'SURVEYOR TEST',
+        'PRAJURIT KULON',
     },
+  },
 
-    assignment: {
-      id:
-        4,
+  editable: {
+    commodities: [
+      'Beras',
+    ],
 
-      kecamatan: {
-        id:
-          1,
+    social_officer_name:
+      null,
 
-        name:
-          'PRAJURIT KULON',
+    distribution_assistant_name:
+      'SURVEYOR TEST',
+  },
+
+  summary: {
+    total_kpm: 100,
+
+    taking: 80,
+
+    not_taking: 12,
+
+    deceased: 2,
+
+    moved_domicile: 3,
+
+    not_claimed: 7,
+
+    pending: 8,
+
+    total_balance:
+      15_000_000,
+
+    e_warungs: [
+      'E-Warung Satu',
+    ],
+
+    reason_summary: [
+      {
+        label: 'Meninggal',
+
+        count: 2,
       },
+    ],
 
-      kelurahan: {
-        id:
-          2,
+    evaluation:
+      'Evaluasi otomatis laporan.',
+  },
 
-        name:
-          'PRAJURIT KULON',
-      },
-    },
+  updated_at:
+    '2026-08-30T10:00:00+07:00',
+}
 
-    editable: {
-      commodities: [
-        'Beras',
-      ],
+const createObjectUrlMock =
+  vi.fn<
+    (
+      blob: Blob,
+    ) => string
+  >(
+    () =>
+      'blob:monitoring-report',
+  )
 
-      social_officer_name:
-        null,
-
-      distribution_assistant_name:
-        'SURVEYOR TEST',
-    },
-
-    summary: {
-      total_kpm:
-        100,
-
-      taking:
-        80,
-
-      not_taking:
-        12,
-
-      deceased:
-        2,
-
-      moved_domicile:
-        3,
-
-      not_claimed:
-        7,
-
-      pending:
-        8,
-
-      total_balance:
-        15_000_000,
-
-      e_warungs: [
-        'E-Warung Satu',
-      ],
-
-      reason_summary: [
-        {
-          label:
-            'Meninggal',
-
-          count:
-            2,
-        },
-      ],
-
-      evaluation:
-        'Evaluasi otomatis laporan.',
-    },
-
-    updated_at:
-      '2026-08-30T10:00:00+07:00',
-  }
+const revokeObjectUrlMock =
+  vi.fn<
+    (
+      url: string,
+    ) => void
+  >()
 
 describe(
   'Surveyor monitoring report',
@@ -171,19 +166,71 @@ describe(
     beforeEach(() => {
       vi.clearAllMocks()
 
-      vi.mocked(
-        surveyorMonitoringReportService
-          .getReport,
-      ).mockResolvedValue(
-        structuredClone(report),
+      Object.defineProperty(
+        URL,
+        'createObjectURL',
+        {
+          configurable: true,
+
+          value:
+            createObjectUrlMock,
+        },
+      )
+
+      Object.defineProperty(
+        URL,
+        'revokeObjectURL',
+        {
+          configurable: true,
+
+          value:
+            revokeObjectUrlMock,
+        },
+      )
+
+      vi.spyOn(
+        HTMLAnchorElement.prototype,
+        'click',
+      ).mockImplementation(
+        () => undefined,
       )
 
       vi.mocked(
-        surveyorMonitoringReportService
-          .updateReport,
+        surveyorMonitoringReportService.getReport,
       ).mockResolvedValue(
-        structuredClone(report),
+        structuredClone(
+          report,
+        ),
       )
+
+      vi.mocked(
+        surveyorMonitoringReportService.updateReport,
+      ).mockResolvedValue(
+        structuredClone(
+          report,
+        ),
+      )
+
+      vi.mocked(
+        surveyorMonitoringReportService.downloadPdf,
+      ).mockResolvedValue({
+        blob: new Blob(
+          [
+            'pdf',
+          ],
+          {
+            type:
+              'application/pdf',
+          },
+        ),
+
+        filename:
+          'laporan-monitoring.pdf',
+      })
+    })
+
+    afterEach(() => {
+      vi.restoreAllMocks()
     })
 
     it(
@@ -217,7 +264,7 @@ describe(
     )
 
     it(
-      'only sends commodities and reporter names when saving',
+      'saves only commodities and reporter names before downloading',
       async () => {
         const wrapper =
           mount(
@@ -244,7 +291,7 @@ describe(
 
         await wrapper
           .get(
-            '[data-test="save-report"]',
+            '[data-test="download-report"]',
           )
           .trigger(
             'click',
@@ -253,8 +300,7 @@ describe(
         await flushPromises()
 
         expect(
-          surveyorMonitoringReportService
-            .updateReport,
+          surveyorMonitoringReportService.updateReport,
         ).toHaveBeenCalledWith({
           commodities: [
             'Telur',
@@ -266,6 +312,12 @@ describe(
           distribution_assistant_name:
             'SURVEYOR TEST',
         })
+
+        expect(
+          surveyorMonitoringReportService.downloadPdf,
+        ).toHaveBeenCalledTimes(
+          1,
+        )
       },
     )
   },

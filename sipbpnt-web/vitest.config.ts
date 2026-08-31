@@ -5,7 +5,9 @@ import {
 
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
-import { defineConfig } from 'vitest/config'
+import {
+  defineConfig,
+} from 'vitest/config'
 
 export default defineConfig({
   plugins: [
@@ -26,5 +28,11 @@ export default defineConfig({
 
   test: {
     environment: 'jsdom',
+
+    pool: 'threads',
+
+    fileParallelism: false,
+
+    maxWorkers: 1,
   },
 })

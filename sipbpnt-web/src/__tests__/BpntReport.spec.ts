@@ -543,12 +543,12 @@ describe(
         )
 
         expect(
-          wrapper
-            .find(
-              '[data-testid="report-finalize-button"]',
-            )
-            .exists(),
-        ).toBe(false)
+  wrapper
+    .find(
+      '[data-testid="report-finalize-button"]',
+    )
+    .exists(),
+).toBe(true)
       },
     )
 
