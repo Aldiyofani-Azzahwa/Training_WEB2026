@@ -34,7 +34,7 @@ describe(
     )
 
     it(
-      'provides the five final bottom-navigation routes',
+      'provides the Surveyor workspace and monitoring report routes',
       () => {
         const routeNames =
           (
@@ -54,6 +54,7 @@ describe(
           'surveyor-scan-ktp',
           'surveyor-transactions',
           'surveyor-history',
+          'surveyor-monitoring-report',
         ])
       },
     )

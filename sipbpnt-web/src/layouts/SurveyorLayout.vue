@@ -5,6 +5,7 @@ import {
 } from 'vue'
 
 import {
+  ClipboardList,
   History,
   House,
   LogOut,
@@ -83,6 +84,16 @@ const navigationItems:
 
       icon:
         History,
+    },
+    {
+      label:
+        'Laporan',
+
+      routeName:
+        'surveyor-monitoring-report',
+
+      icon:
+        ClipboardList,
     },
   ]
 
@@ -192,7 +203,7 @@ async function handleLogout():
       </main>
 
       <nav
-        class="fixed right-0 bottom-0 left-0 z-30 grid min-h-[74px] grid-cols-4 border-t border-[#dfe9e5] bg-white/97 px-2 pt-2 pb-[calc(7px+env(safe-area-inset-bottom,0px))] shadow-[0_-10px_30px_rgb(27_57_49_/_8%)] backdrop-blur-2xl lg:right-auto lg:left-1/2 lg:w-[calc(100%-48px)] lg:max-w-[1360px] lg:-translate-x-1/2 lg:border-x"
+        class="fixed right-0 bottom-0 left-0 z-30 grid min-h-[74px] grid-cols-5 border-t border-[#dfe9e5] bg-white/97 px-2 pt-2 pb-[calc(7px+env(safe-area-inset-bottom,0px))] shadow-[0_-10px_30px_rgb(27_57_49_/_8%)] backdrop-blur-2xl lg:right-auto lg:left-1/2 lg:w-[calc(100%-48px)] lg:max-w-[1360px] lg:-translate-x-1/2 lg:border-x"
         aria-label="Navigasi Surveyor"
       >
         <RouterLink

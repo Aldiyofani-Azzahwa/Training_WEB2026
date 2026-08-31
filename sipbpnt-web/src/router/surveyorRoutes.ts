@@ -108,5 +108,22 @@ export const surveyorRoute:
             'Riwayat',
         },
       },
+      {
+        path:
+          'laporan-monitoring',
+
+        name:
+          'surveyor-monitoring-report',
+
+        component: () =>
+          import(
+            '@/views/surveyor/MonitoringReportView.vue'
+          ),
+
+        meta: {
+          title:
+            'Laporan Kelurahan',
+        },
+      },
     ],
   }
