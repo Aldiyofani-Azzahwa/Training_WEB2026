@@ -243,18 +243,7 @@ function handleForgotPassword(): void {
             <small class="error-message">{{ passwordError }}</small>
           </div>
 
-          <!-- Options -->
-          <div class="form-options">
-            <label class="remember">
-              <input v-model="form.remember" type="checkbox" name="remember" />
-              <span class="custom-checkbox" />
-              <span>Ingat saya</span>
-            </label>
-
-            <button type="button" class="forgot-password" @click="handleForgotPassword">
-              Lupa kata sandi?
-            </button>
-          </div>
+         
 
           <!-- Login -->
           <button

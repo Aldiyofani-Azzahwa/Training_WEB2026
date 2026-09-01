@@ -384,6 +384,15 @@ Route::prefix('v1')
             )->whereNumber(
                 'period'
             );
+            Route::get(
+                '/bpnt-periods/{period}/bnba/export',
+                [
+                    \App\Http\Controllers\Api\V1\Admin\BnbaExportController::class,
+                    'export',
+                ]
+            )->whereNumber(
+                'period'
+            );
         });
 
         /*

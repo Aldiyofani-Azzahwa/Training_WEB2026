@@ -15,6 +15,7 @@ import {
 
 import {
   computed,
+  nextTick,
   onMounted,
   ref,
   watch,
@@ -125,6 +126,55 @@ const successMessage =
 
 const validationErrors =
   ref<ValidationErrors>({})
+
+let successTimer: ReturnType<typeof setTimeout> | null = null
+
+watch(
+  successMessage,
+  (message) => {
+    if (successTimer !== null) {
+      clearTimeout(successTimer)
+      successTimer = null
+    }
+
+    if (message === '') {
+      return
+    }
+
+    successTimer = setTimeout(() => {
+      successMessage.value = ''
+      successTimer = null
+    }, 5000)
+  }
+)
+
+let errorTimer: ReturnType<typeof setTimeout> | null = null
+
+watch(
+  errorMessage,
+  (message) => {
+    if (errorTimer !== null) {
+      clearTimeout(errorTimer)
+      errorTimer = null
+    }
+
+    if (message === '') {
+      return
+    }
+
+    nextTick(() => {
+      const errorEl = document.getElementById('error-notification')
+      if (errorEl) {
+        errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    })
+
+    errorTimer = setTimeout(() => {
+      errorMessage.value = ''
+      errorTimer = null
+    }, 5000)
+  }
+)
 
 const maxSurveyorsPerKelurahan =
   computed(() =>
@@ -996,6 +1046,7 @@ onMounted(
       v-if="
         errorMessage
       "
+      id="error-notification"
       class="mt-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800"
       role="alert"
     >

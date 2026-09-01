@@ -33,4 +33,11 @@ class UpdateBpntPeriodRequest
             ],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'name.unique' => 'periode tidak boleh duplikat',
+        ];
+    }
 }

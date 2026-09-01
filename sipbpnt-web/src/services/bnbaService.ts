@@ -282,6 +282,36 @@ class BnbaService {
 
     return response.data.data
   }
+
+  async downloadExport(
+    periodId: number,
+  ): Promise<void> {
+    const response =
+      await http.get(
+        `${BASE_PATH}/bpnt-periods/${periodId}/bnba/export`,
+        {
+          responseType: 'blob',
+        }
+      )
+      
+    let filename = `BNBA_Terunduh_${periodId}.xlsx`
+    const contentDisposition = response.headers['content-disposition']
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/)
+      if (filenameMatch && filenameMatch.length === 2) {
+        filename = filenameMatch[1]
+      }
+    }
+    
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', filename)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  }
 }
 
 export const bnbaService =

@@ -8,6 +8,7 @@ import {
 import {
   CalendarDays,
   Check,
+  Download,
   Edit3,
   LoaderCircle,
   Plus,
@@ -45,6 +46,9 @@ const props = defineProps<{
   deletingPeriodId:
     number | null
 
+  downloadingPeriodId:
+    number | null
+
   validationErrors:
     LaravelValidationErrors
 
@@ -75,6 +79,10 @@ const emit = defineEmits<{
   delete: [
     period:
       BpntPeriod,
+  ]
+
+  download: [
+    periodId: number,
   ]
 
   modeChange: [
@@ -732,6 +740,26 @@ function bnbaLabel(
               <div
                 class="flex shrink-0 flex-wrap gap-2"
               >
+                <button
+                  v-if="period.bnba?.status === 'confirmed'"
+                  type="button"
+                  :disabled="bnbaLocked || downloadingPeriodId !== null"
+                  class="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#006855]/20 bg-[#006855]/5 px-3 text-xs font-bold text-[#006855] transition hover:bg-[#006855]/10 disabled:cursor-not-allowed disabled:opacity-40"
+                  @click.stop="emit('download', period.id)"
+                >
+                  <LoaderCircle
+                    v-if="downloadingPeriodId === period.id"
+                    :size="15"
+                    class="animate-spin"
+                  />
+                  <Download
+                    v-else
+                    :size="15"
+                    aria-hidden="true"
+                  />
+                  Unduh Data
+                </button>
+
                 <button
                   type="button"
                   :disabled="

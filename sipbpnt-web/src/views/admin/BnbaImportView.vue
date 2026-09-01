@@ -80,6 +80,7 @@ const {
   deletingPeriodId,
 
   isDeletingBnba,
+  downloadingPeriodId,
 
   isUploading,
   isLoadingPreview,
@@ -172,6 +173,41 @@ const canShowBnbaWorkspace =
         },
         3000,
       )
+  },
+)
+
+let errorTimer: ReturnType<typeof setTimeout> | null = null
+
+watch(
+  errorMessage,
+  (
+    message,
+  ) => {
+    if (errorTimer !== null) {
+      clearTimeout(errorTimer)
+      errorTimer = null
+    }
+
+    if (
+      message === null
+    ) {
+      return
+    }
+
+    nextTick(() => {
+      const errorEl = document.getElementById('error-notification')
+      if (errorEl) {
+        errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    })
+
+    errorTimer = setTimeout(
+      () => {
+        store.clearError()
+        errorTimer = null
+      },
+      5000,
+    )
   },
 )
 
@@ -587,6 +623,20 @@ async function handleDeleteBnba():
 
 /*
 |--------------------------------------------------------------------------
+| Download BNBA
+|--------------------------------------------------------------------------
+*/
+
+async function handleDownloadBnba(
+  periodId: number,
+): Promise<void> {
+  await store.downloadBnba(
+    periodId,
+  )
+}
+
+/*
+|--------------------------------------------------------------------------
 | Preview
 |--------------------------------------------------------------------------
 */
@@ -689,6 +739,7 @@ async function handlePage(
       v-if="
         errorMessage
       "
+      id="error-notification"
       class="mb-5 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
     >
       <X
@@ -702,18 +753,6 @@ async function handlePage(
       >
         {{ errorMessage }}
       </span>
-
-      <button
-        type="button"
-        aria-label="Tutup error"
-        @click="
-          store.clearError()
-        "
-      >
-        <X
-          :size="18"
-        />
-      </button>
     </div>
 
     <!-- PERIOD MANAGEMENT -->
@@ -745,8 +784,14 @@ async function handlePage(
       :bnba-locked="
         isBnbaWorking
       "
+      :downloading-period-id="
+        downloadingPeriodId
+      "
       @mode-change="
         handlePeriodFormModeChange
+      "
+      @download="
+        handleDownloadBnba
       "
       @select="
         handleSelectPeriod

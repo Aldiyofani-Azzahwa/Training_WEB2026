@@ -695,12 +695,7 @@ onBeforeUnmount(() => {
       class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between"
     >
       <div>
-        <div
-          class="mb-1.5 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-emerald-700"
-        >
-          <Activity :size="15" />
-          Manager BPNT
-        </div>
+        
 
         <h1
           class="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl"

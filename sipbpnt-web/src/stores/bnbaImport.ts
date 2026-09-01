@@ -1097,6 +1097,45 @@ export const useBnbaImportStore =
         }
       }
 
+      /*
+      |--------------------------------------------------------------------------
+      | Download BNBA
+      |--------------------------------------------------------------------------
+      */
+
+      const downloadingPeriodId =
+        ref<number | null>(
+          null,
+        )
+
+      async function downloadBnba(
+        periodId: number,
+      ): Promise<boolean> {
+        downloadingPeriodId.value =
+          periodId
+
+        clearError()
+
+        try {
+          await bnbaService
+            .downloadExport(
+              periodId,
+            )
+
+          return true
+        } catch (error) {
+          handleError(
+            error,
+            'Data BNBA gagal diunduh.',
+          )
+
+          return false
+        } finally {
+          downloadingPeriodId.value =
+            null
+        }
+      }
+
       return {
         /*
          * Period
@@ -1128,6 +1167,7 @@ export const useBnbaImportStore =
         updatingPeriodId,
         deletingPeriodId,
         isDeletingBnba,
+        downloadingPeriodId,
 
         isUploading,
         isLoadingPreview,
@@ -1168,6 +1208,7 @@ export const useBnbaImportStore =
 
         confirmImport,
         deleteBnba,
+        downloadBnba,
 
         clearError,
       }

@@ -24,8 +24,6 @@ import {
   useAuthStore,
 } from '@/stores/auth'
 
-import monumentSketch
-  from '@/assets/images/mojokerto-monument-sketch.jpg'
 
 const authStore =
   useAuthStore()
@@ -51,19 +49,6 @@ const navigationItems =
   <div
     class="relative flex h-full w-full flex-col overflow-hidden bg-gradient-to-b from-[#F97316] via-[#C2410C] to-[#7C2D12] text-white"
   >
-    <!--
-    ILUSTRASI LATAR
-
-    Sketsa Monumen Kentang, Kota Mojokerto.
-    Dibaurkan ke gradasi oranye lewat mix-blend-mode
-    dan pudar ke arah kiri-bawah pakai mask gradient.
-    -->
-    <img
-      :src="monumentSketch"
-      alt=""
-      aria-hidden="true"
-      class="pointer-events-none absolute -right-10 -top-4 z-0 h-72 w-72 select-none object-cover opacity-70 mix-blend-multiply [mask-image:linear-gradient(to_bottom_left,black_35%,transparent_78%)]"
-    />
 
     <div
       class="relative z-10 px-5 pb-5 pt-6"

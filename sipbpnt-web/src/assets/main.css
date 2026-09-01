@@ -184,10 +184,6 @@
     max-width: 100%;
   }
 
-  ::selection {
-    color: #ffffff;
-    background-color: #e8312d;
-  }
 
   :focus-visible {
     outline: 3px solid rgb(232 49 45 / 0.28);
