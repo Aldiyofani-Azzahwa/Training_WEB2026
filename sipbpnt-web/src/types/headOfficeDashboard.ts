@@ -25,6 +25,10 @@ export interface HeadOfficeScope {
 export interface HeadOfficeSummary {
     total_kpm: number
     transacted: number
+    pending: number
+    deceased: number
+    moved_domicile: number
+    not_claimed: number
     not_transacted: number
     amount_disbursed: number
     completion_percentage: number

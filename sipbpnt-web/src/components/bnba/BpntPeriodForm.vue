@@ -683,7 +683,12 @@ function bnbaLabel(
                 !== period.id
               )
               ||
-              bnbaLocked
+              (
+                bnbaLocked
+                &&
+                selectedPeriodId
+                !== period.id
+              )
             )
               ? 'opacity-60'
               : '',

@@ -46,6 +46,10 @@ interface TableRow {
   name: string
   totalKpm: number
   transacted: number
+  pending: number
+  deceased: number
+  movedDomicile: number
+  notClaimed: number
   notTransacted: number
   completionPercentage: number
   amountDisbursed: number
@@ -57,6 +61,18 @@ const EMPTY_SUMMARY:
       0,
 
     transacted:
+      0,
+
+    pending:
+      0,
+
+    deceased:
+      0,
+
+    moved_domicile:
+      0,
+
+    not_claimed:
       0,
 
     not_transacted:
@@ -205,6 +221,22 @@ const tableRows =
               metric
                 .transacted,
 
+            pending:
+              metric
+                .pending,
+
+            deceased:
+              metric
+                .deceased,
+
+            movedDomicile:
+              metric
+                .moved_domicile,
+
+            notClaimed:
+              metric
+                .not_claimed,
+
             notTransacted:
               metric
                 .not_transacted,
@@ -256,6 +288,22 @@ const tableRows =
           transacted:
             metric
               .transacted,
+
+          pending:
+            metric
+              .pending,
+
+          deceased:
+            metric
+              .deceased,
+
+          movedDomicile:
+            metric
+              .moved_domicile,
+
+          notClaimed:
+            metric
+              .not_claimed,
 
           notTransacted:
             metric
@@ -803,7 +851,7 @@ onMounted(() => {
       "
     >
       <section
-        class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+        class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5"
       >
         <article
           class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
@@ -920,7 +968,42 @@ onMounted(() => {
                 {{
                   formatNumber(
                     summary
-                      .not_transacted,
+                      .pending,
+                  )
+                }}
+              </strong>
+            </div>
+          </div>
+        </article>
+
+        <article
+          class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+        >
+          <div
+            class="flex items-center gap-4"
+          >
+            <span
+              class="grid size-12 shrink-0 place-items-center rounded-2xl bg-red-50 text-red-600"
+            >
+              <Activity
+                :size="24"
+                aria-hidden="true"
+              />
+            </span>
+
+            <div>
+              <span
+                class="text-sm font-bold text-slate-600"
+              >
+                Tidak Transaksi
+              </span>
+
+              <strong
+                class="mt-1 block text-3xl font-black text-slate-950"
+              >
+                {{
+                  formatNumber(
+                    summary.deceased + summary.moved_domicile + summary.not_claimed,
                   )
                 }}
               </strong>
@@ -953,7 +1036,7 @@ onMounted(() => {
               </span>
 
               <strong
-                class="mt-1 block truncate text-2xl font-black text-slate-950"
+                class="mt-1 block text-xl font-black leading-tight text-slate-950 sm:text-2xl xl:text-xl 2xl:text-2xl"
               >
                 {{
                   formatCurrency(
@@ -1028,13 +1111,12 @@ onMounted(() => {
               <h2
                 class="font-black text-slate-950"
               >
-                Perkembangan Transaksi
+                Grafik Transaksi
               </h2>
 
               <p
                 class="mt-1 text-xs text-slate-500"
               >
-                Wilayah:
                 {{ selectedScopeLabel }}
               </p>
             </div>
@@ -1136,27 +1218,71 @@ onMounted(() => {
                 stroke-dasharray="4"
               />
 
-              <rect
+              <defs>
+                <linearGradient
+                  id="areaGradient"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop
+                    offset="0%"
+                    stop-color="#059669"
+                    stop-opacity="0.25"
+                  />
+                  <stop
+                    offset="100%"
+                    stop-color="#059669"
+                    stop-opacity="0.0"
+                  />
+                </linearGradient>
+              </defs>
+
+              <polygon
+                v-if="
+                  chartBars.length > 0
+                "
+                :points="`
+                  ${chartBars[0]?.labelX ?? 0},220 
+                  ${chartBars.map(bar => `${bar.labelX},${bar.y}`).join(' ')} 
+                  ${chartBars[chartBars.length - 1]?.labelX ?? 0},220
+                `"
+                fill="url(#areaGradient)"
+              />
+
+              <polyline
+                v-if="
+                  chartBars.length > 0
+                "
+                :points="
+                  chartBars.map(bar => `${bar.labelX},${bar.y}`).join(' ')
+                "
+                fill="none"
+                stroke="#059669"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+
+              <circle
                 v-for="
                   bar in chartBars
                 "
                 :key="
-                  bar.key
+                  'point-' + bar.key
                 "
-                :x="
-                  bar.x
+                :cx="
+                  bar.labelX
                 "
-                :y="
+                :cy="
                   bar.y
                 "
-                :width="
-                  bar.width
-                "
-                :height="
-                  bar.height
-                "
-                rx="6"
-                fill="#059669"
+                r="5"
+                fill="#ffffff"
+                stroke="#059669"
+                stroke-width="3"
+                class="transition-all hover:r-[7px]"
               />
 
               <text
@@ -1170,7 +1296,7 @@ onMounted(() => {
                   bar.labelX
                 "
                 :y="
-                  bar.y - 10
+                  bar.y - 15
                 "
                 text-anchor="middle"
                 fill="#0f172a"
@@ -1293,6 +1419,12 @@ onMounted(() => {
                   <th
                     class="px-4 py-3 text-right font-extrabold"
                   >
+                    Tidak Trx
+                  </th>
+
+                  <th
+                    class="px-4 py-3 text-right font-extrabold"
+                  >
                     Penyelesaian
                   </th>
 
@@ -1377,9 +1509,24 @@ onMounted(() => {
                     {{
                       formatNumber(
                         row
-                          .notTransacted,
+                          .pending,
                       )
                     }}
+                  </td>
+
+                  <td
+                    class="px-4 py-4 text-right"
+                  >
+                    <div class="font-bold text-red-600">
+                      {{
+                        formatNumber(
+                          row.deceased + row.movedDomicile + row.notClaimed,
+                        )
+                      }}
+                    </div>
+                    <div class="mt-0.5 text-[10px] font-medium text-slate-500">
+                      M: {{ row.deceased }} &bull; P: {{ row.movedDomicile }} &bull; L: {{ row.notClaimed }}
+                    </div>
                   </td>
 
                   <td
@@ -1423,103 +1570,87 @@ onMounted(() => {
           </div>
         </article>
 
-        <article
-          class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-        >
-          <h2
-            class="font-black text-slate-950"
+        <div class="flex flex-col gap-5">
+          <article
+            class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
           >
-            Kesimpulan Penyaluran
-          </h2>
-
-          <div
-            class="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50/70 p-5"
-          >
-            <span
-              :class="[
-                'inline-flex rounded-lg px-3 py-1.5 text-xs font-black',
-                conclusionStatus
-                  .className,
-              ]"
+            <h2
+              class="font-black text-slate-950"
             >
-              {{
-                conclusionStatus
-                  .label
-              }}
-            </span>
+              Status Tidak Transaksi
+            </h2>
 
             <div
-              class="mt-5 grid gap-4"
+              class="mt-4 grid gap-3"
             >
-              <p
-                class="text-sm text-slate-700"
+              <div
+                class="flex items-center justify-between rounded-xl border border-rose-100 bg-rose-50/50 p-4"
               >
-                <strong
-                  class="mr-2 text-2xl font-black text-emerald-700"
-                >
-                  {{
-                    formatPercentage(
-                      summary
-                        .completion_percentage,
-                    )
-                  }}
-                </strong>
+                <div>
+                  <p
+                    class="text-[11px] font-bold uppercase tracking-wide text-rose-700"
+                  >
+                    Meninggal
+                  </p>
+                </div>
 
-                KPM telah bertransaksi.
-              </p>
-
-              <p
-                class="text-sm text-slate-700"
-              >
                 <strong
-                  class="mr-2 text-2xl font-black text-orange-600"
+                  class="text-2xl font-black text-rose-700"
                 >
                   {{
                     formatNumber(
-                      summary
-                        .not_transacted,
+                      summary.deceased,
                     )
                   }}
                 </strong>
+              </div>
 
-                KPM masih belum bertransaksi.
-              </p>
-
-              <p
-                v-if="
-                  highestCompletion
-                "
-                class="border-t border-emerald-100 pt-4 text-sm leading-6 text-slate-700"
+              <div
+                class="flex items-center justify-between rounded-xl border border-blue-100 bg-blue-50/50 p-4"
               >
-                <strong>
-                  {{
-                    highestCompletion
-                      .name
-                  }}
-                </strong>
-
-                memiliki penyelesaian tertinggi:
+                <div>
+                  <p
+                    class="text-[11px] font-bold uppercase tracking-wide text-blue-700"
+                  >
+                    Pindah Domisili
+                  </p>
+                </div>
 
                 <strong
-                  class="text-government-green-700"
+                  class="text-2xl font-black text-blue-700"
                 >
                   {{
-                    formatPercentage(
-                      highestCompletion
-                        .completionPercentage,
+                    formatNumber(
+                      summary.moved_domicile,
                     )
                   }}
                 </strong>
-              </p>
-            </div>
-          </div>
+              </div>
 
-          <p
-            class="mt-4 text-xs leading-5 text-slate-500"
-          >
-            Data mengikuti periode aktif dan wilayah yang dipilih pada peta.
-          </p>
-        </article>
+              <div
+                class="flex items-center justify-between rounded-xl border border-amber-100 bg-amber-50/50 p-4"
+              >
+                <div>
+                  <p
+                    class="text-[11px] font-bold uppercase tracking-wide text-amber-700"
+                  >
+                    Lainnya
+                  </p>
+                </div>
+
+                <strong
+                  class="text-2xl font-black text-amber-700"
+                >
+                  {{
+                    formatNumber(
+                      summary.not_claimed,
+                    )
+                  }}
+                </strong>
+              </div>
+            </div>
+          </article>
+        </div>
       </section>
     </template>
   </div>

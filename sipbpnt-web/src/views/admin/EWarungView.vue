@@ -1046,9 +1046,7 @@ onMounted(() => {
           <p
             class="mt-4 rounded-xl bg-slate-50 px-4 py-3 text-xs font-semibold leading-5 text-slate-500"
           >
-            Nama harus unik. Status E-Warung
-            baru otomatis aktif dan dapat
-            dinonaktifkan dari daftar master.
+            Perhatikan Dalam Pembuatan Nama E-Warung 
           </p>
 
           <div

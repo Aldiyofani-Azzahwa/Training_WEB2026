@@ -1265,7 +1265,7 @@ onBeforeUnmount(() => {
               <p
                 class="text-[11px] font-bold uppercase tracking-wide text-sky-700"
               >
-                Verifikasi Final
+                Tidak Transaksi
               </p>
 
               <strong
@@ -1326,7 +1326,7 @@ onBeforeUnmount(() => {
               <p
                 class="mt-1 text-xs text-slate-500"
               >
-                Transaksi + verifikasi final
+                Keseluruhan Transaksi
               </p>
             </div>
           </div>
@@ -1362,12 +1362,6 @@ onBeforeUnmount(() => {
               >
                 Progres Penanganan per Kecamatan
               </h2>
-
-              <p
-                class="mt-1 text-xs text-slate-500"
-              >
-                Transaksi dan verifikasi final aktif.
-              </p>
             </div>
 
             <MapPin
@@ -1562,7 +1556,7 @@ onBeforeUnmount(() => {
                   <i
                     class="size-2.5 rounded-full bg-blue-600"
                   />
-                  Verifikasi final
+                  Tidak transaksi
                 </span>
 
                 <strong
@@ -1615,7 +1609,7 @@ onBeforeUnmount(() => {
             <h2
               class="text-sm font-black uppercase tracking-wide text-slate-900"
             >
-              Status Verifikasi Final
+              Status Tidak Transaksi
             </h2>
 
             <p
@@ -1643,11 +1637,7 @@ onBeforeUnmount(() => {
                   Meninggal
                 </p>
 
-                <p
-                  class="mt-0.5 text-[11px] text-slate-500"
-                >
-                  Verifikasi final aktif
-                </p>
+                
               </div>
 
               <strong
@@ -1679,11 +1669,7 @@ onBeforeUnmount(() => {
                   Pindah Domisili
                 </p>
 
-                <p
-                  class="mt-0.5 text-[11px] text-blue-700"
-                >
-                  Verifikasi final aktif
-                </p>
+               
               </div>
 
               <strong
@@ -1714,11 +1700,7 @@ onBeforeUnmount(() => {
                   Tidak Transaksi
                 </p>
 
-                <p
-                  class="mt-0.5 text-[11px] text-amber-700"
-                >
-                  Disertai alasan Surveyor
-                </p>
+                
               </div>
 
               <strong

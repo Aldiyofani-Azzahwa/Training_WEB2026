@@ -6,6 +6,7 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\HeadOfficeDashboardRepositoryInterface;
 use App\Enums\BnbaImportStatus;
+use App\Enums\KpmVerificationStatus;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
@@ -52,9 +53,51 @@ final class EloquentHeadOfficeDashboardRepository implements
         $totalKpm = (int) ($row?->total_kpm ?? 0);
         $transacted = (int) ($row?->transacted ?? 0);
 
+        $verificationsQuery = DB::table('kpm_verifications')
+            ->join('bpnt_participants', 'bpnt_participants.id', '=', 'kpm_verifications.bpnt_participant_id')
+            ->join('kelurahans', 'kelurahans.id', '=', 'bpnt_participants.kelurahan_id')
+            ->where('kpm_verifications.period_id', $periodId)
+            ->where('kpm_verifications.active_slot', 1);
+
+        if ($kelurahanId !== null) {
+            $verificationsQuery->where('kelurahans.id', $kelurahanId);
+        } elseif ($kecamatanId !== null) {
+            $verificationsQuery->where('kelurahans.kecamatan_id', $kecamatanId);
+        }
+
+        $verificationCounts = $verificationsQuery
+            ->select('kpm_verifications.status')
+            ->selectRaw('COUNT(*) as total')
+            ->groupBy('kpm_verifications.status')
+            ->pluck('total', 'kpm_verifications.status');
+
+        $deceased = (int) $verificationCounts->get(
+            KpmVerificationStatus::DECEASED->value,
+            0
+        );
+
+        $movedDomicile = (int) $verificationCounts->get(
+            KpmVerificationStatus::MOVED_DOMICILE->value,
+            0
+        );
+
+        $notClaimed = (int) $verificationCounts->get(
+            KpmVerificationStatus::NOT_CLAIMED->value,
+            0
+        );
+
+        $resolved = $transacted + $deceased + $movedDomicile + $notClaimed;
+
         return [
             'total_kpm' => $totalKpm,
             'transacted' => $transacted,
+            'pending' => max(
+                $totalKpm - $resolved,
+                0
+            ),
+            'deceased' => $deceased,
+            'moved_domicile' => $movedDomicile,
+            'not_claimed' => $notClaimed,
             'not_transacted' => max(
                 $totalKpm - $transacted,
                 0
@@ -114,10 +157,27 @@ final class EloquentHeadOfficeDashboardRepository implements
             ->orderBy('kelurahans.name')
             ->get();
 
+        $verificationCounts = DB::table('kpm_verifications')
+            ->where('period_id', $periodId)
+            ->where('active_slot', 1)
+            ->select('participant_kelurahan_id', 'status')
+            ->selectRaw('COUNT(*) as total')
+            ->groupBy('participant_kelurahan_id', 'status')
+            ->get()
+            ->groupBy('participant_kelurahan_id');
+
         $kelurahans = $rows
-            ->map(function (object $row): array {
+            ->map(function (object $row) use ($verificationCounts): array {
                 $totalKpm = (int) $row->total_kpm;
                 $transacted = (int) $row->transacted;
+                $kelurahanId = (int) $row->kelurahan_id;
+                $verifications = $verificationCounts->get($kelurahanId) ?? collect();
+
+                $deceased = (int) $verifications->where('status', KpmVerificationStatus::DECEASED->value)->sum('total');
+                $movedDomicile = (int) $verifications->where('status', KpmVerificationStatus::MOVED_DOMICILE->value)->sum('total');
+                $notClaimed = (int) $verifications->where('status', KpmVerificationStatus::NOT_CLAIMED->value)->sum('total');
+
+                $resolved = $transacted + $deceased + $movedDomicile + $notClaimed;
 
                 return [
                     'kecamatan' => [
@@ -126,12 +186,16 @@ final class EloquentHeadOfficeDashboardRepository implements
                         'name' => (string) $row->kecamatan_name,
                     ],
                     'kelurahan' => [
-                        'id' => (int) $row->kelurahan_id,
+                        'id' => $kelurahanId,
                         'code' => (string) $row->kelurahan_code,
                         'name' => (string) $row->kelurahan_name,
                     ],
                     'total_kpm' => $totalKpm,
                     'transacted' => $transacted,
+                    'pending' => max($totalKpm - $resolved, 0),
+                    'deceased' => $deceased,
+                    'moved_domicile' => $movedDomicile,
+                    'not_claimed' => $notClaimed,
                     'not_transacted' => max(
                         $totalKpm - $transacted,
                         0
@@ -154,18 +218,21 @@ final class EloquentHeadOfficeDashboardRepository implements
             ->map(function ($items): array {
                 $first = $items->first();
 
-                $totalKpm = (int) $items->sum(
-                    'total_kpm'
-                );
-
-                $transacted = (int) $items->sum(
-                    'transacted'
-                );
+                $totalKpm = (int) $items->sum('total_kpm');
+                $transacted = (int) $items->sum('transacted');
+                $deceased = (int) $items->sum('deceased');
+                $movedDomicile = (int) $items->sum('moved_domicile');
+                $notClaimed = (int) $items->sum('not_claimed');
+                $pending = (int) $items->sum('pending');
 
                 return [
                     'kecamatan' => $first['kecamatan'],
                     'total_kpm' => $totalKpm,
                     'transacted' => $transacted,
+                    'pending' => $pending,
+                    'deceased' => $deceased,
+                    'moved_domicile' => $movedDomicile,
+                    'not_claimed' => $notClaimed,
                     'not_transacted' => max(
                         $totalKpm - $transacted,
                         0

@@ -233,6 +233,10 @@ final class HeadOfficeDashboardService
             'summary' => [
                 'total_kpm' => 0,
                 'transacted' => 0,
+                'pending' => 0,
+                'deceased' => 0,
+                'moved_domicile' => 0,
+                'not_claimed' => 0,
                 'not_transacted' => 0,
                 'amount_disbursed' => 0,
                 'completion_percentage' => 0.0,
