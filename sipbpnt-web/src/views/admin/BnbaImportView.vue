@@ -5,6 +5,7 @@ import {
   onMounted,
   ref,
   watch,
+  nextTick,
 } from 'vue'
 
 import {
@@ -759,36 +760,40 @@ async function handlePage(
       @delete="
         handleDeletePeriod
       "
-    />
-<!-- BNBA WORKSPACE -->
-<template
-  v-if="
-    canShowBnbaWorkspace
-  "
->
-      <!-- SELECTED PERIOD -->
-      <section
-        class="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-      >
-        <span
-          class="text-xs font-bold tracking-wider text-slate-400 uppercase"
+    >
+      <!-- BNBA WORKSPACE (ACCORDION) -->
+      <template #default="{ period }">
+        <div
+          v-if="
+            canShowBnbaWorkspace
+          "
+          ref="bnbaInteractionArea"
+          class="border-t border-slate-200 pt-5 mt-2"
         >
-          Periode
-        </span>
-
-        <h2
-          class="mt-1 text-xl font-bold text-slate-900"
-        >
-          {{ selectedPeriod?.name }}
-        </h2>
-
-        <p
-          class="mt-1 text-sm text-slate-500"
-        >
-          Tahun
-          {{ selectedPeriod?.year }}
-        </p>
-      </section>
+          <!-- UPLOAD -->
+          <BnbaUploadPanel
+            v-if="
+              showUploadPanel
+            "
+            :selected-file="
+              selectedFile
+            "
+            :upload-progress="
+              uploadProgress
+            "
+            :is-uploading="
+              isUploading
+            "
+            :can-upload="
+              canUpload
+            "
+            @select-file="
+              handleFileSelect
+            "
+            @upload="
+              handleUpload
+            "
+          />
 
       <!-- CONFIRMED BNBA -->
       <section
@@ -915,31 +920,7 @@ async function handlePage(
         />
       </section>
 
-      <!-- UPLOAD -->
-      <BnbaUploadPanel
-        v-if="
-          showUploadPanel
-        "
-        class="mt-6"
-        :selected-file="
-          selectedFile
-        "
-        :upload-progress="
-          uploadProgress
-        "
-        :is-uploading="
-          isUploading
-        "
-        :can-upload="
-          canUpload
-        "
-        @select-file="
-          handleFileSelect
-        "
-        @upload="
-          handleUpload
-        "
-      />
+
 
       <!-- PREVIEW -->
       <div
@@ -1092,7 +1073,9 @@ async function handlePage(
           </div>
         </section>
       </div>
-    </template>
+        </div>
+      </template>
+    </BpntPeriodForm>
   </div>
   </main>
 

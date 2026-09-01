@@ -141,19 +141,7 @@ const navigationByRole:
           true,
       },
 
-      {
-        key:
-          'rekapitulasi',
 
-        label:
-          'Rekapitulasi',
-
-        icon:
-          BarChart3,
-
-        available:
-          false,
-      },
 
       {
         key:
@@ -322,19 +310,7 @@ const navigationByRole:
           false,
       },
 
-      {
-        key:
-          'rekapitulasi',
 
-        label:
-          'Rekapitulasi',
-
-        icon:
-          BarChart3,
-
-        available:
-          false,
-      },
 
       {
         key:

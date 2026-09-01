@@ -227,7 +227,7 @@ class SurveyorKpmActivityTest
             ->assertCreated()
             ->assertJsonPath(
                 'data.status.label',
-                'Tidak Mengambil'
+                'Tidak Transaksi'
             )
             ->assertJsonPath(
                 'data.reason',

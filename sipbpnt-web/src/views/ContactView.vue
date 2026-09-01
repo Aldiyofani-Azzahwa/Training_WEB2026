@@ -20,9 +20,6 @@ const googleMapsUrl =
       eyebrow="Kontak"
       title="Hubungi Dinas Sosial Kota Mojokerto."
       description="Gunakan saluran resmi untuk memperoleh informasi mengenai layanan dan pelaksanaan program."
-      wave-target-color="#FFFFFF"
-      wave-primary-color="#F96D27"
-      wave-secondary-color="#FFBA45"
     />
 
     <section class="bg-white py-20 sm:py-24">

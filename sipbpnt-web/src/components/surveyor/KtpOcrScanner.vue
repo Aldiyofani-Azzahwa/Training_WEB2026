@@ -13,7 +13,6 @@ import {
   Keyboard,
   LoaderCircle,
   RefreshCw,
-  ScanLine,
   ShieldCheck,
   Zap,
   ZapOff,
@@ -21,6 +20,7 @@ import {
 
 import {
   captureKtpPhoto,
+  hasValidNikStructure,
   inspectKtpPhoto,
   ktpOcrService,
   releaseKtpPhoto,
@@ -31,42 +31,62 @@ import type {
   KtpOcrScannerState,
 } from '@/types/ktpOcr'
 
-type TorchCapabilities =
+type CameraCapabilities =
   MediaTrackCapabilities & {
+    focusMode?: string[]
     torch?: boolean
   }
 
-type TorchConstraintSet =
+type CameraConstraintSet =
   MediaTrackConstraintSet & {
+    focusMode?: string
     torch?: boolean
   }
 
 const emit =
-  defineEmits<{
-    detected: [nik: string]
-    manual: []
-  }>()
+  defineEmits([
+    'detected',
+    'manual',
+  ])
 
 const videoElement =
-  ref<HTMLVideoElement | null>(
-    null,
-  )
+  ref<
+    HTMLVideoElement | null
+  >(null)
 
 const scannerState =
   ref<KtpOcrScannerState>(
     'idle',
   )
 
-const scannerMessage = ref(
-  'Foto KTP sekali, lalu sistem membaca 16 digit NIK.',
-)
+const scannerMessage =
+  ref(
+    'Foto KTP, lalu sistem membaca 16 digit NIK.',
+  )
 
-const errorMessage = ref('')
+const errorMessage =
+  ref('')
 
 const photoPreviewUrl =
   ref('')
 
-const ocrProgress = ref(0)
+const nikPreviewUrl =
+  ref('')
+
+const detectedNik =
+  ref('')
+
+const detectedNikError =
+  ref('')
+
+const detectedNikWarning =
+  ref('')
+
+const alternativeNiks =
+  ref<string[]>([])
+
+const ocrProgress =
+  ref(0)
 
 const torchAvailable =
   ref(false)
@@ -74,44 +94,38 @@ const torchAvailable =
 const torchEnabled =
   ref(false)
 
-const canForceRead =
-  ref(false)
-
 const cameraVisible =
-  computed(() => {
-    return [
-      'requesting_camera',
-      'aligning',
-    ].includes(
-      scannerState.value,
-    )
-  })
-
-const photoVisible =
-  computed(() => {
-    return [
-      'captured',
-      'processing',
-    ].includes(
-      scannerState.value,
-    )
-  })
-
-const processing = computed(
-  () =>
-    scannerState.value ===
-    'processing',
-)
-
-const requestingCamera =
   computed(
     () =>
-      scannerState.value ===
-      'requesting_camera',
+      [
+        'requesting_camera',
+        'aligning',
+      ].includes(
+        scannerState.value,
+      ),
+  )
+
+const processing =
+  computed(
+    () =>
+      scannerState.value
+      === 'processing',
+  )
+
+const photoVisible =
+  computed(
+    () =>
+      [
+        'captured',
+        'processing',
+      ].includes(
+        scannerState.value,
+      ),
   )
 
 let mediaStream:
-  MediaStream | null = null
+  MediaStream | null =
+    null
 
 let capturedPhoto:
   HTMLCanvasElement | null =
@@ -119,28 +133,42 @@ let capturedPhoto:
 
 let operationId = 0
 
-function stopMediaTracks(): void {
+function activeVideoTrack():
+  MediaStreamTrack | null {
+  return mediaStream
+    ?.getVideoTracks()[0]
+    ?? null
+}
+
+function stopCamera():
+  void {
   for (
-    const track of
-      mediaStream?.getTracks() ??
-    []
+    const track
+    of mediaStream
+      ?.getTracks()
+    ?? []
   ) {
     track.stop()
   }
 
   mediaStream = null
 
-  if (videoElement.value) {
-    videoElement.value.srcObject =
-      null
+  if (
+    videoElement.value
+  ) {
+    videoElement.value
+      .srcObject = null
   }
 
-  torchAvailable.value = false
+  torchAvailable.value =
+    false
 
-  torchEnabled.value = false
+  torchEnabled.value =
+    false
 }
 
-function clearCapturedPhoto(): void {
+function clearPhoto():
+  void {
   if (capturedPhoto) {
     releaseKtpPhoto(
       capturedPhoto,
@@ -149,86 +177,119 @@ function clearCapturedPhoto(): void {
 
   capturedPhoto = null
 
-  photoPreviewUrl.value = ''
+  photoPreviewUrl.value =
+    ''
 
-  canForceRead.value = false
+  nikPreviewUrl.value =
+    ''
 }
 
-function cancelScanner(): void {
+function clearResult():
+  void {
+  detectedNik.value = ''
+
+  detectedNikError.value =
+    ''
+
+  detectedNikWarning.value =
+    ''
+
+  alternativeNiks.value =
+    []
+}
+
+function resetScanner():
+  void {
   operationId++
 
-  stopMediaTracks()
+  stopCamera()
+  clearPhoto()
+  clearResult()
 
-  clearCapturedPhoto()
-
-  scannerState.value = 'idle'
+  scannerState.value =
+    'idle'
 
   scannerMessage.value =
-    'Foto KTP sekali, lalu sistem membaca 16 digit NIK.'
+    'Foto KTP, lalu sistem membaca 16 digit NIK.'
 
   errorMessage.value = ''
-
   ocrProgress.value = 0
 }
 
-function cameraErrorMessage(
+function readableError(
   error: unknown,
 ): string {
   if (
-    error instanceof
-    DOMException
+    error
+    instanceof DOMException
   ) {
     if (
-      error.name ===
-        'NotAllowedError' ||
-      error.name ===
-        'SecurityError'
+      error.name
+        === 'NotAllowedError'
+      || error.name
+        === 'SecurityError'
     ) {
-      return 'Izin kamera ditolak. Izinkan kamera pada pengaturan browser atau gunakan input NIK manual.'
+      return 'Izin kamera ditolak. Izinkan kamera atau gunakan input NIK manual.'
     }
 
     if (
-      error.name ===
-        'NotFoundError' ||
-      error.name ===
-        'DevicesNotFoundError'
+      error.name
+      === 'NotFoundError'
     ) {
-      return 'Kamera tidak ditemukan pada perangkat ini. Gunakan input NIK manual.'
+      return 'Kamera tidak ditemukan. Gunakan input NIK manual.'
     }
 
     if (
-      error.name ===
-        'NotReadableError' ||
-      error.name ===
-        'TrackStartError'
+      error.name
+      === 'NotReadableError'
     ) {
-      return 'Kamera sedang digunakan aplikasi lain. Tutup aplikasi kamera lalu coba kembali.'
+      return 'Kamera sedang digunakan aplikasi lain.'
     }
   }
 
   if (
-    error instanceof Error &&
-    error.message.trim() !== ''
+    error instanceof Error
+    && error.message
+      .trim() !== ''
   ) {
     return error.message
   }
 
-  return 'Kamera gagal dibuka. Gunakan input NIK manual atau coba kembali.'
+  return 'Proses kamera atau OCR gagal. Silakan coba kembali.'
 }
 
-function waitForVideoReady(
-  video: HTMLVideoElement,
+function wait(
+  milliseconds: number,
+): Promise<void> {
+  return new Promise(
+    (
+      resolve,
+    ) =>
+      window.setTimeout(
+        resolve,
+        milliseconds,
+      ),
+  )
+}
+
+function waitForVideo(
+  video:
+    HTMLVideoElement,
 ): Promise<void> {
   if (
-    video.readyState >=
-      HTMLMediaElement.HAVE_METADATA &&
     video.videoWidth > 0
+    && video.readyState
+      >= HTMLMediaElement
+        .HAVE_METADATA
   ) {
     return Promise.resolve()
   }
 
   return new Promise(
-    (resolve, reject) => {
+    (
+      resolve,
+      reject,
+    ) => {
       const timeout =
         window.setTimeout(
           () => {
@@ -236,20 +297,20 @@ function waitForVideoReady(
 
             reject(
               new Error(
-                'Kamera terlalu lama merespons. Silakan coba kembali.',
+                'Kamera terlalu lama merespons.',
               ),
             )
           },
           10_000,
         )
 
-      const handleReady =
+      const ready =
         (): void => {
           cleanup()
           resolve()
         }
 
-      const handleError =
+      const failed =
         (): void => {
           cleanup()
 
@@ -260,25 +321,26 @@ function waitForVideoReady(
           )
         }
 
-      function cleanup(): void {
+      function cleanup():
+        void {
         window.clearTimeout(
           timeout,
         )
 
         video.removeEventListener(
           'loadedmetadata',
-          handleReady,
+          ready,
         )
 
         video.removeEventListener(
           'error',
-          handleError,
+          failed,
         )
       }
 
       video.addEventListener(
         'loadedmetadata',
-        handleReady,
+        ready,
         {
           once: true,
         },
@@ -286,7 +348,7 @@ function waitForVideoReady(
 
       video.addEventListener(
         'error',
-        handleError,
+        failed,
         {
           once: true,
         },
@@ -295,37 +357,107 @@ function waitForVideoReady(
   )
 }
 
-function updateOcrProgress(
-  progress: KtpOcrProgress,
-): void {
+async function applyFocus(
+  mode: string,
+): Promise<boolean> {
+  const track =
+    activeVideoTrack()
+
   if (
-    scannerState.value !==
-    'processing'
+    !track
+    || typeof track
+      .getCapabilities
+      !== 'function'
   ) {
+    return false
+  }
+
+  const capabilities:
+    CameraCapabilities =
+      track
+        .getCapabilities()
+
+  if (
+    !capabilities
+      .focusMode
+      ?.includes(mode)
+  ) {
+    return false
+  }
+
+  const constraint:
+    CameraConstraintSet = {
+      focusMode: mode,
+    }
+
+  try {
+    await track
+      .applyConstraints({
+        advanced: [
+          constraint,
+        ],
+      })
+
+    return true
+  } catch {
+    return false
+  }
+}
+
+async function focusCamera():
+  Promise<void> {
+  if (
+    scannerState.value
+    !== 'aligning'
+  ) {
+    return
+  }
+
+  scannerMessage.value =
+    'Mengunci fokus kamera...'
+
+  if (
+    await applyFocus(
+      'single-shot',
+    )
+  ) {
+    await wait(500)
+  }
+
+  scannerMessage.value =
+    'Tempatkan baris NIK di kotak hijau lalu ambil foto.'
+}
+
+function updateProgress(
+  progress:
+    KtpOcrProgress,
+): void {
+  if (!processing.value) {
     return
   }
 
   ocrProgress.value =
     Math.round(
-      progress.progress * 100,
+      progress.progress
+      * 100,
     )
 
   scannerMessage.value =
     progress.message
 }
 
-async function startCamera(): Promise<void> {
+async function startCamera():
+  Promise<void> {
   operationId++
 
-  const activeOperationId =
+  const currentOperation =
     operationId
 
-  stopMediaTracks()
-
-  clearCapturedPhoto()
+  stopCamera()
+  clearPhoto()
+  clearResult()
 
   errorMessage.value = ''
-
   ocrProgress.value = 0
 
   scannerState.value =
@@ -336,10 +468,10 @@ async function startCamera(): Promise<void> {
 
   try {
     if (
-      !window.isSecureContext &&
-      window.location
-        .hostname !==
-        'localhost'
+      !window.isSecureContext
+      && window.location
+        .hostname
+        !== 'localhost'
     ) {
       throw new Error(
         'Kamera hanya dapat digunakan melalui HTTPS atau localhost.',
@@ -347,47 +479,43 @@ async function startCamera(): Promise<void> {
     }
 
     if (
-      !navigator.mediaDevices
+      !navigator
+        .mediaDevices
         ?.getUserMedia
     ) {
       throw new Error(
-        'Browser ini belum mendukung akses kamera. Gunakan input NIK manual.',
+        'Browser tidak mendukung kamera.',
       )
     }
 
     mediaStream =
-      await navigator.mediaDevices.getUserMedia(
-        {
+      await navigator
+        .mediaDevices
+        .getUserMedia({
           audio: false,
-
           video: {
             facingMode: {
               ideal:
                 'environment',
             },
-
             width: {
               ideal: 1_920,
             },
-
             height: {
               ideal: 1_080,
             },
-
             frameRate: {
               ideal: 24,
               max: 30,
             },
           },
-        },
-      )
+        })
 
     if (
-      activeOperationId !==
-      operationId
+      currentOperation
+      !== operationId
     ) {
-      stopMediaTracks()
-
+      stopCamera()
       return
     }
 
@@ -398,76 +526,85 @@ async function startCamera(): Promise<void> {
 
     if (!video) {
       throw new Error(
-        'Tampilan kamera belum tersedia.',
+        'Elemen kamera belum tersedia.',
       )
     }
 
     video.srcObject =
       mediaStream
 
-    await waitForVideoReady(
+    await waitForVideo(
       video,
     )
 
     await video.play()
 
-    const videoTrack =
-      mediaStream.getVideoTracks()[0]
+    const track =
+      activeVideoTrack()
 
-    if (videoTrack) {
-      const capabilities: TorchCapabilities =
-        typeof videoTrack.getCapabilities ===
-        'function'
-          ? videoTrack.getCapabilities()
-          : {}
+    if (
+      track
+      && typeof track
+        .getCapabilities
+        === 'function'
+    ) {
+      const capabilities:
+        CameraCapabilities =
+          track
+            .getCapabilities()
 
       torchAvailable.value =
-        capabilities.torch ===
-        true
+        capabilities.torch
+        === true
     }
+
+    await applyFocus(
+      'continuous',
+    )
 
     scannerState.value =
       'aligning'
 
     scannerMessage.value =
-      'Penuhi bingkai dengan KTP, tunggu fokus, lalu tekan Ambil Foto.'
+      'Penuhi bingkai dengan KTP dan tempatkan NIK di kotak hijau.'
 
     void ktpOcrService
       .prepare(
-        updateOcrProgress,
+        updateProgress,
       )
-      .catch(() => {
-        // Kesalahan persiapan akan ditampilkan saat foto dibaca.
-      })
-  } catch (error: unknown) {
+      .catch(
+        () => undefined,
+      )
+  } catch (
+    error: unknown
+  ) {
     if (
-      activeOperationId !==
-      operationId
+      currentOperation
+      !== operationId
     ) {
       return
     }
 
-    stopMediaTracks()
+    stopCamera()
 
     scannerState.value =
       'error'
 
     errorMessage.value =
-      cameraErrorMessage(
+      readableError(
         error,
       )
   }
 }
 
-async function processCapturedPhoto(
-  activeOperationId =
-    operationId,
+async function processPhoto(
+  currentOperation:
+    number,
 ): Promise<void> {
   if (
-    activeOperationId !==
-      operationId ||
-    processing.value ||
     !capturedPhoto
+    || currentOperation
+      !== operationId
   ) {
     return
   }
@@ -476,50 +613,57 @@ async function processCapturedPhoto(
     'processing'
 
   scannerMessage.value =
-    'Menyiapkan foto NIK...'
+    'Menyiapkan Tesseract OCR...'
 
   errorMessage.value = ''
-
-  canForceRead.value = false
-
-  ocrProgress.value =
-    Math.max(
-      4,
-      ocrProgress.value,
-    )
+  ocrProgress.value = 5
 
   try {
     const result =
-      await ktpOcrService.recognizePhoto(
-        capturedPhoto,
-        updateOcrProgress,
-      )
+      await ktpOcrService
+        .recognizePhoto(
+          capturedPhoto,
+          updateProgress,
+        )
 
     if (
-      activeOperationId !==
-      operationId
+      currentOperation
+      !== operationId
     ) {
       return
     }
 
-    clearCapturedPhoto()
+    const preview =
+      result.previewUrl
+
+    clearPhoto()
+
+    nikPreviewUrl.value =
+      preview
+
+    detectedNik.value =
+      result.nik
+
+    detectedNikWarning.value =
+      result.warning
+      ?? 'Periksa kembali seluruh digit NIK.'
+
+    alternativeNiks.value =
+      result.alternatives
 
     scannerState.value =
       'detected'
 
     scannerMessage.value =
-      'NIK berhasil dibaca. Periksa kembali sebelum mencari KPM.'
+      'NIK terbaca. Periksa hasil sebelum digunakan.'
 
     ocrProgress.value = 100
-
-    emit(
-      'detected',
-      result.nik,
-    )
-  } catch (error: unknown) {
+  } catch (
+    error: unknown
+  ) {
     if (
-      activeOperationId !==
-      operationId
+      currentOperation
+      !== operationId
     ) {
       return
     }
@@ -528,42 +672,49 @@ async function processCapturedPhoto(
       'captured'
 
     scannerMessage.value =
-      'NIK belum berhasil dibaca dari foto ini.'
+      'NIK belum berhasil dibaca.'
 
     errorMessage.value =
-      cameraErrorMessage(
+      readableError(
         error,
       )
   }
 }
 
-async function takePhoto(): Promise<void> {
+async function takePhoto():
+  Promise<void> {
+  const video =
+    videoElement.value
+
   if (
-    scannerState.value !==
-      'aligning' ||
-    !videoElement.value
+    !video
+    || scannerState.value
+      !== 'aligning'
   ) {
     return
   }
 
-  const activeOperationId =
+  const currentOperation =
     operationId
 
   try {
-    clearCapturedPhoto()
+    await focusCamera()
+
+    clearPhoto()
 
     capturedPhoto =
       captureKtpPhoto(
-        videoElement.value,
+        video,
       )
 
     photoPreviewUrl.value =
-      capturedPhoto.toDataURL(
-        'image/jpeg',
-        0.92,
-      )
+      capturedPhoto
+        .toDataURL(
+          'image/jpeg',
+          0.92,
+        )
 
-    stopMediaTracks()
+    stopCamera()
 
     const inspection =
       inspectKtpPhoto(
@@ -576,13 +727,8 @@ async function takePhoto(): Promise<void> {
       scannerState.value =
         'captured'
 
-      scannerMessage.value =
-        'Periksa kualitas foto sebelum membaca NIK.'
-
       errorMessage.value =
         inspection.message
-
-      canForceRead.value = true
 
       return
     }
@@ -590,18 +736,13 @@ async function takePhoto(): Promise<void> {
     scannerMessage.value =
       inspection.message
 
-    await processCapturedPhoto(
-      activeOperationId,
+    await processPhoto(
+      currentOperation,
     )
-  } catch (error: unknown) {
-    if (
-      activeOperationId !==
-      operationId
-    ) {
-      return
-    }
-
-    stopMediaTracks()
+  } catch (
+    error: unknown
+  ) {
+    stopCamera()
 
     scannerState.value =
       capturedPhoto
@@ -609,19 +750,93 @@ async function takePhoto(): Promise<void> {
         : 'error'
 
     errorMessage.value =
-      cameraErrorMessage(
+      readableError(
         error,
       )
   }
 }
 
-async function toggleTorch(): Promise<void> {
-  const videoTrack =
-    mediaStream?.getVideoTracks()[0]
+function handleNikInput(
+  event: Event,
+): void {
+  const input =
+    event.target
 
   if (
-    !videoTrack ||
-    !torchAvailable.value
+    !(
+      input
+      instanceof HTMLInputElement
+    )
+  ) {
+    return
+  }
+
+  const value =
+    input.value
+      .replace(
+        /\D+/g,
+        '',
+      )
+      .slice(
+        0,
+        16,
+      )
+
+  input.value = value
+  detectedNik.value = value
+  detectedNikError.value = ''
+
+  detectedNikWarning.value =
+    'Hasil diubah. Cocokkan kembali dengan foto KTP.'
+}
+
+function selectAlternative(
+  nik: string,
+): void {
+  detectedNik.value = nik
+  detectedNikError.value = ''
+
+  detectedNikWarning.value =
+    'Alternatif dipilih. Periksa kembali dengan foto KTP.'
+}
+
+function confirmNik():
+  void {
+  if (
+    detectedNik.value
+      .length !== 16
+  ) {
+    detectedNikError.value =
+      'NIK harus tepat 16 digit.'
+
+    return
+  }
+
+  detectedNikError.value = ''
+
+  if (
+    !hasValidNikStructure(
+      detectedNik.value,
+    )
+  ) {
+    detectedNikWarning.value =
+      'Struktur NIK terlihat tidak biasa. Pencarian tetap dilakukan exact ke BNBA.'
+  }
+
+  emit(
+    'detected',
+    detectedNik.value,
+  )
+}
+
+async function toggleTorch():
+  Promise<void> {
+  const track =
+    activeVideoTrack()
+
+  if (
+    !track
+    || !torchAvailable.value
   ) {
     return
   }
@@ -629,44 +844,44 @@ async function toggleTorch(): Promise<void> {
   const nextValue =
     !torchEnabled.value
 
+  const constraint:
+    CameraConstraintSet = {
+      torch: nextValue,
+    }
+
   try {
-    await videoTrack.applyConstraints(
-      {
+    await track
+      .applyConstraints({
         advanced: [
-          {
-            torch:
-              nextValue,
-          } as TorchConstraintSet,
+          constraint,
         ],
-      },
-    )
+      })
 
     torchEnabled.value =
       nextValue
   } catch {
     torchAvailable.value =
       false
-
-    torchEnabled.value =
-      false
   }
 }
 
-function useManualInput(): void {
-  cancelScanner()
-
+function useManual():
+  void {
+  resetScanner()
   emit('manual')
 }
 
-onBeforeUnmount(() => {
-  operationId++
+onBeforeUnmount(
+  () => {
+    operationId++
 
-  stopMediaTracks()
+    stopCamera()
+    clearPhoto()
 
-  clearCapturedPhoto()
-
-  void ktpOcrService.dispose()
-})
+    void ktpOcrService
+      .dispose()
+  },
+)
 </script>
 
 <template>
@@ -675,16 +890,15 @@ onBeforeUnmount(() => {
     data-testid="ktp-ocr-scanner"
   >
     <header
-      class="flex items-start justify-between gap-3 px-[18px] pt-[18px] lg:px-[22px] lg:pt-[22px]"
+      class="flex items-start justify-between gap-3 p-[18px] pb-4 lg:p-[22px]"
     >
-      <div class="min-w-0">
+      <div>
         <div
           class="mb-2 inline-flex items-center gap-1.5 rounded-full bg-[#e8f5f0] px-2.5 py-1 text-[10px] font-bold text-[#006855]"
         >
           <ShieldCheck
             :size="15"
           />
-
           Diproses di perangkat
         </div>
 
@@ -695,56 +909,49 @@ onBeforeUnmount(() => {
         </h2>
 
         <p
-          class="mt-1 mb-0 text-[11px] leading-[1.55] text-[#71837d]"
+          class="mt-1 mb-0 text-[11px] text-[#71837d]"
         >
-          Foto hanya digunakan
-          sementara untuk membaca
-          NIK dan tidak disimpan.
+          Foto sementara dan tidak disimpan.
         </p>
       </div>
 
       <div
-        class="grid size-10 shrink-0 place-items-center rounded-[14px] bg-[#edf6f3] text-[#006855]"
+        class="grid size-10 place-items-center rounded-[14px] bg-[#edf6f3] text-[#006855]"
       >
         <Camera :size="22" />
       </div>
     </header>
 
     <div
-      v-if="
-        scannerState === 'idle'
-      "
-      class="grid gap-3 p-[18px] pt-4 lg:p-[22px] lg:pt-4"
+      v-if="scannerState === 'idle'"
+      class="grid gap-3 px-[18px] pb-[18px] lg:px-[22px]"
     >
       <button
         type="button"
-        class="flex min-h-12 w-full items-center justify-center gap-2 rounded-[14px] border-0 bg-[#006855] text-[13px] font-bold text-white transition-colors hover:bg-[#005746]"
+        class="flex min-h-12 items-center justify-center gap-2 rounded-[14px] border-0 bg-[#006855] text-[13px] font-bold text-white"
         data-testid="start-ocr-scanner"
         @click="startCamera"
       >
         <Camera :size="20" />
-
         Buka Kamera KTP
       </button>
 
       <button
         type="button"
-        class="flex min-h-11 w-full items-center justify-center gap-2 rounded-[13px] border border-[#d6e3de] bg-white text-xs font-bold text-[#45655c] transition-colors hover:bg-[#f4f8f6]"
+        class="flex min-h-11 items-center justify-center gap-2 rounded-[13px] border border-[#d6e3de] bg-white text-xs font-bold text-[#45655c]"
         data-testid="use-manual-nik"
-        @click="useManualInput"
+        @click="useManual"
       >
         <Keyboard :size="18" />
-
         Masukkan NIK Manual
       </button>
     </div>
 
     <div
       v-else-if="cameraVisible"
-      class="mt-4"
     >
       <div
-        class="relative aspect-[1.586/1] w-full overflow-hidden bg-[#102821]"
+        class="relative aspect-[1.586/1] overflow-hidden bg-[#102821]"
       >
         <video
           ref="videoElement"
@@ -753,96 +960,66 @@ onBeforeUnmount(() => {
           playsinline
           class="size-full object-cover"
           data-testid="ktp-camera-preview"
+          @click="focusCamera"
         />
 
         <div
           class="pointer-events-none absolute inset-[5%] rounded-[16px] border-2 border-white/90 shadow-[0_0_0_999px_rgb(5_20_16_/_42%)]"
         >
           <span
-            class="absolute top-[16%] right-[6%] left-[6%] h-[24%] rounded-[8px] border-2 border-dashed border-[#6ff0c9] bg-[#006855]/8"
+            class="absolute top-[12%] right-[4%] left-[4%] h-[36%] rounded-lg border-2 border-dashed border-[#6ff0c9]"
           />
 
           <span
-            class="absolute top-[11%] left-[7%] rounded-md bg-[#006855]/88 px-2 py-1 text-[9px] font-bold text-white"
+            class="absolute top-[7%] left-[6%] rounded-md bg-[#006855] px-2 py-1 text-[9px] font-bold text-white"
           >
-            Pastikan NIK berada di
-            area ini
+            Posisikan baris NIK di area hijau
           </span>
         </div>
 
         <div
-          v-if="requestingCamera"
+          v-if="scannerState === 'requesting_camera'"
           class="absolute inset-0 grid place-items-center bg-[#102821]/85 text-white"
         >
-          <div
-            class="grid justify-items-center gap-2 text-center"
-          >
-            <LoaderCircle
-              :size="28"
-              class="animate-spin"
-            />
-
-            <span
-              class="text-xs font-semibold"
-            >
-              Membuka kamera...
-            </span>
-          </div>
+          <LoaderCircle
+            :size="30"
+            class="animate-spin"
+          />
         </div>
       </div>
 
-      <div
-        class="flex items-center gap-2 border-y border-[#dce9e4] bg-[#f7fbf9] px-4 py-3 text-[#45655c]"
+      <p
+        class="m-0 border-y border-[#dce9e4] bg-[#f7fbf9] px-4 py-3 text-[10px] text-[#45655c]"
       >
-        <Camera
-          :size="17"
-          class="shrink-0 text-[#006855]"
-        />
-
-        <p
-          class="m-0 flex-1 text-[10px] leading-[1.5]"
-          aria-live="polite"
-        >
-          {{ scannerMessage }}
-        </p>
-      </div>
+        {{ scannerMessage }}
+      </p>
 
       <div
         class="grid grid-cols-2 gap-2 p-[14px] sm:grid-cols-3"
       >
         <button
           type="button"
-          class="flex min-h-10 items-center justify-center gap-1.5 rounded-xl border border-[#d6e3de] bg-white text-[11px] font-bold text-[#526a62] disabled:cursor-not-allowed disabled:opacity-50"
-          :disabled="
-            requestingCamera
-          "
-          @click="cancelScanner"
+          class="flex min-h-10 items-center justify-center gap-2 rounded-xl border border-[#d6e3de] bg-white text-[11px] font-bold text-[#526a62]"
+          @click="resetScanner"
         >
-          <CameraOff
-            :size="17"
-          />
-
+          <CameraOff :size="17" />
           Batal
         </button>
 
         <button
           type="button"
-          class="flex min-h-10 items-center justify-center gap-1.5 rounded-xl border-0 bg-[#006855] text-[11px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
-          :disabled="
-            requestingCamera
-          "
+          class="flex min-h-10 items-center justify-center gap-2 rounded-xl border-0 bg-[#006855] text-[11px] font-bold text-white"
           data-testid="capture-ktp-photo"
           @click="takePhoto"
         >
           <Camera :size="17" />
-
           Ambil Foto
         </button>
 
         <button
           v-if="torchAvailable"
           type="button"
-          class="col-span-2 flex min-h-10 items-center justify-center gap-1.5 rounded-xl border border-[#e6d6ae] bg-[#fff9ea] text-[11px] font-bold text-[#9d6200] sm:col-span-1"
+          class="col-span-2 flex min-h-10 items-center justify-center gap-2 rounded-xl border border-[#e6d6ae] bg-[#fff9ea] text-[11px] font-bold text-[#9d6200] sm:col-span-1"
           @click="toggleTorch"
         >
           <ZapOff
@@ -866,15 +1043,14 @@ onBeforeUnmount(() => {
 
     <div
       v-else-if="photoVisible"
-      class="mt-4"
       data-testid="ktp-photo-result"
     >
       <div
-        class="relative aspect-[1.586/1] w-full overflow-hidden bg-[#102821]"
+        class="relative aspect-[1.586/1] overflow-hidden bg-[#102821]"
       >
         <img
           :src="photoPreviewUrl"
-          alt="Pratinjau foto KTP sementara"
+          alt="Foto KTP sementara"
           class="size-full object-cover"
           data-testid="ktp-photo-preview"
         />
@@ -884,11 +1060,11 @@ onBeforeUnmount(() => {
           class="absolute inset-0 grid place-items-center bg-[#102821]/82 p-6 text-white"
         >
           <div
-            class="grid w-full max-w-[280px] justify-items-center gap-3 text-center"
+            class="grid w-full max-w-[280px] gap-3 text-center"
           >
             <LoaderCircle
-              :size="31"
-              class="animate-spin"
+              :size="30"
+              class="mx-auto animate-spin"
             />
 
             <strong
@@ -898,19 +1074,17 @@ onBeforeUnmount(() => {
             </strong>
 
             <div
-              class="h-1.5 w-full overflow-hidden rounded-full bg-white/25"
+              class="h-1.5 overflow-hidden rounded-full bg-white/25"
             >
               <div
-                class="h-full rounded-full bg-[#6ff0c9] transition-[width] duration-300"
+                class="h-full rounded-full bg-[#6ff0c9]"
                 :style="{
                   width: `${ocrProgress}%`,
                 }"
               />
             </div>
 
-            <small
-              class="text-[10px] text-white/75"
-            >
+            <small>
               {{ ocrProgress }}%
             </small>
           </div>
@@ -919,132 +1093,146 @@ onBeforeUnmount(() => {
 
       <div
         v-if="!processing"
-        class="m-[14px] flex items-start gap-3 rounded-[15px] border border-[#efcdca] bg-[#fff8f7] p-4 text-[#c42c28]"
-        role="alert"
+        class="grid gap-3 p-[14px]"
       >
-        <CircleAlert
-          :size="22"
-          class="shrink-0"
-        />
-
-        <p
-          class="m-0 text-[11px] leading-[1.55]"
+        <div
+          class="flex gap-3 rounded-[15px] border border-[#efcdca] bg-[#fff8f7] p-4 text-[#c42c28]"
         >
-          {{ errorMessage }}
-        </p>
-      </div>
-
-      <div
-        v-if="!processing"
-        class="grid gap-2 p-[14px] pt-0 sm:grid-cols-2"
-      >
-        <button
-          type="button"
-          class="flex min-h-11 items-center justify-center gap-2 rounded-[13px] border border-[#c5ded5] bg-[#eef8f4] text-xs font-bold text-[#006855]"
-          data-testid="retake-ktp-photo"
-          @click="startCamera"
-        >
-          <RefreshCw
-            :size="18"
+          <CircleAlert
+            :size="22"
+            class="shrink-0"
           />
 
-          Foto Ulang
-        </button>
+          <p
+            class="m-0 text-[11px] leading-[1.55]"
+          >
+            {{ errorMessage }}
+          </p>
+        </div>
 
-        <button
-          v-if="canForceRead"
-          type="button"
-          class="flex min-h-11 items-center justify-center gap-2 rounded-[13px] border-0 bg-[#006855] text-xs font-bold text-white"
-          data-testid="read-photo-anyway"
-          @click="
-            processCapturedPhoto()
-          "
+        <div
+          class="grid grid-cols-2 gap-2"
         >
-          <ScanLine
-            :size="18"
-          />
+          <button
+            type="button"
+            class="flex min-h-11 items-center justify-center gap-2 rounded-[13px] border border-[#c5ded5] bg-[#eef8f4] text-xs font-bold text-[#006855]"
+            data-testid="retake-ktp-photo"
+            @click="startCamera"
+          >
+            <RefreshCw :size="18" />
+            Foto Ulang
+          </button>
 
-          Tetap Baca Foto
-        </button>
-
-        <button
-          v-else
-          type="button"
-          class="flex min-h-11 items-center justify-center gap-2 rounded-[13px] border border-[#d6e3de] bg-white text-xs font-bold text-[#45655c]"
-          @click="useManualInput"
-        >
-          <Keyboard
-            :size="18"
-          />
-
-          Input NIK Manual
-        </button>
+          <button
+            type="button"
+            class="flex min-h-11 items-center justify-center gap-2 rounded-[13px] border border-[#d6e3de] bg-white text-xs font-bold text-[#45655c]"
+            @click="useManual"
+          >
+            <Keyboard :size="18" />
+            Input Manual
+          </button>
+        </div>
       </div>
     </div>
 
     <div
-      v-else-if="
-        scannerState ===
-        'detected'
-      "
-      class="grid gap-3 p-[18px] pt-4 lg:p-[22px] lg:pt-4"
+      v-else-if="scannerState === 'detected'"
+      class="grid gap-3 p-[18px] pt-0 lg:p-[22px] lg:pt-0"
       data-testid="ocr-detected"
     >
       <div
-        class="flex items-start gap-3 rounded-[15px] border border-[#b9dfd2] bg-[#eaf8f3] p-4 text-[#006855]"
+        class="overflow-hidden rounded-[14px] border border-[#c5ded5] bg-[#eff7f4] p-2"
       >
-        <ShieldCheck
-          :size="23"
-          class="shrink-0"
+        <span
+          class="mb-1 block text-[10px] font-bold text-[#45655c]"
+        >
+          Periksa baris NIK:
+        </span>
+
+        <img
+          :src="nikPreviewUrl"
+          alt="Potongan area NIK"
+          class="max-h-[160px] w-full rounded-lg bg-white object-contain"
+          data-testid="nik-crop-preview"
         />
-
-        <div>
-          <strong
-            class="text-sm"
-          >
-            NIK berhasil dibaca
-          </strong>
-
-          <p
-            class="mt-1 mb-0 text-[11px] leading-[1.5] text-[#52736a]"
-          >
-            Periksa kembali 16 digit
-            NIK pada kolom pencarian
-            sebelum melanjutkan.
-          </p>
-        </div>
       </div>
+
+      <label
+        for="ocr-detected-nik"
+        class="text-[11px] font-bold text-[#35594f]"
+      >
+        Koreksi hasil OCR jika diperlukan
+      </label>
+
+      <input
+        id="ocr-detected-nik"
+        :value="detectedNik"
+        type="text"
+        inputmode="numeric"
+        maxlength="16"
+        autocomplete="off"
+        class="min-h-[52px] rounded-[14px] border border-[#c5ded5] px-3 text-base font-bold tracking-[0.04em] text-[#244b43] outline-none"
+        data-testid="ocr-detected-nik"
+        @input="handleNikInput"
+      />
+
+      <p
+        v-if="detectedNikError"
+        class="m-0 text-[11px] text-[#c42c28]"
+        role="alert"
+      >
+        {{ detectedNikError }}
+      </p>
+
+      <p
+        class="m-0 rounded-xl border border-[#ecd5ad] bg-[#fff9ef] px-3 py-2 text-[10px] text-[#9c5c00]"
+      >
+        {{ detectedNikWarning }}
+      </p>
+
+      <button
+        v-for="alternative in alternativeNiks"
+        :key="alternative"
+        type="button"
+        class="min-h-10 rounded-xl border border-[#d6e3de] bg-white px-3 text-left text-xs font-bold"
+        @click="selectAlternative(alternative)"
+      >
+        Alternatif: {{ alternative }}
+      </button>
 
       <button
         type="button"
-        class="flex min-h-11 w-full items-center justify-center gap-2 rounded-[13px] border border-[#c5ded5] bg-white text-xs font-bold text-[#006855]"
+        class="flex min-h-11 items-center justify-center gap-2 rounded-[13px] border-0 bg-[#006855] text-xs font-bold text-white"
+        data-testid="confirm-ocr-nik"
+        @click="confirmNik"
+      >
+        <ShieldCheck :size="18" />
+        Gunakan NIK yang Sudah Diperiksa
+      </button>
+
+      <button
+        type="button"
+        class="flex min-h-11 items-center justify-center gap-2 rounded-[13px] border border-[#c5ded5] bg-white text-xs font-bold text-[#006855]"
         data-testid="scan-another-ktp"
         @click="startCamera"
       >
-        <RefreshCw
-          :size="18"
-        />
-
+        <RefreshCw :size="18" />
         Foto KTP Lain
       </button>
     </div>
 
     <div
       v-else
-      class="grid gap-3 p-[18px] pt-4 lg:p-[22px] lg:pt-4"
+      class="grid gap-3 p-[18px] pt-0"
       data-testid="ocr-camera-error"
     >
       <div
-        class="flex items-start gap-3 rounded-[15px] border border-[#efcdca] bg-[#fff8f7] p-4 text-[#c42c28]"
-        role="alert"
+        class="flex gap-3 rounded-[15px] border border-[#efcdca] bg-[#fff8f7] p-4 text-[#c42c28]"
       >
-        <CircleAlert
-          :size="22"
-          class="shrink-0"
-        />
+        <CircleAlert :size="22" />
 
         <p
-          class="m-0 text-[11px] leading-[1.55]"
+          class="m-0 text-[11px]"
         >
           {{ errorMessage }}
         </p>
@@ -1055,25 +1243,17 @@ onBeforeUnmount(() => {
       >
         <button
           type="button"
-          class="flex min-h-11 items-center justify-center gap-2 rounded-[13px] border border-[#c5ded5] bg-[#eef8f4] text-xs font-bold text-[#006855]"
+          class="min-h-11 rounded-xl bg-[#eef8f4] text-xs font-bold text-[#006855]"
           @click="startCamera"
         >
-          <RefreshCw
-            :size="18"
-          />
-
           Coba Lagi
         </button>
 
         <button
           type="button"
-          class="flex min-h-11 items-center justify-center gap-2 rounded-[13px] border border-[#d6e3de] bg-white text-xs font-bold text-[#45655c]"
-          @click="useManualInput"
+          class="min-h-11 rounded-xl border border-[#d6e3de] bg-white text-xs font-bold"
+          @click="useManual"
         >
-          <Keyboard
-            :size="18"
-          />
-
           Input Manual
         </button>
       </div>

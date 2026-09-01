@@ -32,6 +32,10 @@ import {
 } from './adminRoutes'
 
 import {
+  headOfficeRoute,
+} from './headOfficeRoutes'
+
+import {
   managementRoutes,
 } from './managementRoutes'
 
@@ -41,12 +45,6 @@ import {
 
 const routes:
   RouteRecordRaw[] = [
-    /*
-    |--------------------------------------------------------------------------
-    | Public
-    |--------------------------------------------------------------------------
-    */
-
     {
       path:
         '/',
@@ -135,12 +133,6 @@ const routes:
       ],
     },
 
-    /*
-    |--------------------------------------------------------------------------
-    | Login
-    |--------------------------------------------------------------------------
-    */
-
     {
       path:
         '/login',
@@ -162,12 +154,6 @@ const routes:
       },
     },
 
-    /*
-    |--------------------------------------------------------------------------
-    | Internal Admin / Manager / Kepala Dinas
-    |--------------------------------------------------------------------------
-    */
-
     {
       path:
         '/dashboard',
@@ -182,7 +168,6 @@ const routes:
         roles: [
           'admin_dinsos',
           'manager',
-          'kepala_dinas',
         ],
       },
 
@@ -200,6 +185,11 @@ const routes:
             ),
 
           meta: {
+            roles: [
+              'admin_dinsos',
+              'manager',
+            ],
+
             title:
               'Dashboard',
           },
@@ -211,19 +201,9 @@ const routes:
       ],
     },
 
-    /*
-    |--------------------------------------------------------------------------
-    | Surveyor Mobile Workspace
-    |--------------------------------------------------------------------------
-    */
+    headOfficeRoute,
 
     surveyorRoute,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Legacy Redirect
-    |--------------------------------------------------------------------------
-    */
 
     {
       path:
@@ -244,12 +224,6 @@ const routes:
           'management-bnba',
       },
     },
-
-    /*
-    |--------------------------------------------------------------------------
-    | Not Found
-    |--------------------------------------------------------------------------
-    */
 
     {
       path:
@@ -295,7 +269,8 @@ const router =
       }
 
       return {
-        top: 0,
+        top:
+          0,
       }
     },
   })
@@ -327,7 +302,7 @@ async function restoreAuthSession():
         true,
     })
   } catch (
-    error: unknown
+  error: unknown
   ) {
     if (
       axios.isAxiosError(
@@ -370,7 +345,8 @@ function requiresAuthentication(
     RouteLocationNormalized,
 ): boolean {
   return Boolean(
-    to.meta.requiresAuth,
+    to.meta
+      .requiresAuth,
   )
 }
 
@@ -379,7 +355,8 @@ function isGuestOnly(
     RouteLocationNormalized,
 ): boolean {
   return Boolean(
-    to.meta.guestOnly,
+    to.meta
+      .guestOnly,
   )
 }
 
@@ -409,9 +386,7 @@ function hasRequiredRole(
     useAuthStore()
 
   const requiredRoles =
-    getRequiredRoles(
-      to,
-    )
+    getRequiredRoles(to)
 
   if (
     requiredRoles.length
@@ -426,14 +401,20 @@ function hasRequiredRole(
 
   return requiredRoles
     .includes(
-      authStore.user.role,
+      authStore
+        .user
+        .role,
     )
 }
 
 function authenticatedHomeRoute(
-  role: UserRole | null,
+  role:
+    UserRole | null,
 ): {
-  name: 'dashboard' | 'surveyor-home'
+  name:
+  | 'dashboard'
+  | 'surveyor-home'
+  | 'head-office-dashboard'
 } {
   if (
     role
@@ -442,6 +423,16 @@ function authenticatedHomeRoute(
     return {
       name:
         'surveyor-home',
+    }
+  }
+
+  if (
+    role
+    === 'kepala_dinas'
+  ) {
+    return {
+      name:
+        'head-office-dashboard',
     }
   }
 
@@ -463,7 +454,8 @@ router.beforeEach(
     if (
       isGuestOnly(to)
       &&
-      authStore.isAuthenticated
+      authStore
+        .isAuthenticated
     ) {
       return authenticatedHomeRoute(
         authStore.role,
@@ -471,11 +463,10 @@ router.beforeEach(
     }
 
     if (
-      requiresAuthentication(
-        to,
-      )
+      requiresAuthentication(to)
       &&
-      !authStore.isAuthenticated
+      !authStore
+        .isAuthenticated
     ) {
       return {
         name:
@@ -489,11 +480,10 @@ router.beforeEach(
     }
 
     if (
-      requiresAuthentication(
-        to,
-      )
+      requiresAuthentication(to)
       &&
-      authStore.isAuthenticated
+      authStore
+        .isAuthenticated
       &&
       !hasRequiredRole(to)
     ) {

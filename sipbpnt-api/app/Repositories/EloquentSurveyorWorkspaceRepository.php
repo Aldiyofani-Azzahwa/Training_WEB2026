@@ -129,6 +129,17 @@ final class EloquentSurveyorWorkspaceRepository
             );
         }
 
+        $status = $filters['status'] ?? 'all';
+        if ($status === 'belum') {
+            $query->whereDoesntHave('transactions', fn($q) => $q->where('period_id', $periodId))
+                  ->whereDoesntHave('activeVerification');
+        } elseif ($status === 'sudah') {
+            $query->where(function($q) use ($periodId) {
+                $q->whereHas('transactions', fn($t) => $t->where('period_id', $periodId))
+                  ->orWhereHas('activeVerification');
+            });
+        }
+
         return $query
             ->orderBy(
                 'bpnt_participants.id'

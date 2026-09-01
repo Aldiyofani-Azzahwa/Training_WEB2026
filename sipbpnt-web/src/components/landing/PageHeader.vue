@@ -2,9 +2,6 @@
 import { RouterLink } from 'vue-router'
 import { ChevronRight } from '@lucide/vue'
 
-
-import SectionWave from './SectionWave.vue'
-
 import {
   revealDirective as vReveal,
 } from '@/directives/reveal'
@@ -14,11 +11,8 @@ withDefaults(
     eyebrow: string
     title: string
     description: string
-    waveTargetColor?: string
   }>(),
-  {
-    waveTargetColor: '#FFFFFF',
-  },
+  {}
 )
 </script>
 
@@ -88,11 +82,5 @@ withDefaults(
       </div>
     </div>
 
-    <SectionWave
-      :target-color="waveTargetColor"
-      accent-color="#F97316"
-      :duration="38"
-      height-class="h-20 sm:h-24 lg:h-28"
-    />
   </section>
 </template>

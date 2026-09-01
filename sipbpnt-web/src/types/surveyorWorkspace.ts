@@ -90,6 +90,7 @@ export interface SurveyorParticipantQuery {
   search?: string
   page?: number
   per_page?: number
+  status?: 'all' | 'belum' | 'sudah'
 }
 
 export interface SurveyorLookupScope {

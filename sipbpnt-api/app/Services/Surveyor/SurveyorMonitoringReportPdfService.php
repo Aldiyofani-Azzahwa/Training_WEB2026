@@ -344,8 +344,8 @@ final class SurveyorMonitoringReportPdfService
             'NO',
             'JENIS KOMODITI',
             'JUMLAH KPM YANG DI TOP UP',
-            'JUMLAH KPM YANG TIDAK MENGAMBIL',
-            'KETERANGAN TIDAK MENGAMBIL',
+            'JUMLAH KPM YANG TIDAK TRANSAKSI',
+            'KETERANGAN TIDAK TRANSAKSI',
         ];
 
         $x =

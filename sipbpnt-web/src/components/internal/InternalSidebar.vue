@@ -17,6 +17,10 @@ import {
 } from '@/config/internalNavigation'
 
 import {
+  publicSite,
+} from '@/config/publicSite'
+
+import {
   useAuthStore,
 } from '@/stores/auth'
 
@@ -67,25 +71,13 @@ const navigationItems =
       <div
         class="flex items-center gap-3"
       >
-        <div
-          class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#FFF7ED] text-lg font-black text-[#9A3412] shadow-lg"
-        >
-          S
-        </div>
+        <img
+          :src="publicSite.logoPath"
+          :alt="`Logo ${publicSite.name}`"
+          class="h-11 w-auto object-contain drop-shadow-md"
+        />
 
-        <div class="min-w-0">
-          <strong
-            class="block truncate text-lg font-black tracking-wide text-white"
-          >
-            SIPBPNT
-          </strong>
 
-          <span
-            class="mt-0.5 block text-xs text-orange-100"
-          >
-            Kota Mojokerto
-          </span>
-        </div>
       </div>
     </div>
 
@@ -94,22 +86,10 @@ const navigationItems =
     />
 
     <nav
-      class="relative z-10 min-h-0 flex-1 overflow-y-auto px-4 py-6 [scrollbar-width:none] [-ms-overflow-style:none]"
+      class="relative z-10 min-h-0 flex-1 overflow-y-auto overscroll-none px-4 py-6 [scrollbar-width:none] [-ms-overflow-style:none]"
       aria-label="Menu utama"
     >
-      <div
-        class="mb-4 px-3"
-      >
-        <p
-          class="text-[11px] font-bold uppercase tracking-[0.18em] text-orange-100"
-        >
-          Menu Utama
-        </p>
-
-        <span
-          class="mt-2 block h-[3px] w-6 rounded-full bg-[#FDBA74]"
-        />
-      </div>
+      
 
       <div class="space-y-2">
         <template
@@ -192,24 +172,7 @@ const navigationItems =
     <div
       class="relative z-10 mt-auto px-5 pb-6"
     >
-      <div
-        class="flex items-center justify-center gap-2 border-t border-white/15 pt-5"
-      >
-        <span
-          class="flex size-6 shrink-0 items-center justify-center rounded-lg bg-black/20"
-        >
-          <CodeXml
-            :size="13"
-            aria-hidden="true"
-          />
-        </span>
-
-        <p
-          class="text-center text-[10px] text-orange-100"
-        >
-          SIPBPNT versi pengembangan
-        </p>
-      </div>
+      
     </div>
   </div>
 </template>

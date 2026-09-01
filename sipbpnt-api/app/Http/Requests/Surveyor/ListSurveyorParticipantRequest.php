@@ -34,6 +34,12 @@ class ListSurveyorParticipantRequest
                 'integer',
                 'between:1,50',
             ],
+
+            'status' => [
+                'nullable',
+                'string',
+                'in:all,belum,sudah',
+            ],
         ];
     }
 }

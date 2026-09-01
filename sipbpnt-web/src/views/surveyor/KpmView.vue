@@ -66,7 +66,7 @@ const verificationOptions = [
     value:
       'not_claimed',
     label:
-      'Tidak Mengambil',
+      'Tidak Transaksi',
   },
 ] as const satisfies ReadonlyArray<{
   value: KpmVerificationStatus
@@ -88,6 +88,9 @@ const pagination =
 
 const searchTerm =
   ref('')
+
+const statusFilter =
+  ref<'all' | 'belum' | 'sudah'>('all')
 
 const workspaceLoading =
   ref(true)
@@ -445,6 +448,10 @@ function clearSearchTimer():
     null
 }
 
+watch(statusFilter, () => {
+  submitSearch()
+})
+
 async function loadParticipants(
   reset: boolean,
 ): Promise<void> {
@@ -506,6 +513,8 @@ async function loadParticipants(
                   normalizedSearch,
               }
             : {}),
+            
+          status: statusFilter.value,
         })
 
     if (
@@ -1238,8 +1247,9 @@ onBeforeUnmount(() => {
         </div>
       </article>
 
+      <div class="flex flex-col sm:flex-row gap-[10px] w-full">
       <form
-        class="flex min-h-[52px] w-full min-w-0 items-center gap-[10px] rounded-[17px] border border-[#e6ded9] bg-white px-[13px] shadow-[0_8px_22px_rgb(30_65_55_/_5%)] transition-[border-color,box-shadow] focus-within:border-[#a27758] focus-within:shadow-[0_0_0_3px_rgb(0_104_85_/_9%)]"
+        class="flex min-h-[52px] flex-1 min-w-0 items-center gap-[10px] rounded-[17px] border border-[#e6ded9] bg-white px-[13px] shadow-[0_8px_22px_rgb(30_65_55_/_5%)] transition-[border-color,box-shadow] focus-within:border-[#a27758] focus-within:shadow-[0_0_0_3px_rgb(0_104_85_/_9%)]"
         role="search"
         @submit.prevent="submitSearch"
       >
@@ -1274,6 +1284,17 @@ onBeforeUnmount(() => {
           />
         </button>
       </form>
+      
+      <select
+        v-model="statusFilter"
+        class="h-[52px] shrink-0 rounded-[17px] border border-[#e6ded9] bg-white px-4 text-[13px] font-semibold text-[#594435] shadow-[0_8px_22px_rgb(30_65_55_/_5%)] outline-none transition-[border-color,box-shadow] focus:border-[#a27758] focus:shadow-[0_0_0_3px_rgb(0_104_85_/_9%)]"
+        aria-label="Filter status KPM"
+      >
+        <option value="all">Semua Status</option>
+        <option value="belum">Belum</option>
+        <option value="sudah">Sudah</option>
+      </select>
+      </div>
 
       <p
         class="-mt-[7px] mx-0 mb-0 text-[11px] leading-[1.5] text-[#8a8078]"
@@ -1792,7 +1813,7 @@ onBeforeUnmount(() => {
             for="verification-reason"
             class="mb-2 block text-sm font-bold text-[#4b3424]"
           >
-            Alasan tidak mengambil
+            Alasan tidak transaksi
           </label>
 
           <textarea
@@ -1801,7 +1822,7 @@ onBeforeUnmount(() => {
             rows="4"
             maxlength="500"
             class="w-full resize-none rounded-xl border border-[#e6ded9] bg-white px-3.5 py-3 text-sm text-[#4b3424] outline-none transition placeholder:text-[#a79e98] focus:border-[#a27758] focus:ring-4 focus:ring-[#682b00]/10"
-            placeholder="Tuliskan alasan KPM tidak mengambil bantuan"
+            placeholder="Tuliskan alasan KPM tidak transaksi"
             data-testid="kpm-verification-reason"
           />
 

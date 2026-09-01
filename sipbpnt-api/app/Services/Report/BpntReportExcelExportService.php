@@ -81,11 +81,11 @@ final class BpntReportExcelExportService
             [],
             ['INDIKATOR', 'JUMLAH'],
             ['Total KPM', $snapshot['summary']['total_kpm'] ?? 0],
-            ['Sudah Transaksi', $snapshot['summary']['transacted'] ?? 0],
+            ['Transaksi', $snapshot['summary']['transacted'] ?? 0],
             ['Belum Transaksi', $snapshot['summary']['pending'] ?? 0],
             ['Meninggal', $snapshot['summary']['deceased'] ?? 0],
             ['Pindah Domisili', $snapshot['summary']['moved_domicile'] ?? 0],
-            ['Tidak Mengambil', $snapshot['summary']['not_claimed'] ?? 0],
+            ['Tidak Transaksi', $snapshot['summary']['not_claimed'] ?? 0],
             ['Persentase Selesai', ($snapshot['summary']['completion_percentage'] ?? 0).'%'],
         ]);
 
@@ -105,11 +105,11 @@ final class BpntReportExcelExportService
             'Kecamatan',
             'Kelurahan',
             'Total KPM',
-            'Sudah Transaksi',
+            'Transaksi',
             'Belum Transaksi',
             'Meninggal',
             'Pindah Domisili',
-            'Tidak Mengambil',
+            'Tidak Transaksi',
         ]]);
 
         $line = 2;

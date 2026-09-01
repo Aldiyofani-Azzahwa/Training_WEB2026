@@ -6,7 +6,7 @@ import axios from 'axios'
 
 import { useAuthStore } from '@/stores/auth'
 import { publicSite } from '@/config/publicSite'
-import berasTelurImg from '@/assets/images/beras-telur.jpg'
+import berasTelurImg from '@/assets/images/beras-telur.png'
 
 import type {
   LoginPayload,
@@ -115,18 +115,14 @@ function handleForgotPassword(): void {
             class="logo desktop-logo"
           />
         </RouterLink>
+      </div>
 
-        <div class="illustration">
-          <div class="illustration-circle circle-one" />
-          <div class="illustration-circle circle-two" />
-          <div class="illustration-circle circle-three" />
-
-          <img
-            :src="berasTelurImg"
-            alt="Ilustrasi beras dan telur"
-            class="illustration-image"
-          />
-        </div>
+      <div class="illustration">
+        <img
+          :src="berasTelurImg"
+          alt="Ilustrasi beras dan telur"
+          class="illustration-image"
+        />
       </div>
 
       <div class="bottom-wave">
@@ -349,7 +345,7 @@ function handleForgotPassword(): void {
 
   overflow: hidden;
 
-  background: linear-gradient(145deg, #ffffff 0%, #fbfcfa 65%, #f1f6ef 100%);
+  background: #ffffff;
 
   display: flex;
   justify-content: center;
@@ -357,16 +353,10 @@ function handleForgotPassword(): void {
 }
 
 .branding-content {
-  position: relative;
-  z-index: 5;
-
-  width: min(680px, 90%);
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  margin-bottom: 80px;
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  z-index: 10;
 }
 
 /* =========================================
@@ -379,8 +369,8 @@ function handleForgotPassword(): void {
 }
 
 .desktop-logo {
-  width: min(280px, 80%);
-  margin-bottom: 50px;
+  height: 40px;
+  width: auto;
 }
 
 .mobile-logo {
@@ -392,59 +382,20 @@ function handleForgotPassword(): void {
 ========================================= */
 
 .illustration {
-  position: relative;
-
-  width: 480px;
-  max-width: 90%;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 40px 0;
-}
-
-.illustration-circle {
   position: absolute;
-  border-radius: 50%;
-  z-index: 1;
-}
-
-.circle-one {
-  width: 80px;
-  height: 80px;
-  left: 0;
-  top: 20px;
-  background: rgba(255, 167, 28, 0.13);
-}
-
-.circle-two {
-  width: 65px;
-  height: 65px;
-  right: 20px;
-  top: 15px;
-  background: rgba(255, 167, 28, 0.12);
-}
-
-.circle-three {
-  width: 110px;
-  height: 110px;
-  right: 65px;
-  bottom: 15px;
-  background: rgba(119, 167, 116, 0.08);
+  bottom: 40px;
+  left: 40px;
+  width: 460px;
+  max-width: 85%;
+  z-index: 5;
+  transform-origin: bottom left;
 }
 
 .illustration-image {
-  position: relative;
-  z-index: 3;
-
+  display: block;
   width: 100%;
-  max-width: 440px;
-
   border-radius: 28px;
-
   box-shadow: 0 25px 45px rgba(40, 70, 66, 0.16);
-
   object-fit: cover;
 }
 

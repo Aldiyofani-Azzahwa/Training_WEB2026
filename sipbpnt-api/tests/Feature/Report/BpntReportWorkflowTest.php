@@ -139,8 +139,7 @@ final class BpntReportWorkflowTest extends TestCase
 
         $this->actingAs($kepalaDinas)
             ->getJson('/api/v1/reports/'.$period->id)
-            ->assertOk()
-            ->assertJsonPath('data.status.code', 'final');
+            ->assertForbidden();
 
         $this->actingAs($surveyor)
             ->getJson('/api/v1/reports/'.$period->id)

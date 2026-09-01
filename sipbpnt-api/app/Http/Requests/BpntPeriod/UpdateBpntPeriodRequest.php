@@ -21,6 +21,9 @@ class UpdateBpntPeriodRequest
                 'required',
                 'string',
                 'max:150',
+                \Illuminate\Validation\Rule::unique('bpnt_periods', 'name')->where(function ($query) {
+                    return $query->where('year', $this->year);
+                })->ignore($this->route('period')),
             ],
 
             'year' => [

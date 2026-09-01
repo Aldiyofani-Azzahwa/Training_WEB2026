@@ -291,7 +291,7 @@ final class SurveyorMonitoringReportService
                 $reasons->push(
                     $reason !== ''
                         ? $reason
-                        : 'Tidak Mengambil'
+                        : 'Tidak Transaksi'
                 );
             }
         }
@@ -347,14 +347,14 @@ final class SurveyorMonitoringReportService
 
         $status = [
             'code' => 'pending',
-            'label' => 'Belum Mengambil',
+            'label' => 'Belum Transaksi',
             'reason' => null,
         ];
 
         if ($transaction !== null) {
             $status = [
                 'code' => 'taking',
-                'label' => 'Mengambil',
+                'label' => 'Transaksi',
                 'reason' => null,
             ];
         } elseif ($verification !== null) {
@@ -412,9 +412,9 @@ final class SurveyorMonitoringReportService
     ): string {
         $sentence = 'Dari '.$total
             .' KPM pada BNBA, '.$taking
-            .' KPM telah mengambil bantuan, '.$notTaking
-            .' KPM tidak mengambil, dan '.$pending
-            .' KPM belum mengambil.';
+            .' KPM telah transaksi bantuan, '.$notTaking
+            .' KPM tidak transaksi, dan '.$pending
+            .' KPM belum transaksi.';
 
         if ($reasonSummary === []) {
             return $sentence;
@@ -431,7 +431,7 @@ final class SurveyorMonitoringReportService
             ->implode('; ');
 
         return $sentence
-            .' Keterangan tidak mengambil: '
+            .' Keterangan tidak transaksi: '
             .$reasons
             .'.';
     }

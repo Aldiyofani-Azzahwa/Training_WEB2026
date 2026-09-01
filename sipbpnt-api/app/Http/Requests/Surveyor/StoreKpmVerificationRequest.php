@@ -79,10 +79,10 @@ class StoreKpmVerificationRequest
                 => 'Status verifikasi wajib dipilih.',
 
             'reason.required'
-                => 'Alasan wajib diisi untuk status Tidak Mengambil.',
+                => 'Alasan wajib diisi untuk status Tidak Transaksi.',
 
             'reason.prohibited'
-                => 'Alasan hanya boleh diisi untuk status Tidak Mengambil.',
+                => 'Alasan hanya boleh diisi untuk status Tidak Transaksi.',
 
             '*.prohibited'
                 => 'Field :attribute tidak boleh dikirim.',

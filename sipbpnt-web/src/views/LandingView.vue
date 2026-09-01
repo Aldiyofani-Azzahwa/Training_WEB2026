@@ -222,9 +222,9 @@ onBeforeUnmount(stopTimer)
         aria-hidden="true"
       />
 
-      <!-- Overlay gradasi oranye -->
+      <!-- Overlay gradasi hijau -->
       <div
-        class="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(67,20,7,0.94)_0%,rgba(194,65,12,0.82)_38%,rgba(194,65,12,0.35)_68%,rgba(194,65,12,0.1)_100%)]"
+        class="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(30,73,42,0.94)_0%,rgba(30,73,42,0.82)_38%,rgba(30,73,42,0.35)_68%,rgba(30,73,42,0.1)_100%)]"
         aria-hidden="true"
       />
 
@@ -232,19 +232,6 @@ onBeforeUnmount(stopTimer)
         class="mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-8"
       >
         <div class="max-w-2xl">
-          <div
-            v-reveal="{
-              direction: 'left',
-            }"
-            class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.13em] text-white backdrop-blur-sm"
-          >
-            <Landmark
-              :size="16"
-              aria-hidden="true"
-            />
-
-            Dinas Sosial Kota Mojokerto
-          </div>
 
           <h1
             v-reveal="{
@@ -283,7 +270,7 @@ onBeforeUnmount(stopTimer)
               :to="{ name: 'login' }"
               class="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full bg-[#F97316] px-7 text-sm font-semibold text-white shadow-lg shadow-orange-900/30 transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#EA580C]"
             >
-              Masuk Sistem
+              Masuk
 
               <Send
                 :size="17"
@@ -297,7 +284,7 @@ onBeforeUnmount(stopTimer)
               }"
               class="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full border border-white/70 bg-transparent px-7 text-sm font-medium text-white transition-colors hover:bg-white hover:text-[#EA580C]"
             >
-              Pelajari SIPBPNT
+              SIPBPNT
 
               <ArrowRight
                 :size="17"
@@ -313,42 +300,13 @@ onBeforeUnmount(stopTimer)
             }"
             class="mt-8 flex flex-col gap-3 border-t border-white/25 pt-6 text-sm text-white/85 sm:flex-row sm:flex-wrap sm:gap-6"
           >
-            <div class="flex items-center gap-2">
-              <Check
-                :size="18"
-                class="text-[#FDBA74]"
-                aria-hidden="true"
-              />
-
-              Akses berbasis peran
-            </div>
-
-            <div class="flex items-center gap-2">
-              <Check
-                :size="18"
-                class="text-white"
-                aria-hidden="true"
-              />
-
-              Responsif untuk perangkat seluler
-            </div>
-
-            <div class="flex items-center gap-2">
-              <Check
-                :size="18"
-                class="text-[#FDBA74]"
-                aria-hidden="true"
-              />
-
-              Data terintegrasi
-            </div>
           </div>
         </div>
       </div>
 
       <SectionWave
         target-color="#FFFFFF"
-        accent-color="#7C2D12"
+        accent-color="#1e492a"
         :duration="38"
       />
     </section>

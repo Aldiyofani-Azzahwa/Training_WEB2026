@@ -808,7 +808,7 @@ onMounted(() => {
                 class="rounded-xl bg-orange-50 p-3"
               >
                 <p class="text-xs text-orange-700">
-                  Tidak Mengambil
+                  Tidak Transaksi
                 </p>
 
                 <strong class="mt-1 block text-xl">
@@ -820,7 +820,7 @@ onMounted(() => {
                 class="rounded-xl bg-amber-50 p-3"
               >
                 <p class="text-xs text-amber-700">
-                  Belum Selesai
+                  Belum Transaksi
                 </p>
 
                 <strong class="mt-1 block text-xl">
@@ -945,7 +945,7 @@ onMounted(() => {
                   </th>
 
                   <th class="px-4 py-3">
-                    Tidak Mengambil
+                    Tidak Transaksi
                   </th>
                 </tr>
               </thead>
@@ -1124,7 +1124,7 @@ onMounted(() => {
                 </option>
 
                 <option value="transacted">
-                  Sudah Transaksi
+                  Transaksi
                 </option>
 
                 <option value="pending">
@@ -1140,7 +1140,7 @@ onMounted(() => {
                 </option>
 
                 <option value="not_claimed">
-                  Tidak Mengambil
+                  Tidak Transaksi
                 </option>
               </select>
             </div>

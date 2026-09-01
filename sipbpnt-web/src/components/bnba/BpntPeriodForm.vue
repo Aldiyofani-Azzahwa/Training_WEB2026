@@ -910,6 +910,19 @@ function bnbaLabel(
               </button>
             </div>
           </form>
+
+          <!-- ACCORDION CONTENT -->
+          <div
+            v-if="
+              selectedPeriodId
+              === period.id
+              && editingPeriodId === null
+            "
+            class="mt-4 cursor-default"
+            @click.stop
+          >
+            <slot :period="period" />
+          </div>
         </article>
       </div>
     </div>

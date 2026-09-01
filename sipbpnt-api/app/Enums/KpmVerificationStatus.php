@@ -15,7 +15,7 @@ enum KpmVerificationStatus: string
         return match ($this) {
             self::DECEASED => 'Meninggal',
             self::MOVED_DOMICILE => 'Pindah Domisili',
-            self::NOT_CLAIMED => 'Tidak Mengambil',
+            self::NOT_CLAIMED => 'Tidak Transaksi',
         };
     }
 }

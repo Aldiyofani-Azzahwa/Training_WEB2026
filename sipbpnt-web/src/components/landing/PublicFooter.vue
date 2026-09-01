@@ -7,7 +7,6 @@ import {
 
 import BrandLogo from './BrandLogo.vue'
 
-import FooterWave from './FooterWave.vue'
 
 import {
   revealDirective as vReveal,
@@ -25,11 +24,7 @@ const currentYear =
   <footer
     class="relative mt-20 bg-[#FFF8F3] text-government-700"
   >
-    <FooterWave
-      background-color="#FFF8F3"
-      accent-color="#E8312D"
-      :duration="40"
-    />
+
 
     <div class="relative overflow-hidden">
       

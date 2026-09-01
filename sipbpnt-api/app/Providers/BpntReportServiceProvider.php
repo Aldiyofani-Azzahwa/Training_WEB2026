@@ -30,7 +30,7 @@ final class BpntReportServiceProvider extends ServiceProvider
             ])
             ->group(function (): void {
                 Route::middleware(
-                    'role:manager,admin_dinsos,kepala_dinas'
+                    'role:manager,admin_dinsos'
                 )->group(function (): void {
                     Route::get(
                         '/reports',

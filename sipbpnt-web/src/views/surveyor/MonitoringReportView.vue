@@ -701,7 +701,7 @@ onMounted(() => {
         </div>
 
         <dl
-          class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+          class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
         >
           <div
             class="rounded-[15px] bg-[#f8f5f3] p-4"
@@ -709,7 +709,7 @@ onMounted(() => {
             <dt
               class="text-xs font-semibold text-[#847971]"
             >
-              Mengambil
+              Transaksi
             </dt>
 
             <dd
@@ -725,7 +725,7 @@ onMounted(() => {
             <dt
               class="text-xs font-semibold text-[#8a6d4f]"
             >
-              Tidak Mengambil
+              Tidak Transaksi
             </dt>
 
             <dd
@@ -736,34 +736,12 @@ onMounted(() => {
           </div>
 
           <div
-            class="rounded-[15px] bg-[#f4f5f8] p-4"
-          >
-            <dt
-              class="text-xs font-semibold text-[#707887]"
-            >
-              Meninggal/Pindah
-            </dt>
-
-            <dd
-              class="mt-1 text-lg font-bold text-[#505b70]"
-            >
-              {{
-                formatNumber(
-                  report.summary.deceased
-                  +
-                  report.summary.moved_domicile,
-                )
-              }}
-            </dd>
-          </div>
-
-          <div
             class="rounded-[15px] bg-[#fff6f5] p-4"
           >
             <dt
               class="text-xs font-semibold text-[#96716e]"
             >
-              Belum Mengambil
+              Belum Transaksi
             </dt>
 
             <dd

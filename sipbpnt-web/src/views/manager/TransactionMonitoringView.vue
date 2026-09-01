@@ -1667,6 +1667,7 @@ onBeforeUnmount(() => {
               </strong>
             </div>
 
+
             <div
               class="flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50 p-3"
             >
@@ -1715,7 +1716,7 @@ onBeforeUnmount(() => {
                 <p
                   class="text-xs font-bold text-amber-950"
                 >
-                  Tidak Mengambil
+                  Tidak Transaksi
                 </p>
 
                 <p

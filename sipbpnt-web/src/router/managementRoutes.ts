@@ -87,7 +87,6 @@ export const managementRoutes:
         roles: [
           'admin_dinsos',
           'manager',
-          'kepala_dinas',
         ],
 
         title:

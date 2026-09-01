@@ -951,7 +951,7 @@ onMounted(() => {
             class="mt-2 max-w-sm text-sm leading-[1.6] text-[#897e77]"
           >
             Status Meninggal, Pindah Domisili, atau
-            Tidak Mengambil akan tampil di sini.
+            Tidak Transaksi akan tampil di sini.
           </p>
         </article>
 
@@ -1076,7 +1076,7 @@ onMounted(() => {
                 <span
                   class="block text-[10px] font-semibold text-[#8d754f]"
                 >
-                  Alasan tidak mengambil
+                  Alasan tidak transaksi
                 </span>
 
                 <p

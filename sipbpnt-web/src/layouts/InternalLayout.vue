@@ -150,8 +150,6 @@ function handleDocumentClick(
     !supportsSidebar.value
     ||
     !sidebarOpen.value
-    ||
-    isDesktop.value
   ) {
     return
   }
@@ -370,7 +368,7 @@ onBeforeUnmount(() => {
   "
   ref="sidebarElement"
   :class="[
-    'fixed inset-y-0 left-0 z-50 w-[280px] transition-transform duration-300 ease-out print:hidden',
+    'fixed inset-y-0 left-0 z-50 w-[280px] transition-transform duration-300 ease-out print:hidden overflow-y-auto overscroll-none [scrollbar-width:none] [-ms-overflow-style:none]',
     sidebarOpen
       ? 'translate-x-0'
       : '-translate-x-full',
@@ -418,7 +416,7 @@ onBeforeUnmount(() => {
     sidebarOpen
   "
   class="flex size-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-200"
-  @click="
+  @click.stop="
     toggleSidebar
   "
 >
