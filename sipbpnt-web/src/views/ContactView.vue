@@ -35,7 +35,7 @@ const googleMapsUrl =
           <!-- Informasi kontak -->
           <div>
             <span
-              class="text-sm font-medium uppercase tracking-[0.12em] text-brand-600"
+              class="text-sm font-medium uppercase tracking-[0.12em] text-orange-600"
             >
               Informasi Kontak
             </span>
@@ -59,7 +59,7 @@ const googleMapsUrl =
                 class="flex gap-4 border-b border-government-200 py-6"
               >
                 <div
-                  class="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-brand-50 text-brand-500"
+                  class="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-orange-50 text-orange-500"
                 >
                   <MapPin
                     :size="22"
@@ -87,7 +87,7 @@ const googleMapsUrl =
                 class="group flex gap-4 border-b border-government-200 py-6"
               >
                 <div
-                  class="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-brand-50 text-brand-500 transition-colors group-hover:bg-brand-500 group-hover:text-white"
+                  class="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-orange-50 text-orange-500 transition-colors group-hover:bg-orange-500 group-hover:text-white"
                 >
                   <Phone
                     :size="22"
@@ -115,7 +115,7 @@ const googleMapsUrl =
                 class="group flex gap-4 py-6"
               >
                 <div
-                  class="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-brand-50 text-brand-500 transition-colors group-hover:bg-brand-500 group-hover:text-white"
+                  class="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-orange-50 text-orange-500 transition-colors group-hover:bg-orange-500 group-hover:text-white"
                 >
                   <Mail
                     :size="22"
@@ -166,7 +166,7 @@ const googleMapsUrl =
               <div class="flex items-start gap-3">
                 <MapPin
                   :size="21"
-                  class="mt-1 shrink-0 text-brand-500"
+                  class="mt-1 shrink-0 text-orange-500"
                   aria-hidden="true"
                 />
 
@@ -190,7 +190,7 @@ const googleMapsUrl =
                 :href="googleMapsUrl"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-[14px] bg-brand-500 px-5 text-sm font-medium text-white transition-colors hover:bg-brand-600"
+                class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-[14px] bg-orange-500 px-5 text-sm font-medium text-white transition-colors hover:bg-orange-600"
               >
                 Buka di Google Maps
 

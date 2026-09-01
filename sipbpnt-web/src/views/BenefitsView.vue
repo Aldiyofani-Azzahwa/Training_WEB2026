@@ -68,7 +68,7 @@ const benefits = [
           class="flex gap-5 border-b border-government-200 py-8"
         >
           <div
-            class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-brand-500"
+            class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-orange-500"
           >
             <component
               :is="benefit.icon"

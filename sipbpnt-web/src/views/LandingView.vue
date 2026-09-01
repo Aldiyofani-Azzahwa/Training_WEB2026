@@ -91,38 +91,31 @@ const currentTestimonial =
     )
   })
 
-// Strip fitur ringkas, tampil tepat di bawah hero
-// (gaya ikon-kotak seperti pada referensi desain).
+// Strip fitur ringkas, tampil tepat di bawah hero.
 const quickFeatures = [
   {
     icon: PenLine,
     title: 'Pendataan KPM',
-    tone: 'orange',
   },
   {
     icon: HandCoins,
     title: 'Penyaluran Tepat Sasaran',
-    tone: 'green',
   },
   {
     icon: Store,
     title: 'Transaksi E-Warung',
-    tone: 'orange',
   },
   {
     icon: ShieldCheck,
     title: 'Verifikasi & Validasi',
-    tone: 'green',
   },
   {
     icon: Lock,
     title: 'Keamanan Data',
-    tone: 'orange',
   },
   {
     icon: History,
     title: 'Riwayat & Laporan',
-    tone: 'green',
   },
 ]
 
@@ -219,9 +212,9 @@ onBeforeUnmount(stopTimer)
     <section
       class="relative isolate flex min-h-[680px] items-center overflow-hidden bg-government-900 pb-24 pt-32 sm:min-h-[760px] sm:pb-28 sm:pt-36"
     >
-      <!-- Foto latar dengan animasi zoom halus saat halaman dibuka -->
+      <!-- Foto latar -->
       <div
-        class="hero-bg absolute inset-0 -z-30 bg-cover bg-center bg-no-repeat"
+        class="absolute inset-0 -z-20 bg-cover bg-center bg-no-repeat"
         :style="{
           backgroundImage: `url('/images/kantor.jpg')`,
           backgroundPosition: 'center 42%',
@@ -229,14 +222,9 @@ onBeforeUnmount(stopTimer)
         aria-hidden="true"
       />
 
-      <!-- Overlay gradasi oranye-hijau -->
+      <!-- Overlay gradasi oranye -->
       <div
-        class="absolute inset-0 -z-20 bg-[linear-gradient(100deg,rgba(8,51,42,0.94)_0%,rgba(15,118,110,0.82)_38%,rgba(15,118,110,0.35)_68%,rgba(15,118,110,0.1)_100%)]"
-        aria-hidden="true"
-      />
-
-      <div
-        class="absolute inset-0 -z-10 bg-government-900/10"
+        class="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(67,20,7,0.94)_0%,rgba(194,65,12,0.82)_38%,rgba(194,65,12,0.35)_68%,rgba(194,65,12,0.1)_100%)]"
         aria-hidden="true"
       />
 
@@ -307,7 +295,7 @@ onBeforeUnmount(stopTimer)
               :to="{
                 name: 'about-sipbpnt',
               }"
-              class="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full border border-white/70 bg-transparent px-7 text-sm font-medium text-white transition-colors hover:bg-white hover:text-[#0F766E]"
+              class="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full border border-white/70 bg-transparent px-7 text-sm font-medium text-white transition-colors hover:bg-white hover:text-[#EA580C]"
             >
               Pelajari SIPBPNT
 
@@ -360,7 +348,7 @@ onBeforeUnmount(stopTimer)
 
       <SectionWave
         target-color="#FFFFFF"
-        accent-color="#08332A"
+        accent-color="#7C2D12"
         :duration="38"
       />
     </section>
@@ -380,12 +368,7 @@ onBeforeUnmount(stopTimer)
           class="flex items-center gap-3"
         >
           <div
-            :class="[
-              'flex size-12 shrink-0 items-center justify-center rounded-2xl text-white',
-              feature.tone === 'orange'
-                ? 'bg-[#F97316]'
-                : 'bg-[#0F766E]',
-            ]"
+            class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#FFF3EA] text-[#EA580C]"
           >
             <component
               :is="feature.icon"
@@ -442,7 +425,7 @@ onBeforeUnmount(stopTimer)
 
           <RouterLink
             :to="{ name: 'about-bpnt' }"
-            class="group mt-7 inline-flex items-center gap-2 text-sm font-medium text-[#EA580C] transition-colors hover:text-[#0F766E]"
+            class="group mt-7 inline-flex items-center gap-2 text-sm font-medium text-[#EA580C] transition-colors hover:text-[#C2410C]"
           >
             Selengkapnya tentang BPNT
 
@@ -489,11 +472,11 @@ onBeforeUnmount(stopTimer)
               direction: 'right',
               delay: 180,
             }"
-            class="border-l-2 border-[#0F766E] pl-5"
+            class="border-l-2 border-[#EA580C] pl-5"
           >
             <Store
               :size="29"
-              class="text-[#0F766E]"
+              class="text-[#EA580C]"
               aria-hidden="true"
             />
 
@@ -579,7 +562,7 @@ onBeforeUnmount(stopTimer)
           }"
         >
           <span
-            class="border-l-4 border-[#0F766E] pl-3 text-sm font-medium uppercase tracking-[0.12em] text-[#0F766E]"
+            class="border-l-4 border-[#EA580C] pl-3 text-sm font-medium uppercase tracking-[0.12em] text-[#EA580C]"
           >
             Tentang SIPBPNT
           </span>
@@ -605,7 +588,7 @@ onBeforeUnmount(stopTimer)
             :to="{
               name: 'about-sipbpnt',
             }"
-            class="group mt-7 inline-flex items-center gap-2 text-sm font-medium text-[#0F766E] transition-colors hover:text-[#EA580C]"
+            class="group mt-7 inline-flex items-center gap-2 text-sm font-medium text-[#EA580C] transition-colors hover:text-[#C2410C]"
           >
             Mengenal SIPBPNT
 
@@ -694,7 +677,7 @@ onBeforeUnmount(stopTimer)
           >
             <Monitor
               :size="27"
-              class="shrink-0 text-[#0F766E]"
+              class="shrink-0 text-[#EA580C]"
               aria-hidden="true"
             />
 
@@ -819,7 +802,7 @@ onBeforeUnmount(stopTimer)
 
         <RouterLink
           :to="{ name: 'benefits' }"
-          class="group mt-9 inline-flex items-center gap-2 text-sm font-medium text-[#EA580C] transition-colors hover:text-[#0F766E]"
+          class="group mt-9 inline-flex items-center gap-2 text-sm font-medium text-[#EA580C] transition-colors hover:text-[#C2410C]"
         >
           Lihat seluruh manfaat
 
@@ -900,7 +883,7 @@ onBeforeUnmount(stopTimer)
                 class="mt-7 flex items-center gap-4"
               >
                 <div
-                  class="flex size-11 items-center justify-center rounded-full bg-[#0F766E] text-sm font-medium text-white"
+                  class="flex size-11 items-center justify-center rounded-full bg-[#EA580C] text-sm font-medium text-white"
                 >
                   {{ currentTestimonial.initials }}
                 </div>
@@ -946,7 +929,7 @@ onBeforeUnmount(stopTimer)
             <div class="flex gap-2">
               <button
                 type="button"
-                class="flex size-10 items-center justify-center rounded-full border border-government-200 text-government-600 transition-colors hover:border-[#0F766E] hover:text-[#0F766E]"
+                class="flex size-10 items-center justify-center rounded-full border border-government-200 text-government-600 transition-colors hover:border-[#EA580C] hover:text-[#EA580C]"
                 aria-label="Testimoni sebelumnya"
                 @click="
                   previousTestimonial();
@@ -961,7 +944,7 @@ onBeforeUnmount(stopTimer)
 
               <button
                 type="button"
-                class="flex size-10 items-center justify-center rounded-full border border-government-200 text-government-600 transition-colors hover:border-[#0F766E] hover:text-[#0F766E]"
+                class="flex size-10 items-center justify-center rounded-full border border-government-200 text-government-600 transition-colors hover:border-[#EA580C] hover:text-[#EA580C]"
                 aria-label="Testimoni berikutnya"
                 @click="
                   nextTestimonial();
@@ -1015,7 +998,7 @@ onBeforeUnmount(stopTimer)
 
           <RouterLink
             :to="{ name: 'faq' }"
-            class="group mt-7 inline-flex items-center gap-2 text-sm font-medium text-[#EA580C] transition-colors hover:text-[#0F766E]"
+            class="group mt-7 inline-flex items-center gap-2 text-sm font-medium text-[#EA580C] transition-colors hover:text-[#C2410C]"
           >
             Buka halaman FAQ
 
@@ -1034,7 +1017,7 @@ onBeforeUnmount(stopTimer)
           }"
         >
           <span
-            class="border-l-4 border-[#0F766E] pl-3 text-sm font-medium uppercase tracking-[0.12em] text-[#0F766E]"
+            class="border-l-4 border-[#EA580C] pl-3 text-sm font-medium uppercase tracking-[0.12em] text-[#EA580C]"
           >
             Kontak
           </span>
@@ -1055,7 +1038,7 @@ onBeforeUnmount(stopTimer)
 
           <RouterLink
             :to="{ name: 'contact' }"
-            class="group mt-7 inline-flex items-center gap-2 text-sm font-medium text-[#EA580C] transition-colors hover:text-[#0F766E]"
+            class="group mt-7 inline-flex items-center gap-2 text-sm font-medium text-[#EA580C] transition-colors hover:text-[#C2410C]"
           >
             Lihat informasi kontak
 
@@ -1070,26 +1053,3 @@ onBeforeUnmount(stopTimer)
     </section>
   </div>
 </template>
-
-<style scoped>
-.hero-bg {
-  animation: hero-zoom 16s ease-in-out infinite alternate;
-  transform-origin: center;
-}
-
-@keyframes hero-zoom {
-  from {
-    transform: scale(1);
-  }
-
-  to {
-    transform: scale(1.08);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-bg {
-    animation: none;
-  }
-}
-</style>

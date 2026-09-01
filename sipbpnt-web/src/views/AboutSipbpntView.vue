@@ -52,7 +52,7 @@ const functions = [
       >
         <div>
           <span
-            class="text-sm font-medium uppercase tracking-[0.12em] text-brand-600"
+            class="text-sm font-medium uppercase tracking-[0.12em] text-orange-600"
           >
             Pengertian
           </span>
@@ -82,7 +82,7 @@ const functions = [
             class="flex gap-4 border-b border-government-200 py-7"
           >
             <div
-              class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-brand-500"
+              class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-orange-500"
             >
               <component
                 :is="item.icon"
@@ -115,7 +115,7 @@ const functions = [
       >
         <div>
           <span
-            class="text-sm font-medium uppercase tracking-[0.12em] text-brand-600"
+            class="text-sm font-medium uppercase tracking-[0.12em] text-orange-600"
           >
             Latar Belakang
           </span>
@@ -139,11 +139,11 @@ const functions = [
 
         <div class="space-y-6">
           <div
-            class="flex gap-4 border-b border-brand-200 pb-6"
+            class="flex gap-4 border-b border-orange-200 pb-6"
           >
             <Archive
               :size="26"
-              class="shrink-0 text-brand-500"
+              class="shrink-0 text-orange-500"
               aria-hidden="true"
             />
 
@@ -164,11 +164,11 @@ const functions = [
           </div>
 
           <div
-            class="flex gap-4 border-b border-brand-200 pb-6"
+            class="flex gap-4 border-b border-orange-200 pb-6"
           >
             <Monitor
               :size="26"
-              class="shrink-0 text-brand-500"
+              class="shrink-0 text-orange-500"
               aria-hidden="true"
             />
 
@@ -191,7 +191,7 @@ const functions = [
           <div class="flex gap-4">
             <ShieldCheck
               :size="26"
-              class="shrink-0 text-brand-500"
+              class="shrink-0 text-orange-500"
               aria-hidden="true"
             />
 

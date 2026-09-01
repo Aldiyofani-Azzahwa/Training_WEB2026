@@ -50,7 +50,7 @@ const points = [
       >
         <div>
           <span
-            class="text-sm font-medium uppercase tracking-[0.12em] text-brand-600"
+            class="text-sm font-medium uppercase tracking-[0.12em] text-orange-600"
           >
             Pengertian
           </span>
@@ -73,7 +73,7 @@ const points = [
           </p>
 
           <div
-            class="mt-8 border-l-4 border-brand-500 pl-5"
+            class="mt-8 border-l-4 border-orange-500 pl-5"
           >
             <p
               class="text-sm leading-7 text-government-600"
@@ -92,7 +92,7 @@ const points = [
             class="flex gap-4 border-b border-government-200 py-7"
           >
             <div
-              class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-brand-500"
+              class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-orange-500"
             >
               <component
                 :is="point.icon"

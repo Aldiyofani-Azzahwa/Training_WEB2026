@@ -85,8 +85,8 @@ function toggleFaq(index: number): void {
                   :class="[
                     'flex size-9 shrink-0 items-center justify-center rounded-xl transition-all duration-300',
                     openFaqIndex === index
-                      ? 'rotate-180 bg-brand-500 text-white'
-                      : 'bg-brand-50 text-brand-500',
+                      ? 'rotate-180 bg-orange-500 text-white'
+                      : 'bg-orange-50 text-orange-500',
                   ]"
                 >
                   <ChevronDown

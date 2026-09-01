@@ -45,10 +45,10 @@ const modules =
     class="p-4 sm:p-6 lg:p-8"
   >
     <section
-      class="relative overflow-hidden rounded-3xl bg-linear-to-br from-orange-500 to-orange-600 p-6 text-white shadow-brand sm:p-8"
+      class="relative overflow-hidden rounded-3xl bg-linear-to-br from-accent-500 to-accent-600 p-6 text-white shadow-brand sm:p-8"
     >
       <div
-        class="absolute -top-20 right-0 size-72 rounded-full bg-orange-300/25 blur-3xl"
+        class="absolute -top-20 right-0 size-72 rounded-full bg-accent-300/25 blur-3xl"
       />
 
       <div
@@ -183,7 +183,7 @@ const modules =
         class="border-b border-slate-200 pb-5"
       >
         <span
-          class="text-xs font-extrabold tracking-wider text-orange-600 uppercase"
+          class="text-xs font-extrabold tracking-wider text-accent-600 uppercase"
         >
           Hak akses
         </span>
@@ -215,10 +215,10 @@ const modules =
               name:
                 module.routeName,
             }"
-            class="flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-orange-200 hover:bg-orange-50"
+            class="flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-accent-200 hover:bg-accent-50"
           >
             <span
-              class="grid size-11 shrink-0 place-items-center rounded-xl bg-orange-100 text-orange-600"
+              class="grid size-11 shrink-0 place-items-center rounded-xl bg-accent-100 text-accent-600"
             >
               <component
                 :is="

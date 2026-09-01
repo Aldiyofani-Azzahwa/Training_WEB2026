@@ -6,7 +6,7 @@ import axios from 'axios'
 
 import { useAuthStore } from '@/stores/auth'
 import { publicSite } from '@/config/publicSite'
-import berasTelurImg from '@/assets/images/beras-telur.png'
+import berasTelurImg from '@/assets/images/beras-telur.jpg'
 
 import type {
   LoginPayload,
